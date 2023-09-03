@@ -1,2 +1,6 @@
 # ez-cpp
-C++ test bench and tools
+C++ tools and experimentation playground.
+
+## Components
+
+## Build instructions

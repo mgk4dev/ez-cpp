@@ -1,6 +1,8 @@
 
 add_executable(ez_core_tests
-    main.cpp overload.cpp)
+    main.cpp 
+    lib.cpp
+)
 
 target_link_libraries(ez_core_tests 
     PRIVATE

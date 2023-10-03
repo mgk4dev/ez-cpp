@@ -10,7 +10,7 @@ struct Type {
     using Inner = T;
 
     template <typename U>
-    constexpr bool operator==(Type<U>) const
+    consteval bool operator==(Type<U>) const
     {
         return std::is_same_v<T, U>;
     }

@@ -33,5 +33,6 @@
 
 # IDEs
 .vscode/
+.cache/
 build/
 CMakeLists.txt.user

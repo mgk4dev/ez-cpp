@@ -45,7 +45,6 @@ TEST(Box, rvalue_constructor)
     }
 }
 
-
 namespace box {
 
 struct A {
@@ -55,7 +54,7 @@ struct A {
 struct B : public A {
     int foo() const { return 25; }
 };
-}
+}  // namespace box
 
 TEST(Box, derived)
 {
@@ -78,4 +77,46 @@ TEST(Box, derived)
         a = std::move(b);
         ASSERT_EQ(a->foo(), 25);
     }
+}
+
+namespace box {
+struct Message {
+    virtual ~Message() = default;
+    virtual int foo() = 0;
+};
+
+template <typename Impl>
+struct Model : public Message {
+    Impl impl;
+
+    Model(Impl impl) : impl{impl} {}
+
+    int foo() override { return impl.foo(); }
+};
+
+template <typename Impl>
+Box<Message> to_message(Impl impl)
+{
+    return Model<Impl>(std::move(impl));
+}
+
+struct Impl1 {
+    int foo() { return 1; }
+};
+
+struct Impl2 {
+    int foo() { return 2; }
+};
+
+}  // namespace box
+
+TEST(Box, polymorphism)
+{
+    using namespace box;
+    std::vector<Box<Message>> elems;
+
+    elems.push_back(to_message(Impl1{}));
+    elems.push_back(to_message(Impl2{}));
+
+    for (auto&& elem : elems) std::cout << " foo : " << elem->foo() << std::endl;
 }

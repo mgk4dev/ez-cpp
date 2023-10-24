@@ -15,6 +15,7 @@ add_executable(ez_core_tests
     tst_ScopeGuard.cpp
     tst_StrongType.cpp  
     tst_Trait.cpp
+    tst_Utils.cpp
 )
 
 target_link_libraries(ez_core_tests 

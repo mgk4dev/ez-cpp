@@ -119,14 +119,14 @@ public:
     Fail<E> wrapped_error() && { return std::move(std::get<Fail<E>>(*this)); }
 
     template <typename U>
-    T value_or(U&& val) const&
+    T operator|(U&& val) const&
     {
         if (has_value()) return value();
         return std::forward<U>(val);
     }
 
     template <typename U>
-    T value_or(U&& val) &&
+    T operator|(U&& val) &&
     {
         if (has_value()) return std::move(*this).value();
         return std::forward<U>(val);

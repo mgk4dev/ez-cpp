@@ -1,5 +1,6 @@
 #pragma once
 
+#include <concepts>
 #include <type_traits>
 
 namespace ez {
@@ -16,8 +17,10 @@ struct Noop {
     }
 };
 
-inline constexpr Noop noop{};
-inline constexpr Noop unused{};
+constexpr Noop noop{};
+constexpr Noop unused{};
+
+///////////////////////////////////////////////////////////////////////////////
 
 namespace arg {
 
@@ -48,5 +51,20 @@ template <typename T>
 using move = T&&;
 
 }  // namespace arg
+
+///////////////////////////////////////////////////////////////////////////////
+
+template <typename T, typename U>
+concept Constexpr = requires { typename T::IsCompileTime; } and std::convertible_to<T, U>;
+
+template <auto value>
+struct CompileTime {
+    using Type = decltype(value);
+    consteval operator Type() const noexcept { return value; }
+    using IsCompileTime = void;
+};
+
+template <auto value>
+constexpr CompileTime<value> ct_; // compile time
 
 }  // namespace ez

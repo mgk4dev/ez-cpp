@@ -132,12 +132,27 @@ TEST(Result, value_and_error_can_have_the_same_type)
     }
 }
 
+TEST(Result, value_or)
+{
+    // happy path
+    {
+        Result<int, std::string> result = Ok{55};
+        ASSERT_EQ(result | 5, 55);
+    }
+
+    // error path
+    {
+        Result<int, std::string> result = Fail{"error"};
+        ASSERT_EQ(result | 5, 5);
+    }
+}
+
 TEST(Result, try)
 {
     auto get_result = [](auto arg) -> Result<int, std::string> { return arg; };
 
     auto result = [&](auto arg) -> Result<int, std::string> {
-        EZ_TRY(auto, val, get_result(arg));
+        EZ_TRY(auto val, get_result(arg));
         return Ok{val * 2};
     };
 

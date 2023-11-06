@@ -1,9 +1,8 @@
 #pragma once
 
-#include <ez/Preprocessor.hpp>
+#include <ez/preprocessor.hpp>
 
 #include <utility>
-
 
 #define EZ_MIXIN_COMPOUND_OPERATOR(MixinName, op)                                 \
     template <typename Self, typename ValueType>                                  \

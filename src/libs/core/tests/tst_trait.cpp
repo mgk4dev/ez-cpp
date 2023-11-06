@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include <ez/Meta.hpp>
-#include <ez/Result.hpp>
-#include <ez/Trait.hpp>
+#include <ez/meta.hpp>
+#include <ez/result.hpp>
+#include <ez/trait.hpp>
 
 using namespace ez;
 

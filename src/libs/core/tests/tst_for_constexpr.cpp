@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include <tuple>
+#include <ez/for_constexpr.hpp>
 
-#include <ez/ForConstexpr.hpp>
+#include <tuple>
 
 using namespace ez;
 
@@ -11,6 +11,15 @@ TEST(ForConstexpr, iterate_values)
     int counter = 0;
 
     for_constexpr<0, 4>([&](auto index) { counter += index.value; });
+
+    ASSERT_EQ(counter, 6);
+}
+
+TEST(ForConstexpr, size_index)
+{
+    int counter = 0;
+
+    for_constexpr<size_t{0}, size_t{4}>([&](auto index) { counter += index.value; });
 
     ASSERT_EQ(counter, 6);
 }

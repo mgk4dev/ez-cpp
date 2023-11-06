@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <ez/ScopeGuard.hpp>
+#include <ez/scope_guard.hpp>
 
 TEST(ScopeGuard, simple_action)
 {

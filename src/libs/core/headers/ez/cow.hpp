@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ez/Trait.hpp>
-#include <ez/Utils.hpp>
+#include <ez/trait.hpp>
+#include <ez/utils.hpp>
 
 #include <memory>
 
@@ -13,12 +13,11 @@ public:
     Cow() : m_data{std::make_shared<T>()} {}
 
     template <typename... Args>
-    Cow(Inplace, Args&&... args) : m_data{std::make_shared<T>(std::forward<Args>(args)...)}
+    Cow(Inplace, Args&&... args) : m_data{std::make_shared<T>(EZ_FWD(args)...)}
     {
     }
 
-    Cow(trait::DerivedFrom<T> auto&& val)
-        : m_data{std::make_shared<std::decay_t<decltype(val)>>(std::forward<decltype(val)>(val))}
+    Cow(trait::DerivedFrom<T> auto&& val) : m_data{std::make_shared<EZ_DECAY_T(val)>(EZ_FWD(val))}
 
     {
     }
@@ -85,10 +84,9 @@ public:
         f(*m_data);
     }
 
-    template <typename U>
-    Cow& operator=(U&& new_val)
+    Cow& operator=(auto&& new_val)
     {
-        edit([&](T& val) { val = std::forward<U>(new_val); });
+        edit([&](T& val) { val = EZ_FWD(new_val); });
         return *this;
     }
 

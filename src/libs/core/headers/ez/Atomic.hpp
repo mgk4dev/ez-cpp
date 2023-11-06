@@ -1,7 +1,8 @@
 #pragma once
 
+#include <ez/utils.hpp>
+
 #include <shared_mutex>
-#include <utility>
 
 namespace ez {
 
@@ -71,7 +72,7 @@ public:
 
     template <typename... Args>
     Atomic(Args&&... args) noexcept(std::is_nothrow_constructible<T, Args...>::value)
-        : m_data(std::forward<Args>(args)...)
+        : m_data(EZ_FWD(args)...)
     {
     }
 
@@ -137,10 +138,9 @@ public:
         return f(m_data);
     }
 
-    template <typename U>
-    Atomic& operator=(U&& val)
+    Atomic& operator=(auto&& val)
     {
-        edit([&](auto& self) { self = std::forward<U>(val); });
+        edit([&](auto& self) { self = EZ_FWD(val); });
         return *this;
     }
 

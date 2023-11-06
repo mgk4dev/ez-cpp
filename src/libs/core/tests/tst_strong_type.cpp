@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
-#include <unordered_set>
 
-#include <ez/StrongType.hpp>
+#include <ez/strong_type.hpp>
+
+#include <unordered_set>
 
 using namespace ez;
 

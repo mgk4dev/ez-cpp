@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ez/Enum.hpp>
-#include <ez/ValueWrapper.hpp>
+#include <ez/enum.hpp>
+#include <ez/value_wrapper.hpp>
 
 #include <memory>
 #include <variant>
@@ -118,18 +118,16 @@ public:
     Fail<E>& wrapped_error() & { return std::get<Fail<E>>(*this); }
     Fail<E> wrapped_error() && { return std::move(std::get<Fail<E>>(*this)); }
 
-    template <typename U>
-    T operator|(U&& val) const&
+    T operator|(auto&& val) const&
     {
         if (has_value()) return value();
-        return std::forward<U>(val);
+        return EZ_FWD(val);
     }
 
-    template <typename U>
-    T operator|(U&& val) &&
+    T operator|(auto&& val) &&
     {
         if (has_value()) return std::move(*this).value();
-        return std::forward<U>(val);
+        return EZ_FWD(val);
     }
 
 private:

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <ez/Cow.hpp>
+#include <ez/cow.hpp>
 
 using namespace ez;
 

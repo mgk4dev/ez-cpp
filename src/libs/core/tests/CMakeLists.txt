@@ -4,18 +4,17 @@ find_package(Boost COMPONENTS boost REQUIRED)
 add_executable(ez_core_tests
     main.cpp 
 
-    tst_Async.cpp
-    tst_AsyncSchedule.cpp
-    tst_Atomic.cpp
-    tst_Box.cpp
-    tst_Cow.cpp
-    tst_Enum.cpp
-    tst_ForConstexpr.cpp
-    tst_Result.cpp
-    tst_ScopeGuard.cpp
-    tst_StrongType.cpp  
-    tst_Trait.cpp
-    tst_Utils.cpp
+    tst_atomic.cpp
+    tst_box.cpp
+    tst_cow.cpp
+    tst_enum.cpp
+    tst_for_constexpr.cpp
+    tst_result.cpp
+    tst_scope_guard.cpp
+    tst_strong_type.cpp
+    tst_trait.cpp
+    tst_tuple.cpp
+    tst_utils.cpp
 )
 
 target_link_libraries(ez_core_tests 

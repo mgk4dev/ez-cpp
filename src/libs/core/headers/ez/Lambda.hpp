@@ -1,6 +1,6 @@
 #pragma once
 
-#include <utility>
+#include <ez/utils.hpp>
 
 namespace ez {
 
@@ -19,10 +19,7 @@ Return(T&&) -> Return<std::decay_t<T>>;
 template <typename F>
 struct Call {
     F f;
-    constexpr decltype(auto) operator()(auto&&... arg)
-    {
-        return f(std::forward<decltype(arg)>(arg)...);
-    }
+    constexpr decltype(auto) operator()(auto&&... arg) { return f(EZ_FWD(arg)...); }
 };
 
 template <typename F>

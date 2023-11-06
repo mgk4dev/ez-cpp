@@ -1,6 +1,7 @@
 #pragma once
 
-#include <ez/Trait.hpp>
+#include <ez/trait.hpp>
+#include <ez/utils.hpp>
 
 #include <variant>
 
@@ -18,19 +19,17 @@ Overload(Visitors...) -> Overload<Visitors...>;
 
 template <typename T>
 struct CaseT {
-    template <typename F>
-    auto operator=(F&& f) const
+    auto operator=(auto&& f) const
     {
-        return [&f](trait::AnyRef<T> auto&& ref) { return f(std::forward<decltype(ref)>(ref)); };
+        return [&f](trait::AnyRef<T> auto&& ref) { return f(EZ_FWD(ref)); };
     }
 };
 
 template <>
 struct CaseT<void> {
-    template <typename F>
-    auto operator=(F&& f) const
+    auto operator=(auto&& f) const
     {
-        return [&f](auto&& ref) { return f(std::forward<decltype(ref)>(ref)); };
+        return [&f](auto&& ref) { return f(EZ_FWD(ref)); };
     }
 };
 
@@ -60,24 +59,21 @@ public:
         return std::get<T>(*this);
     }
 
-    template <typename... Visitors>
-    decltype(auto) match(Visitors&&... visitors) const&
+    decltype(auto) match(auto&&... visitors) const&
     {
-        Overload visitor{std::forward<Visitors>(visitors)...};
+        Overload visitor{EZ_FWD(visitors)...};
         return std::visit(visitor, *this);
     }
 
-    template <typename... Visitors>
-    decltype(auto) match(Visitors&&... visitors) &
+    decltype(auto) match(auto&&... visitors) &
     {
-        Overload visitor{std::forward<Visitors>(visitors)...};
+        Overload visitor{EZ_FWD(visitors)...};
         return std::visit(visitor, *this);
     }
 
-    template <typename... Visitors>
-    decltype(auto) match(Visitors&&... visitors) &&
+    decltype(auto) match(auto&&... visitors) &&
     {
-        Overload visitor{std::forward<Visitors>(visitors)...};
+        Overload visitor{EZ_FWD(visitors)...};
         return std::visit(visitor, std::move(*this));
     }
 };

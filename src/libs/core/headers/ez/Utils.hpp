@@ -3,6 +3,9 @@
 #include <concepts>
 #include <type_traits>
 
+#define EZ_FWD(arg) std::forward<decltype(arg)>(arg)
+#define EZ_DECAY_T(arg) std::decay_t<decltype(arg)>
+
 namespace ez {
 
 struct Inplace {};
@@ -19,6 +22,22 @@ struct Noop {
 
 constexpr Noop noop{};
 constexpr Noop unused{};
+
+///////////////////////////////////////////////////////////////////////////////
+
+template <typename... Ts>
+struct DebugType;
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct NonCopiable {
+    NonCopiable() = default;
+    NonCopiable(NonCopiable&&) = default;
+    NonCopiable& operator=(NonCopiable&&) = default;
+
+    NonCopiable(const NonCopiable&) = delete;
+    NonCopiable& operator=(const NonCopiable&) = delete;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -57,14 +76,16 @@ using move = T&&;
 template <typename T, typename U>
 concept Constexpr = requires { typename T::IsCompileTime; } and std::convertible_to<T, U>;
 
-template <auto value>
+template <auto value_>
 struct CompileTime {
-    using Type = decltype(value);
-    consteval operator Type() const noexcept { return value; }
+    using Type = decltype(value_);
+    consteval operator Type() const noexcept { return value_; }
+    static inline constexpr Type value = value_;
+
     using IsCompileTime = void;
 };
 
 template <auto value>
-constexpr CompileTime<value> ct_; // compile time
+constexpr CompileTime<value> constexpr_;  // compile time
 
 }  // namespace ez

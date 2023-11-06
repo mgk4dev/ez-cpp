@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <ez/Utils.hpp>
+#include <ez/utils.hpp>
 
 using namespace ez;
 
@@ -11,5 +11,5 @@ TEST(Utils, constexpr)
         return val;
     };
 
-    ASSERT_EQ(is_2(ct_<2>), 2);
+    ASSERT_EQ(is_2(constexpr_<2>), 2);
 }

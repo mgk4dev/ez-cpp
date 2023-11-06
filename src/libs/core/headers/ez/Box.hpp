@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ez/Trait.hpp>
-#include <ez/Utils.hpp>
+#include <ez/trait.hpp>
+#include <ez/utils.hpp>
 
 #include <memory>
 
@@ -12,13 +12,12 @@ class Box {
 public:
     Box() : m_data{std::make_unique<T>()} {}
 
-    template <typename... Args>
-    Box(Inplace, Args&&... args) : m_data{std::make_unique<T>(std::forward<Args>(args)...)}
+    Box(Inplace, auto&&... args) : m_data{std::make_unique<T>(EZ_FWD(args)...)}
     {
     }
 
     Box(trait::DerivedFrom<T> auto&& val)
-        : m_data{std::make_unique<std::decay_t<decltype(val)>>(std::forward<decltype(val)>(val))}
+        : m_data{std::make_unique<EZ_DECAY_T(val)>(EZ_FWD(val))}
 
     {
     }

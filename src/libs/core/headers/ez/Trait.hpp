@@ -33,6 +33,9 @@ namespace ez::trait {
 template <typename T, typename U>
 concept Is = std::same_as<T, U>;
 
+template <typename T, typename... Ts>
+concept OneOf = (std::same_as<T, Ts> || ...);
+
 template <typename T, typename U>
 concept AnyRef = std::same_as<std::decay_t<T>, U>;
 

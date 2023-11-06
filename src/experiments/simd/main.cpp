@@ -41,14 +41,17 @@ auto max_element(std::span<uint32_t> data)
     Pack max{data.front()};
 
     std::optional<std::ptrdiff_t> match;
+
     while (begin != end) {
         auto found = *begin > max;
+
         if (eve::any(found)) {
             match = eve::last_true(found);
             max_result = begin + *match;
             max = Pack{*max_result};
         }
-        ++begin;
+
+        begin += 1;
     }
 
     return data.begin() + std::distance(reinterpret_cast<Pack*>(data.data()), max_result);

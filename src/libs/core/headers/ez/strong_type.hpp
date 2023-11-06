@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ez/Mixin.hpp>
-#include <ez/ValueWrapper.hpp>
+#include <ez/mixin.hpp>
+#include <ez/value_wrapper.hpp>
 
 #include <concepts>
 #include <functional>

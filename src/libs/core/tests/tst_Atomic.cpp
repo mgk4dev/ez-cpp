@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <ez/Atomic.hpp>
+#include <ez/atomic.hpp>
 
 #include <future>
 

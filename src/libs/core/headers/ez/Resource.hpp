@@ -25,6 +25,9 @@ public:
     T& get() { return m_val; }
     const T& get() const { return m_val; }
 
+    T* operator->() { return &m_val; }
+    const T* operator->() const { return &m_val; }
+
 private:
     T m_val;
 };

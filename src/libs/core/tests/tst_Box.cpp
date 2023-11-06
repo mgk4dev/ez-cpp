@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <ez/Box.hpp>
+#include <ez/box.hpp>
 
 using namespace ez;
 

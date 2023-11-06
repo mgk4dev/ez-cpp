@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <ez/Result.hpp>
-#include <ez/Try.hpp>
+#include <ez/result.hpp>
+#include <ez/try.hpp>
 
 using namespace ez;
 

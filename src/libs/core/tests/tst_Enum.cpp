@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <ez/Enum.hpp>
-#include <ez/Lambda.hpp>
+#include <ez/enum.hpp>
+#include <ez/lambda.hpp>
 
 using namespace ez;
 

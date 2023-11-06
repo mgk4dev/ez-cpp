@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ez/async/Async.hpp>
-#include <ez/async/Executor.hpp>
+#include <ez/async/task.hpp>
+#include <ez/async/executor.hpp>
 
 namespace ez::async {
 

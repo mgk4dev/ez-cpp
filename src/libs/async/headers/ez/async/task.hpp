@@ -2,9 +2,6 @@
 
 #include <ez/async/receiver.hpp>
 #include <ez/async/types.hpp>
-#include <ez/resource.hpp>
-
-#include <coroutine>
 
 namespace ez::async {
 
@@ -64,36 +61,44 @@ struct TaskPromise : public Receiver<T> {
     TaskFinalAwaiter final_suspend() noexcept { return {}; }
 };
 
-}  // namespace ez::async
-
-namespace ez {
 template <typename T = void>
-class Task {
+class [[nodiscard]] Task {
 public:
     using Promise = async::TaskPromise<T>;
     using promise_type = Promise;
 
     Task(Coroutine<Promise> handle) noexcept : m_coroutine{handle} {}
+    Task(const Task&) = delete;
+    Task& operator=(const Task& another) = delete;
 
-    Task(Task&& another) = default;
-    Task& operator=(Task&& another) = default;
+    Task(Task&& another) { std::swap(m_coroutine, another.m_coroutine); }
+    Task& operator=(Task&& rhs)
+    {
+        std::swap(m_coroutine, rhs.m_coroutine);
+        return *this;
+    }
+
+    ~Task()
+    {
+        if (m_coroutine) { m_coroutine.destroy(); }
+    }
 
     async::StoreCallerAwaiter<T, async::AwaitReturnMode::ConstRef> operator co_await()
         const& noexcept
     {
-        return {m_coroutine.get()};
+        return {m_coroutine};
     }
 
     async::StoreCallerAwaiter<T, async::AwaitReturnMode::Move> operator co_await() && noexcept
     {
-        return {m_coroutine.get()};
+        return {m_coroutine};
     }
 
-    bool is_ready() const { return !m_coroutine.get() || m_coroutine->done(); }
-
-    void resume() { m_coroutine->resume(); }
+    bool done() const { return  m_coroutine.done(); }
+    void resume() { m_coroutine.resume(); }
+    void* address() const { return m_coroutine.address(); }
 
 private:
-    Resource<Coroutine<Promise>, CoroutineDeleter> m_coroutine;
+    Coroutine<Promise> m_coroutine = nullptr;
 };
-}  // namespace ez
+}  // namespace ez::async

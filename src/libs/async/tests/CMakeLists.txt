@@ -1,5 +1,4 @@
-
-find_package(Boost COMPONENTS boost REQUIRED)
+find_package(Boost REQUIRED)
 
 add_executable(ez_async_tests
     main.cpp 

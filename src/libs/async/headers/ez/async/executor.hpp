@@ -1,12 +1,23 @@
 #pragma once
 
-#include <ez/utils.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/post.hpp>
+#include <boost/asio/thread_pool.hpp>
 
 namespace ez::async {
 
-template <typename E>
-struct Executor {
-    static void post(E& executor, auto&& f) { executor.post(EZ_FWD(f)); }
+using IoContext = boost::asio::io_context;
+class WorkGuard {
+public:
+    explicit WorkGuard(IoContext& ioContext) : m_guard{ioContext.get_executor()} {}
+    void release() { m_guard.reset(); }
+
+private:
+    boost::asio::executor_work_guard<IoContext::executor_type> m_guard;
 };
+
+using ThreadPool = boost::asio::thread_pool;
+
+using boost::asio::post;
 
 }  // namespace ez::async

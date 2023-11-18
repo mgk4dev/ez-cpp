@@ -2,6 +2,7 @@
 
 #include <ez/async/types.hpp>
 #include <ez/trait.hpp>
+#include <ez/utils.hpp>
 
 namespace ez::trait {
 
@@ -9,7 +10,7 @@ namespace ez::trait {
 template <typename T>
 concept Awaiter = requires(T awaitable) {
     { awaitable.await_ready() } -> Is<bool>;
-    { awaitable.await_suspend(std::declval<Coroutine<>>()) } -> OneOf<Coroutine<>, void, bool>;
+    { awaitable.await_suspend(std::declval<async::Coroutine<>>()) } -> OneOf<async::Coroutine<>, void, bool>;
     { awaitable.await_resume()};
 };
 
@@ -30,7 +31,7 @@ concept Awaitable = Awaiter<T> || ImplementsCowaitOp<T> || HasGlobalCowaitOp<T>;
 
 
 template <trait::Awaitable Awaitable>
-auto get_awaiter(Awaitable&& value)
+auto get_awaiter(Awaitable&& value) -> decltype(auto)
 {
     if constexpr (trait::ImplementsCowaitOp<Awaitable>)
         return EZ_FWD(value).operator co_await();

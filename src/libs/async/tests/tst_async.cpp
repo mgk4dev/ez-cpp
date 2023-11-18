@@ -1,34 +1,17 @@
 #include <gtest/gtest.h>
 
 #include <ez/async/all.hpp>
+
 #include <ez/scope_guard.hpp>
+#include <ez/shared.hpp>
 #include <ez/utils.hpp>
 
-#include <boost/asio.hpp>
-
-namespace asio = boost::asio;
-
-namespace ez::async {
-
-template <>
-struct Executor<asio::thread_pool> {
-    static void post(asio::thread_pool& executor, auto&& f)
-    {
-        boost::asio::post(executor, EZ_FWD(f));
-    }
-};
-
-template <>
-struct Executor<asio::io_context> {
-    static void post(asio::io_context& executor, auto&& f)
-    {
-        boost::asio::post(executor, EZ_FWD(f));
-    }
-};
-
-}  // namespace ez::async
+#include <thread>
 
 using namespace ez;
+using namespace ez::async;
+
+using namespace std::chrono_literals;
 
 TEST(Async, task)
 {
@@ -53,21 +36,21 @@ TEST(Async, task)
     ASSERT_FALSE(f_started);
     ASSERT_FALSE(body_started);
     ASSERT_FALSE(value_awaited);
-    ASSERT_FALSE(co.is_ready());
+    ASSERT_FALSE(co.done());
 
     co.resume();
 
     ASSERT_TRUE(f_started);
     ASSERT_TRUE(body_started);
     ASSERT_TRUE(value_awaited);
-    ASSERT_TRUE(co.is_ready());
+    ASSERT_TRUE(co.done());
 }
 
 TEST(Async, schedule_on_thread_pool)
 {
-    asio::thread_pool thread_pool1{1};
-    asio::thread_pool thread_pool2{1};
-    asio::thread_pool thread_pool3{1};
+    ThreadPool thread_pool1{1};
+    ThreadPool thread_pool2{1};
+    ThreadPool thread_pool3{1};
 
     std::set<decltype(std::this_thread::get_id())> ids;
 
@@ -96,7 +79,7 @@ TEST(Async, schedule_on_thread_pool)
 
 TEST(Async, schedule_on_io_context)
 {
-    asio::io_context executor;
+    IoContext executor;
 
     std::set<decltype(std::this_thread::get_id())> ids;
 
@@ -106,8 +89,9 @@ TEST(Async, schedule_on_io_context)
     };
 
     auto t = task();
+    t.resume();
     executor.run();
-    ASSERT_TRUE(t.is_ready());
+    ASSERT_TRUE(t.done());
     ASSERT_EQ(ids.size(), 1);
     ASSERT_TRUE(ids.contains(std::this_thread::get_id()));
 }
@@ -125,4 +109,74 @@ TEST(Async, when_all)
 
     ASSERT_EQ(r1, 10);
     ASSERT_EQ(r2, 20);
+}
+
+TEST(Async, delay)
+{
+    IoContext context;
+    WorkGuard guard{context};
+
+    auto task = [&]() -> Task<> {
+        auto start = std::chrono::high_resolution_clock::now();
+        co_await delay(context, 100ms);
+        auto elapsed = std::chrono::high_resolution_clock::now() - start;
+
+        [&] { ASSERT_GE(elapsed, 100ms); }();
+        context.stop();
+    };
+
+    Shared t = task();
+    async::post(context, [t]() mutable { t->resume(); });
+
+    context.run();
+}
+
+TEST(Async, when_any)
+{
+    IoContext context;
+    WorkGuard guard{context};
+
+    auto task1 = [&]() -> Task<> {
+        auto id = co_await when_any(delay(context, 10ms, 1), delay(context, 100ms, 2));
+        [&] { ASSERT_EQ(id, 1); }();
+        context.stop();
+    };
+
+    auto task2 = [&]() -> Task<> {
+        auto id = co_await when_any(delay(context, 10ms, std::string{"task 1"}),
+                                    delay(context, 100ms, 2));
+
+        [&] {
+            ASSERT_TRUE(id.is<std::string>());
+            ASSERT_EQ(id.as<std::string>(), std::string{"task 1"});
+        }();
+        context.stop();
+    };
+
+    Shared t1 = task1();
+    Shared t2 = task2();
+    async::post(context, [t1, t2]() mutable {
+        t1->resume();
+        t2->resume();
+    });
+
+    context.run();
+}
+
+TEST(Async, race)
+{
+    IoContext context;
+    WorkGuard guard{context};
+
+    auto task = [&]() -> Task<> {
+        auto id = co_await race(delay(context, 10ms, 1), delay(context, 100ms, 2));
+        [&] { ASSERT_EQ(id, 1); }();
+
+        context.stop();
+    };
+
+    Shared t = task();
+    async::post(context, [t]() mutable { t->resume(); });
+
+    context.run();
 }

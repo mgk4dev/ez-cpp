@@ -3,6 +3,7 @@
 #include <ez/async/receiver.hpp>
 #include <ez/async/trait.hpp>
 #include <ez/async/types.hpp>
+#include <ez/meta.hpp>
 #include <ez/resource.hpp>
 #include <ez/tuple.hpp>
 #include <ez/utils.hpp>
@@ -11,17 +12,17 @@
 
 namespace ez::async::detail {
 
-class WhenAllLatch : NonCopiable {
+class WhenAnyLatch : NonCopiable {
 public:
-    WhenAllLatch(uint32_t count) : m_count(count + 1) {}
+    WhenAnyLatch() {}
 
-    WhenAllLatch(WhenAllLatch&& other)
+    WhenAnyLatch(WhenAnyLatch&& other)
         : m_count(other.m_count.load(std::memory_order::acquire)),
           m_awaiting(std::exchange(other.m_awaiting, nullptr))
     {
     }
 
-    WhenAllLatch& operator=(WhenAllLatch&& other)
+    WhenAnyLatch& operator=(WhenAnyLatch&& other)
     {
         if (std::addressof(other) != this) {
             m_count.store(other.m_count.load(std::memory_order::acquire),
@@ -37,34 +38,35 @@ public:
     bool try_await(Coroutine<> awaiting_coroutine) noexcept
     {
         m_awaiting = awaiting_coroutine;
-        return m_count.fetch_sub(1, std::memory_order::acq_rel) > 1;
+        return true;
     }
 
     void notify_awaitable_completed() noexcept
     {
-        if (m_count.fetch_sub(1, std::memory_order::acq_rel) == 1) { m_awaiting.resume(); }
+        auto old_count = m_count.fetch_add(1, std::memory_order::acquire);
+        if (old_count == 0) { m_awaiting.resume(); }
     }
 
 private:
-    std::atomic_uint32_t m_count;
+    std::atomic_uint32_t m_count{0};
     Coroutine<> m_awaiting;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename Container>
-class WhenAllAwaiter;
+class WhenAnyAwaiter;
 
 template <typename R>
-class WhenAllContinuationTask;
+class WhenAnyContinuationTask;
 
 ///////////////////////////////////////////////////////////////////////////////
 
 template <>
-class WhenAllAwaiter<Tuple<>> {
+class WhenAnyAwaiter<Tuple<>> {
 public:
-    constexpr WhenAllAwaiter() noexcept {}
-    constexpr WhenAllAwaiter(Tuple<>) noexcept {}
+    constexpr WhenAnyAwaiter() noexcept {}
+    constexpr WhenAnyAwaiter(Tuple<>) noexcept {}
 
     constexpr bool await_ready() const noexcept { return true; }
     void await_suspend(Coroutine<>) noexcept {}
@@ -73,12 +75,24 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template <typename... Tasks>
-class WhenAllAwaiter<Tuple<Tasks...>> {
-public:
-    WhenAllAwaiter(Tasks... tasks) : m_tasks{std::move(tasks)...}, m_latch{sizeof...(Tasks)} {}
+template <typename... Ts>
+struct WhenAnyReturn {
+    using ReturnTypes = TypeList<typename Ts::ReturnType...>;
+    using UniqueTypes = decltype(remove_duplicates(ReturnTypes{}));
+    using FrontType = typename decltype(front_type(UniqueTypes{}))::Inner;
+    using Type = std::conditional_t<UniqueTypes{}.count == 1,
+                                    FrontType,
+                                    typename UniqueTypes::template ApplyTo<Enum>>;
+};
 
-    WhenAllAwaiter(WhenAllAwaiter&& other)
+template <typename... Tasks>
+class WhenAnyAwaiter<Tuple<Tasks...>> {
+public:
+    using ReturnType = typename WhenAnyReturn<Tasks...>::Type;
+
+    WhenAnyAwaiter(Tasks... tasks) : m_tasks{std::move(tasks)...}, m_latch{} {}
+
+    WhenAnyAwaiter(WhenAnyAwaiter&& other)
         : m_tasks{std::move(other.m_tasks)}, m_latch{std::move(other.m_latch)}
     {
     }
@@ -92,12 +106,24 @@ public:
 
     auto await_resume() & noexcept
     {
-        return m_tasks.transformed([](auto&& task) { return EZ_FWD(task).get(); });
+        ReturnType result;
+
+        m_tasks.for_each([&](auto& task) {
+            if (task.done()) result = task.get();
+        });
+
+        return result;
     }
 
     auto await_resume() && noexcept
     {
-        return std::move(m_tasks).transformed([](auto&& task) { return EZ_FWD(task).get(); });
+        ReturnType result;
+
+        m_tasks.for_each([&](auto& task) {
+            if (task.done()) result = std::move(task.get());
+        });
+
+        return result;
     }
 
 private:
@@ -109,18 +135,18 @@ private:
 
 private:
     Tuple<Tasks...> m_tasks;
-    WhenAllLatch m_latch;
+    WhenAnyLatch m_latch;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename R>
-class WhenAllContinuationTask;
+class WhenAnyContinuationTask;
 
 template <typename R>
-class WhenAllContinuationPromise : public Receiver<R> {
+class WhenAnyContinuationPromise : public Receiver<R> {
 public:
-    using Self = WhenAllContinuationPromise<R>;
+    using Self = WhenAnyContinuationPromise<R>;
 
     auto get_return_object() noexcept { return make_coroutine(*this); }
 
@@ -146,34 +172,37 @@ public:
         return final_suspend();
     }
 
-    void start(WhenAllLatch& latch)
+    void start(WhenAnyLatch& latch)
     {
         m_latch = &latch;
         make_coroutine(*this).resume();
     }
 
 private:
-    WhenAllLatch* m_latch = nullptr;
+    WhenAnyLatch* m_latch = nullptr;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename R>
-class WhenAllContinuationTask {
+class WhenAnyContinuationTask {
 public:
-    using Promise = WhenAllContinuationPromise<R>;
+    using Promise = WhenAnyContinuationPromise<R>;
     using promise_type = Promise;
+    using ReturnType = R;
 
-    WhenAllContinuationTask(Coroutine<Promise> coroutine) : m_coroutine{coroutine} {}
-    WhenAllContinuationTask(WhenAllContinuationTask&& another)
+    WhenAnyContinuationTask(Coroutine<Promise> coroutine) : m_coroutine{coroutine} {}
+    WhenAnyContinuationTask(WhenAnyContinuationTask&& another)
         : m_coroutine{std::move(another.m_coroutine)}
     {
     }
 
-    auto start(WhenAllLatch& latch) noexcept -> void { m_coroutine.get().promise().start(latch); }
+    auto start(WhenAnyLatch& latch) noexcept -> void { m_coroutine.get().promise().start(latch); }
 
     decltype(auto) get() & { return m_coroutine.get().promise().get(); }
     decltype(auto) get() && { return std::move(m_coroutine.get().promise()).get(); }
+
+    bool done() const { return m_coroutine.get().done(); }
 
 private:
     Resource<Coroutine<Promise>, CoroutineDeleter> m_coroutine;
@@ -181,8 +210,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-auto make_when_all_continuation_task(trait::Awaitable auto&& awaitable)
-    -> WhenAllContinuationTask<typename trait::AwaitableTraits<decltype(awaitable)>::R>
+auto make_when_any_continuation_task(trait::Awaitable auto&& awaitable)
+    -> WhenAnyContinuationTask<typename trait::AwaitableTraits<decltype(awaitable)>::R>
 {
     using R = typename trait::AwaitableTraits<decltype(awaitable)>::R;
     if constexpr (std::is_void_v<R>) {

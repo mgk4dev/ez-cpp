@@ -3,7 +3,7 @@
 #include <coroutine>
 #include <stdexcept>
 
-namespace ez {
+namespace ez::async {
 
 template <typename P = void>
 using Coroutine = std::coroutine_handle<P>;
@@ -15,15 +15,16 @@ struct CoroutineDeleter {
     }
 };
 
-namespace async {
-
 template <typename Promise>
 auto make_coroutine(Promise& p)
 {
     return Coroutine<Promise>::from_promise(p);
 }
 
-///////////////////////////////////////////////////////////////////////////////
+inline void safe_resume(Coroutine<> coroutine)
+{
+    if (coroutine) coroutine.resume();
+}
 
 class BrokenPromise : public std::runtime_error {
 public:
@@ -35,5 +36,4 @@ public:
     ValueNotSet() : std::runtime_error{"Value not set"} {}
 };
 
-}  // namespace async
-}  // namespace ez
+}  // namespace ez::async

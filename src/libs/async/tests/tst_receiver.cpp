@@ -44,7 +44,7 @@ TEST(Receiver, empty)
 
 TEST(Receiver, non_copiable)
 {
-    using T =  Tuple<async::detail::ContinuationTask<int>, async::detail::ContinuationTask<int>>;
+    using T =  Tuple<async::detail::WhenAllContinuationTask<int>, async::detail::WhenAllContinuationTask<int>>;
 
     Receiver<T> receiver;
 

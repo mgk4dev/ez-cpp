@@ -10,11 +10,12 @@ execute_process(COMMAND
 	RESULT_VARIABLE conan_cmd_result)
 
 if(NOT conan_cmd_result EQUAL 0)
-	message(FATAL_ERROR "Conan failed")
+        message(FATAL_ERROR "Conan failed: ${conan_cmd_result}")
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-include(${CMAKE_CURRENT_BINARY_DIR}/conan_paths.cmake)
+
+include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
 
 find_package(GTest MODULE REQUIRED)
 

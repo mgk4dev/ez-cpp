@@ -1,11 +1,11 @@
 [requires]
-boost/1.82.0
+boost/1.83.0
 gtest/cci.20210126
 benchmark/1.8.3
 jfalcou-eve/v2023.02.15
 
 [generators]
-cmake_find_package
+cmake
 cmake_paths
 CMakeDeps
 CMakeToolchain

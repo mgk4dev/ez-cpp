@@ -40,6 +40,9 @@ template <typename... Ts>
 class Enum : public std::variant<Ts...> {
 public:
     using std::variant<Ts...>::variant;
+    using std::variant<Ts...>::operator=;
+
+    using EnumType = Enum;
 
     template <typename T>
     bool is() const
@@ -61,20 +64,34 @@ public:
 
     decltype(auto) match(auto&&... visitors) const&
     {
-        Overload visitor{EZ_FWD(visitors)...};
-        return std::visit(visitor, *this);
+        return apply_visitor(Overload{EZ_FWD(visitors)...});
     }
 
     decltype(auto) match(auto&&... visitors) &
     {
-        Overload visitor{EZ_FWD(visitors)...};
-        return std::visit(visitor, *this);
+        return apply_visitor(Overload{EZ_FWD(visitors)...});
     }
 
     decltype(auto) match(auto&&... visitors) &&
     {
-        Overload visitor{EZ_FWD(visitors)...};
-        return std::visit(visitor, std::move(*this));
+        return std::move(*this).apply_visitor(Overload{EZ_FWD(visitors)...});
+    }
+
+    decltype(auto) apply_visitor(auto&& visitor) const&
+    {
+        return std::visit(EZ_FWD(visitor), *this);
+    }
+    decltype(auto) apply_visitor(auto&& visitor) & { return std::visit(EZ_FWD(visitor), *this); }
+    decltype(auto) apply_visitor(auto&& visitor) &&
+    {
+        return std::visit(EZ_FWD(visitor), std::move(*this));
+    }
+
+    decltype(auto) operator>>(auto&& visitor) const& { return std::visit(EZ_FWD(visitor), *this); }
+    decltype(auto) operator>>(auto&& visitor) & { return std::visit(EZ_FWD(visitor), *this); }
+    decltype(auto) operator>>(auto&& visitor) &&
+    {
+        return std::visit(EZ_FWD(visitor), std::move(*this));
     }
 };
 

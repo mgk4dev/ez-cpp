@@ -54,7 +54,7 @@ struct A {
 struct B : public A {
     int foo() const { return 25; }
 };
-}
+}  // namespace cow
 
 TEST(Cow, derived)
 {
@@ -89,7 +89,7 @@ TEST(Cow, copy_incremets_use_count)
     ASSERT_EQ(cow.use_count(), 2);
 }
 
-TEST(Cow, detach_increments_use_count)
+TEST(Cow, detach_decrements_use_count)
 {
     Cow<std::string> cow;
     cow = "hello";
@@ -152,4 +152,14 @@ TEST(Cow, assign_cow_detaches)
 
     ASSERT_NE(vector, &(cow.value()));
     ASSERT_EQ(cow->size(), 3);
+}
+
+TEST(Cow, equality)
+{
+    Cow<int> val;
+    val = 10;
+    ASSERT_EQ(val, 10);
+
+    Cow<int> val2 = 10;
+    ASSERT_EQ(val, val2);
 }

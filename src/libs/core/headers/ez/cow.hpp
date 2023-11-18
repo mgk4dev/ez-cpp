@@ -72,6 +72,9 @@ public:
         return *this;
     }
 
+    bool operator==(const T& val) const { return value() == val; }
+    bool operator==(const Cow<T>& val) const { return value() == val.value(); }
+
     ///////////////////////////////////////////////////////////////////////////
 
     bool is_unique() const { return m_data.unique(); }

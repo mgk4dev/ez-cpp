@@ -1,6 +1,4 @@
 
-find_package(Boost COMPONENTS boost REQUIRED)
-
 add_executable(ez_core_tests
     main.cpp 
 
@@ -9,8 +7,10 @@ add_executable(ez_core_tests
     tst_cow.cpp
     tst_enum.cpp
     tst_for_constexpr.cpp
+    tst_meta.cpp
     tst_result.cpp
     tst_scope_guard.cpp
+    tst_shared.cpp
     tst_strong_type.cpp
     tst_trait.cpp
     tst_tuple.cpp
@@ -24,7 +24,6 @@ target_link_libraries(ez_core_tests
         GTest::gtest_main 
         GTest::gmock 
         GTest::gmock_main
-        Boost::boost
 )
 
 #gtest_discover_tests(ez_core_tests)

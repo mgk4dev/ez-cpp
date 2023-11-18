@@ -45,6 +45,7 @@ TEST(Traits, IsTemplate)
     using T = std::vector<int>;
     static_assert(trait::IsTemplate<T, std::vector>);
     static_assert(!trait::IsTemplate<T, std::map>);
+    static_assert(!trait::IsTemplate<int, std::map>);
 
     using TT = Result<int, std::string>;
     static_assert(trait::IsTemplate<TT, Result>);

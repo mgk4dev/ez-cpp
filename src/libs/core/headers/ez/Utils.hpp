@@ -23,6 +23,9 @@ struct Noop {
 constexpr Noop noop{};
 constexpr Noop unused{};
 
+template <typename T>
+using Ref = std::reference_wrapper<T>;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename... Ts>
@@ -38,38 +41,6 @@ struct NonCopiable {
     NonCopiable(const NonCopiable&) = delete;
     NonCopiable& operator=(const NonCopiable&) = delete;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-
-namespace arg {
-
-namespace detail {
-template <typename T>
-constexpr bool pass_by_value =
-    sizeof(T) <= 2 * sizeof(void*) && std::is_trivially_copy_constructible_v<T>;
-
-template <typename T>
-    requires std::is_class_v<T> || std::is_union_v<T> || std::is_array_v<T> || std::is_function_v<T>
-constexpr bool pass_by_value<T> = false;
-}  // namespace detail
-
-template <typename T>
-    requires(!std::is_void_v<T>)
-using in = std::conditional_t<detail::pass_by_value<T>, T, T const&>;
-
-template <typename T>
-    requires(!std::is_void_v<T>)
-using out = T&;
-
-template <typename T>
-    requires(!std::is_void_v<T>)
-using inout = T&;
-
-template <typename T>
-    requires(!std::is_void_v<T>)
-using move = T&&;
-
-}  // namespace arg
 
 ///////////////////////////////////////////////////////////////////////////////
 

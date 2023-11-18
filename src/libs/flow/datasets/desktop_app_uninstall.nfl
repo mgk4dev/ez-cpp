@@ -1,0 +1,42 @@
+
+// https://global-05-qa.dev.nexthink.cloud/workflows/manage/edit/3ccf88d4-aacd-4060-ae76-444d49c0b963/version/1/editor
+
+desktop_app_uninstall : workflow (ask_user_pemission : boolean) -> () = {
+    d_info_reply = await device_info(); 
+    if ask_user_pemission {
+        request_permission : campaign = ( id = '<id>', timeout = 5mn );
+        request_permission_response = await request_permission;
+
+        if request_permission_response.reponse in ['yes_i_need_it', 'not_right_now'] {
+            log_failure : api_call = ( method= 'POST', resource= 'api/now/table/incident',
+                payload = str_format('''{
+                    "short_description": "Incident created by NexthinkFlow", "urgency": 3, 
+                    "cmdb_ci": "{0}"
+                }''', d_info_reply.name)
+            );
+
+            await log_failure;         
+            raise 'user declined to remove the application';
+        }
+    }
+
+    uninstall_app : action = ( timeout = 5mn, id = '<id>' );
+    uninstall_app_response = await uninstall_app for 10mn;
+
+    if uninstall_app_response.outputs.status == 'Success' {
+        confirm_application_removal : campaign = (id = '<id>', timeout = 5mn );   
+        await confirm_application_removal;
+    }
+    else {
+        log_failure : api_call = ( method = 'POST', resource = 'api/now/table/incident',
+            payload = str_format('''{
+                  "short_description": "Incident created by NexthinkFlow", "urgency": 3, 
+                 "cmdb_ci": "{0}"
+            }''', d_info_reply.name)
+        );
+        await log_failure; 
+        raise 'Failed to uninstall app';
+    }
+};
+
+await  desktop_app_uninstall(ask_user_pemission = true);

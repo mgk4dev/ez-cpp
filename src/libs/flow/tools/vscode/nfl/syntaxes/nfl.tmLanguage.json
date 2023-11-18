@@ -1,0 +1,111 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "NFL Programming Language",
+	"patterns": [
+		{ "include" : "#comments"},
+		{ "include" : "#keywords" },
+		{ "include" : "#operators" },
+		{ "include" : "#builtin-types" },
+		{ "include" : "#builtin-objects" },
+		{ "include" : "#builtin-basic-types" },
+		{ "include" : "#single_quote_string" },
+		{ "include" : "#triple_quote_string" },
+		{ "include" : "#numbers" },
+		{ "include" : "#durations" },
+		{ "include" : "#litterals" }
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+			  {
+				"name": "comment.block",
+				"begin": "/\\*",
+				"end": "\\*/"
+			  },
+			  {
+				"name": "comment.line.double-slash.nfl",
+				"begin": "//",
+				"end": "$\\n?"
+			  }
+			]
+		},
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control",
+				"match": "\\b(import|module|delay|return|raise|if|elif|else|await|try|in|for)\\b"
+			}]
+		},
+		"operators": {
+			"patterns": [{
+				"name": "keyword.control",
+				"match": "\\b(and|or|not)\\b"
+			}]
+		},
+		"builtin-types": {
+			"patterns": [{
+				"name": "keyword.other",
+				"match": "\\b(workflow|workflow_reply|campaign|campaign_reply|action|action_reply|api_call|api_call_reply|device_info|device_info_reply)\\b"
+			}]
+		},
+		"builtin-objects": {
+			"patterns": [{
+				"name": "constant.numeric.float",
+				"match": "\\b(time|str_format)\\b"
+			}]
+		},
+
+		"builtin-basic-types": {
+			"patterns": [{
+				"name": "keyword.other",
+				"match": "\\b(error|boolean|integer|real|date|duration|string|dictionary|array)\\b"
+			}]
+		},
+		"single_quote_string": {
+			"name": "string.quoted.single",
+			"begin": "'",
+			"end": "'",
+			"patterns": [
+				{
+					"name": "constant.character.escape",
+					"match": "\\\\."
+				}
+			]
+		},
+		"triple_quote_string": {
+			"name": "string.quoted.double.nfl",
+			"begin": "'''",
+			"end": "'''",
+			"patterns": [
+				{
+					"name": "constant.character.escape",
+					"match": "\\\\."
+				}
+			]
+		},
+		"numbers": {
+			"patterns": [
+			  {
+				"name": "constant.numeric.float",
+				"match": "\\b[0-9][0-9_]*(\\.[0-9][0-9_]*)?([eE][+-]?[0-9_]+)?\\b"
+			  }
+			]
+		},
+		"durations": {
+			"patterns": [
+			  {
+				"name": "constant.numeric.float",
+				"match": "\\b([0-9][0-9_]*)(ms|sec|mn|day|week)\\b"
+			  }
+			]
+		},
+		"litterals": {
+			"patterns": [
+			  {
+				"name": "constant.numeric.float",
+				"match": "\\b(true|false)\\b"
+			  }
+			]
+		}
+	},
+	"scopeName": "source.nfl"
+}

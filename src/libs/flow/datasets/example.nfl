@@ -1,0 +1,15 @@
+restart : workflow (switch: integer, arg1 : string, arg2 : string) -> string = {
+    if switch == 1 {
+        return arg1;
+    }
+    elif switch == 2 {
+        return arg2;
+    }
+    raise 'Invalid index';
+}
+
+
+result : string = try await restart(5, 'arg1', 'arg2') for 1mn;
+print(result);
+
+

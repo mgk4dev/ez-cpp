@@ -1,0 +1,2 @@
+my_workflow: workflow = {} ;
+restart: action = (id = '<ra_unique_id>', timeout = 60sec );

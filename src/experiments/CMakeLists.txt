@@ -1,2 +1,3 @@
 add_subdirectory(algo)
-add_subdirectory(simd)
+add_subdirectory(flow)
+#add_subdirectory(simd)

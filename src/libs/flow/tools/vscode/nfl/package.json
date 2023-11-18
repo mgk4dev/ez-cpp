@@ -1,0 +1,25 @@
+{
+  "name": "nfl",
+  "displayName": "NFL",
+  "description": "NFL Programming Language",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.84.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "nfl",
+      "aliases": ["NFL Programming Language", "nfl"],
+      "extensions": [".nfl"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "nfl",
+      "scopeName": "source.nfl",
+      "path": "./syntaxes/nfl.tmLanguage.json"
+    }]
+  }
+}

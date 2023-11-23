@@ -56,13 +56,13 @@ EZ_FLOW_DEF(primary_expr) =
     | identifier_path
     | array
     | dictionary
-    | '(' > expression > ')'
+    | ('(' > expression > ')')
     ;
 // clang-format on
 
-EZ_FLOW_DEF(await_expression) = "await" > expression > "for" > expression;
+EZ_FLOW_DEF(await_expression) = "await" >> expression >> "for" >> expression;
 
-EZ_FLOW_DEF(try_expression) = "try" > expression;
+EZ_FLOW_DEF(try_expression) = "try" >> expression;
 
 EZ_FLOW_DEF(unary_expr) = -unary_op >> primary_expr;
 

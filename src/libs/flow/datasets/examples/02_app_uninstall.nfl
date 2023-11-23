@@ -1,0 +1,51 @@
+// https://ci-manual.dev.nexthink.cloud/workflows/manage/edit/c2c49857-3eaf-4624-bbaf-74817e560e6f/version/1/editor
+
+unistall_app : workflow = (ask_permission : boolean) {
+    if ask_permission {
+        ask_user : campaign = (/* .... */ );
+        ask_user_reply = await ask_user for 5mn;
+
+        device_info : device_info_request = ();
+        device = try await device_info for 3mn;
+
+        if ask_user_reply.value in ["yes_i_need_it", "not_right_now"] {
+            log_error : http_request = ( method =  "POST", resource = "api/now/table/incident",
+                payload = str_format(
+                    '{ "assignment_group": "ConfigMgr",
+                       "business_service": "ConfigMgr",
+                       "caller_id": "NexthinkFlow",
+                       "description": "Putty application still in use on this device, or user declined to remove the application",
+                       "impact": "1",
+                       "short_description": "Incident created by NexthinkFlow",
+                       "urgency": 3,
+                       "cmdb_ci": "{1}" 
+                    }', device.name )    
+            );
+            raise "Operation refused by the user";
+        }
+    }
+    uninstall : action = (/* .... */ );
+    uninstall_reply = try await uninstall for 5mn; 
+
+    if uninstall_reply.status != 0 { // 0 == OK
+        log_error : http_request = ( method = "POST", resource = "api/now/table/incident",
+            payload = str_format(
+               '{
+                    "assignment_group": "ConfigMgr",
+                    "business_service": "ConfigMgr",
+                    "caller_id": "NexthinkFlow",
+                    "description": "Putty application still in use on this device",
+                    "impact": "1",
+                    "short_description": "Incident created by NexthinkFlow",
+                    "urgency": 3,
+                    "cmdb_ci": "{1}"
+                }', device.name )    
+        );  
+        raise "Failed to uninstall app";  
+    } 
+
+    confirmation_campain : campaign = (/* .... */ );
+    await confirmation_campain for 0mn;
+}
+
+await unistall_app(ask_permission = true) for 20mn; 

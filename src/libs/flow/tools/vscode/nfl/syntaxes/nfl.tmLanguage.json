@@ -32,7 +32,7 @@
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control",
-				"match": "\\b(import|module|delay|return|raise|if|elif|else|await|try|in|for)\\b"
+				"match": "\\b(import|module|delay|return|raise|if|elif|else|await|try|in|is|for|repeat|break)\\b"
 			}]
 		},
 		"operators": {
@@ -44,20 +44,20 @@
 		"builtin-types": {
 			"patterns": [{
 				"name": "keyword.other",
-				"match": "\\b(workflow|workflow_reply|campaign|campaign_reply|action|action_reply|api_call|api_call_reply|device_info|device_info_reply)\\b"
+				"match": "\\b(workflow|workflow_reply|campaign|campaign_reply|action|action_reply|http_request|http_reply|device_info_request|device_info_reply)\\b"
 			}]
 		},
 		"builtin-objects": {
 			"patterns": [{
 				"name": "constant.numeric.float",
-				"match": "\\b(time|str_format)\\b"
+				"match": "\\b(panic|println|time|str_format|instance_id)\\b"
 			}]
 		},
 
 		"builtin-basic-types": {
 			"patterns": [{
 				"name": "keyword.other",
-				"match": "\\b(error|boolean|integer|real|date|duration|string|dictionary|array)\\b"
+				"match": "\\b(error|boolean|integer|real|date|duration|time_point|string|dictionary|array)\\b"
 			}]
 		},
 		"single_quote_string": {
@@ -73,8 +73,8 @@
 		},
 		"triple_quote_string": {
 			"name": "string.quoted.double.nfl",
-			"begin": "'''",
-			"end": "'''",
+			"begin": "\"",
+			"end": "\"",
 			"patterns": [
 				{
 					"name": "constant.character.escape",

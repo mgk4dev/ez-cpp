@@ -148,6 +148,15 @@ Value to_json(const ast::IfBlockFwd& item, const FullProgram& program)
     return out_object;
 }
 
+Value to_json(const ast::RepeatBlockFwd& item, const FullProgram& program)
+{
+    Object self;
+    self["repeat"] = to_json(item.get().scope, program);
+    return self;
+}
+
+Value to_json(const ast::BreakStatement&, const FullProgram&) { return "break"; }
+
 Value to_json(const ast::WorkflowScope& item, const FullProgram& program)
 {
     json::Array out_object;

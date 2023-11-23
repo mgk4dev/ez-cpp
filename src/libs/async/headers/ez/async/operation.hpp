@@ -3,6 +3,7 @@
 #include <ez/async/executor.hpp>
 #include <ez/async/trait.hpp>
 
+#include <ez/shared.hpp>
 #include <ez/utils.hpp>
 
 namespace ez::async {
@@ -22,9 +23,9 @@ public:
 
     void await_suspend(Coroutine<> coroutine)
     {
-        m_op.on_done([coroutine, this] {
+        m_op.on_done([coroutine, done = m_done] () mutable {
             safe_resume(coroutine);
-            m_done = true;
+            done = true;
         });
     }
 
@@ -32,15 +33,16 @@ public:
 
     bool cancel()
     {
-        if (m_done) return false;
+        if (m_done.value()) return false;
         m_op.cancel();
-        return m_done = true;
+        m_done = true;
+        return true;
     }
 
 private:
     Ref<IoContext> m_context;
     Op m_op;
-    bool m_done = false;
+    Shared<bool> m_done = false;
 };
 
 template <typename T>

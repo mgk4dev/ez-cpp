@@ -61,6 +61,22 @@ EZ_FLOW_TYPE_IMPL(Integer)
         return std::to_string(var.as<Integer>().value());
     };
 
+    result.assign.call = [](Entity& lhs, const Entity& rhs) -> EvalResult {
+        Integer& self = lhs.as<Integer>();
+        return rhs.match(
+            [&](const Integer& rhs) -> EvalResult {
+                self.value() = rhs.value();
+                return Ok{lhs};
+            },
+            [&](const Real& rhs) -> EvalResult {
+                self.value() = rhs.value();
+                return Ok{lhs};
+            },
+            [&](const auto& rhs) -> EvalResult {
+                return error::invalid_assignment(lhs.type().name, rhs.type().name);
+            });
+    };
+
     result.unary_op_plus.call = EZ_FLOW_UNARY_OP(Integer, unary_op_plus);
     result.unary_op_minus.call = EZ_FLOW_UNARY_OP(Integer, unary_op_minus);
 
@@ -71,6 +87,7 @@ EZ_FLOW_TYPE_IMPL(Integer)
     result.binary_op_less.call = EZ_FLOW_BINARY_OP(Integer, binary_op_less);
     result.binary_op_less_eq.call = EZ_FLOW_BINARY_OP(Integer, binary_op_less_eq);
     result.binary_op_greater_eq.call = EZ_FLOW_BINARY_OP(Integer, binary_op_greater_eq);
+    result.binary_op_greater.call = EZ_FLOW_BINARY_OP(Integer, binary_op_greater);
     result.binary_op_eq.call = EZ_FLOW_BINARY_OP(Integer, binary_op_eq);
     result.binary_op_not_eq.call = EZ_FLOW_BINARY_OP(Integer, binary_op_not_eq);
 

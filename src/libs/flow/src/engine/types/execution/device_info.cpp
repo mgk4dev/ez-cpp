@@ -1,23 +1,18 @@
 #include "types.hpp"
 
-#include "../entity_utils.hpp"
+#include "../builtin/dictionary_type.hpp"
 
 namespace ez::flow::engine {
 
-EZ_FLOW_TYPE_IMPL(DeviceInfo)
+EZ_FLOW_TYPE_IMPL(DeviceInfoRequest)
 {
-    Type result;
-    result.id = result.name = "device_info";
-    result.construct.call = [](Entity) -> EvalResult { return Ok{DeviceInfo{}}; };
-    return result;
+    return DictionaryType<DeviceInfoRequest,
+                          [] { return "device_info_request"; }>::construct_type();
 }
 
 EZ_FLOW_TYPE_IMPL(DeviceInfoReply)
 {
-    Type result;
-    result.id = result.name = "device_info_reply";
-    result.construct.call = [](Entity) -> EvalResult { return Ok{DeviceInfoReply{}}; };
-    return result;
+    return DictionaryType<DeviceInfoReply, [] { return "device_info_reply"; }>::construct_type();
 }
 
 }  // namespace ez::flow::engine

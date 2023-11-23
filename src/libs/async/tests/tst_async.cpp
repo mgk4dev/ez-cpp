@@ -118,7 +118,7 @@ TEST(Async, delay)
 
     auto task = [&]() -> Task<> {
         auto start = std::chrono::high_resolution_clock::now();
-        co_await delay(context, 100ms);
+        co_await delay(context, 100ms, 10);
         auto elapsed = std::chrono::high_resolution_clock::now() - start;
 
         [&] { ASSERT_GE(elapsed, 100ms); }();
@@ -178,5 +178,44 @@ TEST(Async, race)
     Shared t = task();
     async::post(context, [t]() mutable { t->resume(); });
 
+    context.run();
+}
+
+TEST(Async, when_any_throw)
+{
+    IoContext context;
+    WorkGuard guard{context};
+
+    auto work = [&]() -> Task<int> {
+        co_await delay(context, 100ms, 10);
+        throw std::runtime_error{""};
+        co_return 0;
+    };
+
+    auto task = [&]() -> Task<> {
+        EZ_ON_SCOPE_EXIT { context.stop(); };
+        auto w = work();
+        co_await when_any(w, delay(context, 1s, 10));
+    };
+
+    Shared t = task();
+    async::post(context, [t]() mutable { t->resume(); });
+    context.run();
+}
+
+TEST(Async, repeat_delay)
+{
+    IoContext context;
+    WorkGuard guard{context};
+
+    auto work = [&](uint count) -> Task<> {
+        while (count--) {
+            co_await delay(context, 1ms, 10);
+        }
+        context.stop();
+    };
+
+    Shared t = work(2000);
+    async::post(context, [t]() mutable { t->resume(); });
     context.run();
 }

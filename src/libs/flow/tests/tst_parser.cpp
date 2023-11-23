@@ -1,76 +1,47 @@
 #include <gtest/gtest.h>
 
-// #include "parser/debug.hpp"
+//#include "parser/debug.hpp"
 #include "parser/generic_parser.hpp"
 #include "parser/grammar/grammar.hpp"
 
 #include <ez/meta.hpp>
-#include <ez/strong_type.hpp>
 
 using namespace ez;
 using namespace ez::flow;
 
-TEST(Parser, simple_quote_string)
-{
-    auto code = R"(
-'hello'
-)";
-    auto result = flow::parse_using(grammar::single_quote_string, code);
-
-    ASSERT_TRUE(result) << result.error_message;
-
-    ASSERT_EQ(result.ast, "hello");
-}
-
-TEST(Parser, triple_quote_string)
-{
-    auto code = R"(
-'''hello'''
-)";
-    auto result = flow::parse_using(grammar::triple_quote_string, code);
-
-    ASSERT_TRUE(result) << result.error_message;
-
-    ASSERT_EQ(result.ast, "hello");
-}
-
 TEST(Parser, string)
 {
     {
-        auto code = R"(
-'hello'
-)";
+        auto code = R"('hello')";
         auto result = flow::parse_using(grammar::string, code);
-
         ASSERT_TRUE(result) << result.error_message;
-
-        ASSERT_TRUE(result.ast.is<ast::SingleQuoteString>());
-        ASSERT_EQ(result.ast.as<ast::SingleQuoteString>(), "hello");
+        ASSERT_EQ(result.ast, "hello");
     }
 
     {
-        auto code = R"(
-'''hello'''
-)";
+        auto code = R"("hello")";
         auto result = flow::parse_using(grammar::string, code);
-
         ASSERT_TRUE(result) << result.error_message;
-
-        ASSERT_TRUE(result.ast.is<ast::TripleQuoteString>());
-        ASSERT_EQ(result.ast.as<ast::TripleQuoteString>(), "hello");
+        ASSERT_EQ(result.ast, "hello");
     }
 }
 
 TEST(Parser, identifier)
 {
-    auto code = R"(
-toto_478
-)";
-    auto result = flow::parse_using(grammar::identifier, code);
+    auto test_identifier = [](std::string code) {
+        auto result = flow::parse_using(grammar::identifier, code);
+        ASSERT_TRUE(result) << result.error_message;
+        ASSERT_EQ(result.ast.raw(), code);
 
-    ASSERT_TRUE(result) << result.error_message;
+    };
 
-    ASSERT_EQ(result.ast, "toto_478");
+    test_identifier("toto");
+    test_identifier("toto_478");
+    test_identifier("insider");
+    test_identifier("formented");
+    test_identifier("repeated");
+    test_identifier("return_code");
+
 }
 
 TEST(Parser, identifier_path)
@@ -127,7 +98,6 @@ TEST(Parser, duration)
     test_duration("22sec", 22, ast::DurationUnit::Sec);
     test_duration("22day", 22, ast::DurationUnit::Day);
     test_duration("22week", 22, ast::DurationUnit::Week);
-    test_duration("22month", 22, ast::DurationUnit::Month);
 
     auto result = flow::parse_using(grammar::duration, "11 sec");
 
@@ -144,8 +114,8 @@ TEST(Parser, literal)
         ASSERT_TRUE(result.ast.template is<ExpectedType>());
     };
 
-    test_literal("'hello'", type<ast::SingleQuoteString>);
-    test_literal("'''hello'''", type<ast::TripleQuoteString>);
+    test_literal("'hello'", type<ast::String>);
+    test_literal("\"hello\"", type<ast::String>);
     test_literal("2598", type<ast::Integer>);
     test_literal("2598.548", type<ast::Real>);
 
@@ -153,7 +123,6 @@ TEST(Parser, literal)
     test_literal("22sec", type<ast::Duration>);
     test_literal("22day", type<ast::Duration>);
     test_literal("22week", type<ast::Duration>);
-    test_literal("22month", type<ast::Duration>);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -169,7 +138,7 @@ TEST(Parser, expression)
     test_expression("85.585");
     test_expression("85sec");
     test_expression("'hello'");
-    test_expression("'''hello'''");
+    test_expression("\"hello\"");
     test_expression("toto");
     test_expression("toto.titi");
 
@@ -317,7 +286,7 @@ TEST(Parser, function_call)
     }
 
     {
-        auto code = " str_format('''test''', d_info_reply) ";
+        auto code = " str_format(\"test\", d_info_reply) ";
         auto result = flow::parse_using(grammar::function_call, code);
         ASSERT_TRUE(result) << code << " " << result.error_message;
         const ast::FunctionCall& function_call = result.ast;
@@ -357,8 +326,8 @@ TEST(Parser, variable_declaration)
     }
     {
         auto code = R"(
-            log_failure : api_call = (
-                payload = str_format('''test''', d_info_reply)
+            log_failure : http_request = (
+                payload = str_format("test", d_info_reply)
             )
 )";
 
@@ -411,7 +380,7 @@ TEST(Parser, assignment)
     }
 
     {
-        auto code = "var = str_format('''test''', d_info_reply)";
+        auto code = "var = str_format(\"test\", d_info_reply)";
 
         auto result = flow::parse_using(grammar::assignment_statement, code);
 
@@ -429,7 +398,7 @@ TEST(Parser, assignment)
 TEST(Parser, workflow)
 {
     auto code = R"(
-myw : workflow (i1 : I1, i2 : I2) -> O = {
+myw : workflow = (i1 : I1, i2 : I2) -> O {
     ra : remote_action = (  a = 1, b = 2 ) ;
 }
 )";
@@ -457,6 +426,37 @@ myw : workflow (i1 : I1, i2 : I2) -> O = {
     ASSERT_EQ(signature.return_type.value(), "O");
 }
 
+TEST(Parser, workflow_no_return_type)
+{
+    auto code = R"(
+myw : workflow = (i1 : I1, i2 : I2) {
+    ra : remote_action = (  a = 1, b = 2 ) ;
+}
+)";
+
+    auto result = flow::parse_using(grammar::workflow_definition, code);
+
+    ASSERT_TRUE(result) << result.error_message;
+
+    const ast::WorkflowDefinition& workflow = result.ast;
+
+    ASSERT_EQ(workflow.name, "myw");
+
+    ASSERT_TRUE(workflow.signature);
+
+    const ast::Signature& signature = workflow.signature.value();
+
+    ASSERT_EQ(signature.inputs.size(), 2);
+
+    ASSERT_EQ(signature.inputs[0].name, "i1");
+    ASSERT_EQ(signature.inputs[0].type, "I1");
+
+    ASSERT_EQ(signature.inputs[1].name, "i2");
+    ASSERT_EQ(signature.inputs[1].type, "I2");
+
+    ASSERT_FALSE(signature.return_type);
+}
+
 TEST(Parser, workflow_no_signature)
 {
     auto code = "myw : workflow = {}";
@@ -473,7 +473,7 @@ TEST(Parser, workflow_no_signature)
 
 TEST(Parser, workflow_empty_signature)
 {
-    auto code = R"(myw : workflow () = {})";
+    auto code = R"(myw : workflow = () {})";
 
     auto result = flow::parse_using(grammar::workflow_definition, code);
 
@@ -527,14 +527,8 @@ TEST(Parser, raise)
     ASSERT_TRUE(result) << result.error_message;
 }
 
-TEST(Parser, try)
+TEST(Parser, await)
 {
-    {
-        auto code = "await act";
-        auto result = flow::parse_using(grammar::await_expression, code);
-        ASSERT_TRUE(result) << result.error_message;
-    }
-
     {
         auto code = "await act for 5sec";
         auto result = flow::parse_using(grammar::await_expression, code);
@@ -542,7 +536,7 @@ TEST(Parser, try)
     }
 
     {
-        auto code = "await  desktop_app_uninstall(ask_user_pemission = true)";
+        auto code = "await  f(arg = true) for 10sec";
         auto result = flow::parse_using(grammar::await_expression, code);
         ASSERT_TRUE(result) << result.error_message;
     }
@@ -599,6 +593,29 @@ else {return 58;}
     }
 }
 
+TEST(Parser, repeat)
+{
+    auto test_repeat = [](auto code) -> ast::RepeatBlock {
+        auto result = flow::parse_using(grammar::repeat_block, code);
+        if (!result) throw std::runtime_error{code + (" : " + result.error_message)};
+        return result.ast;
+    };
+
+    {
+        auto code = R"( repeat { } )";
+
+        ast::RepeatBlock result = test_repeat(code);
+        ASSERT_TRUE(result.scope.empty());
+    }
+
+    {
+        auto code = R"( repeat { if true { break; }} )";
+
+        ast::RepeatBlock result = test_repeat(code);
+        ASSERT_FALSE(result.scope.empty());
+    }
+}
+
 TEST(Parser, program)
 {
     auto code = R"(
@@ -623,13 +640,7 @@ var : action = (name = 'toto', age = 58day);
 
 TEST(Parser, debug)
 {
-    auto code = R"(
-restart : workflow = {
-    print('hello');
-}
-await restart;
-
-)";
+    auto code = R"(sa : workflow = (dd : action, interval : duration ) {})";
     auto result = flow::parse_using(grammar::program, code);
 
     ASSERT_TRUE(result) << result.error_message;

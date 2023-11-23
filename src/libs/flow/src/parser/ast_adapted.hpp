@@ -43,4 +43,5 @@ BOOST_FUSION_ADAPT_STRUCT(ez::flow::ast::AssignmentStatement, path, expression);
 BOOST_FUSION_ADAPT_STRUCT(ez::flow::ast::WorkflowDefinition, name, signature, statements);
 
 BOOST_FUSION_ADAPT_STRUCT(ez::flow::ast::IfBlock, if_block, elif_blocks, else_block);
+BOOST_FUSION_ADAPT_STRUCT(ez::flow::ast::RepeatBlock, scope);
 BOOST_FUSION_ADAPT_STRUCT(ez::flow::ast::ConditionBlock, condition, statements);

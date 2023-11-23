@@ -1,0 +1,28 @@
+// https://ci-manual.dev.nexthink.cloud/workflows/manage/edit/c2c49857-3eaf-4624-bbaf-74817e560e6f/version/1/editor
+
+unistall_app : workflow = (ask_permission : boolean) {
+    if ask_permission {
+        ask_user : campaign = (question = "Uninstall app ?", options = ["Yes", "No", "Later"]);
+        ask_user_reply : campaign_reply = await ask_user for 5mn;
+
+        if ask_user_reply.reponse.index != 1 { // No or Later            
+            println("Operation refused by the user");
+            raise "Operation refused by the user";  
+        }
+    }
+
+    uninstall : action = (command = "./scripts/append_to_log.sh", args = "uninstall_your_favourite_app" );
+    uninstall_reply : action_reply = try await uninstall for 5mn; 
+
+    if uninstall_reply.return_code != 0 { // 0 == OK
+        println("Failed to uninstall app");
+        raise "Failed to uninstall app";  
+    } 
+
+    confirmation_campain : campaign = (question = "The app was uninstalled !!!", options = []);
+    await confirmation_campain for 0ms;
+}
+
+try await unistall_app(ask_permission = true) for 20mn; 
+
+println("Workflow executed !!!");

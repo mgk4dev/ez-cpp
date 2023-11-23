@@ -93,9 +93,24 @@ inline std::ostream& operator<<(std::ostream& stream, const IfBlock&)
     return stream << "IfBlock ";
 }
 
+inline std::ostream& operator<<(std::ostream& stream, const BreakStatement&)
+{
+    return stream << "BreakStatement ";
+}
+
+inline std::ostream& operator<<(std::ostream& stream, const RepeatBlock&)
+{
+    return stream << "RepeatBlock ";
+}
+
 inline std::ostream& operator<<(std::ostream& stream, const AwaitExpression&)
 {
     return stream << "AwaitExpression ";
+}
+
+inline std::ostream& operator<<(std::ostream& stream, const TryExpression&)
+{
+    return stream << "TryExpression ";
 }
 
 }  // namespace ez::flow::ast

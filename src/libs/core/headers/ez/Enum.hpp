@@ -44,6 +44,8 @@ public:
 
     using EnumType = Enum;
 
+    static constexpr unsigned int count() { return sizeof...(Ts); }
+
     template <typename T>
     bool is() const
     {

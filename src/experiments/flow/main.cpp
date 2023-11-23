@@ -1,8 +1,11 @@
 
+#include <ez/async/schedule_on.hpp>
 #include <ez/flow/exporter.hpp>
 #include <ez/flow/flow.hpp>
 
 #include <ez/result.hpp>
+
+#include "extensions.hpp"
 
 #include <boost/program_options.hpp>
 
@@ -17,6 +20,7 @@ struct Arguments {
     std::filesystem::path program_path;
     bool export_ = false;
     bool eval = false;
+    uint instance_count = 1;
 };
 
 Result<Arguments, std::string> parse_arguments(int argc, char** argv)
@@ -34,6 +38,7 @@ Result<Arguments, std::string> parse_arguments(int argc, char** argv)
         const char* help = "help,h";
         const char* export_ = "export";
         const char* eval = "eval";
+        const char* instance_count = "instance-count";
 
     } option_name;
 
@@ -47,6 +52,7 @@ Result<Arguments, std::string> parse_arguments(int argc, char** argv)
             (option_name.input_file, po::value<std::string>(), "Input file")
             (option_name.export_, "Export to program to JSON")
             (option_name.eval, "Evaluate the program")
+            (option_name.instance_count, po::value<uint>(), "Instance count")
 
         ;
         // clang-format on
@@ -76,6 +82,10 @@ Result<Arguments, std::string> parse_arguments(int argc, char** argv)
     result.eval = arguments.count(option_name.eval);
     result.export_ = arguments.count(option_name.export_);
 
+    if (arguments.count(option_name.instance_count)) {
+        result.instance_count = arguments[option_name.instance_count].as<uint>();
+    }
+
     return Ok{std::move(result)};
 }
 
@@ -104,6 +114,7 @@ int main(int argc, char** argv)
                 case LogLevel::Error: return "[ERROR  ] ";
                 case LogLevel::Trace: return "[TRACE  ] ";
             }
+            std::unreachable();
         }() << msg << "\n";
     };
 
@@ -135,11 +146,20 @@ int main(int argc, char** argv)
         exporter.run(program_result);
     }
 
-    if (arguments.eval) {
-        flow::Engine engine;
-        engine.set_logger(logger);
-        engine.eval(file_contents.value(), arguments.program_path.string());
-    }
+    if (!arguments.eval) return 0;
+
+    async::IoContext io_context;
+    async::WorkGuard guard{io_context};
+    async::ThreadPool thread_pool{1};
+    flow::Engine engine{io_context};
+
+    engine.set_logger(logger);
+    flow::ext::setup_engine(engine, io_context, thread_pool);
+
+    for (uint i = 0; i < arguments.instance_count; ++i)
+        engine.eval(file_contents.value(), arguments.program_path.string(), i);
+
+    io_context.run();
 
     return 0;
 }

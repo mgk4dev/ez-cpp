@@ -4,6 +4,8 @@
 
 #include <ez/enum.hpp>
 
+#include <cstdint>
+
 namespace ez::flow::engine {
 
 struct Reference;
@@ -19,7 +21,7 @@ struct Entity : public EntityTypeList::ApplyTo<Enum> {
 };
 
 struct CallArgument {
-    uint index = 0;
+    std::uint32_t index = 0;
     Option<std::string> name;
     Entity value;
 };

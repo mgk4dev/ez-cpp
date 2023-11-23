@@ -15,15 +15,21 @@ struct Statement {
     std::string_view get_code() const { return program().get_code(ast()); }
 
     template <typename U>
-    Statement<U> make_statement(const U& ast)
+    Statement<U> make_statement(const U& ast) const
     {
         return {program_ptr, &ast};
     }
 
     template <typename U>
-    Statement<U> operator>>(const U& ast)
+    Statement<U> operator>>(const U& ast) const
     {
         return {program_ptr, &ast};
+    }
+
+    template <typename U>
+    Statement<U> as() const
+    {
+        return *this >> ast().template as<U>();
     }
 };
 

@@ -17,39 +17,39 @@ public:
     WhenAnyLatch() {}
 
     WhenAnyLatch(WhenAnyLatch&& other)
-        : m_count(other.m_count.load(std::memory_order::acquire)),
-          m_awaiting(std::exchange(other.m_awaiting, nullptr))
+        : m_finished_count(other.m_finished_count.load(std::memory_order::acquire))
     {
+        std::swap(m_continuation, other.m_continuation);
     }
 
     WhenAnyLatch& operator=(WhenAnyLatch&& other)
     {
         if (std::addressof(other) != this) {
-            m_count.store(other.m_count.load(std::memory_order::acquire),
-                          std::memory_order::relaxed);
-            m_awaiting = std::exchange(other.m_awaiting, nullptr);
+            m_finished_count.store(other.m_finished_count.load(std::memory_order::acquire),
+                                   std::memory_order::relaxed);
+            std::swap(m_continuation, other.m_continuation);
         }
 
         return *this;
     }
 
-    bool is_ready() const noexcept { return m_awaiting && m_awaiting.done(); }
+    bool is_ready() const noexcept { return m_finished_count.load() > 0; }
 
-    bool try_await(Coroutine<> awaiting_coroutine) noexcept
+    void set_continuation(Coroutine<> awaiting_coroutine) noexcept
     {
-        m_awaiting = awaiting_coroutine;
-        return true;
+        m_continuation = awaiting_coroutine;
     }
 
     void notify_awaitable_completed() noexcept
     {
-        auto old_count = m_count.fetch_add(1, std::memory_order::acquire);
-        if (old_count == 0) { m_awaiting.resume(); }
+        auto old_count = m_finished_count.fetch_add(1, std::memory_order::acquire);
+
+        if (old_count == 0) { m_continuation.resume(); }
     }
 
 private:
-    std::atomic_uint32_t m_count{0};
-    Coroutine<> m_awaiting;
+    std::atomic_uint32_t m_finished_count{0};
+    Coroutine<> m_continuation;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -101,36 +101,51 @@ public:
 
     bool await_suspend(Coroutine<> awaiting_coroutine) noexcept
     {
-        return try_await(awaiting_coroutine);
+        return start_tasks(awaiting_coroutine);
     }
 
-    auto await_resume() & noexcept
+    auto await_resume() &
     {
-        ReturnType result;
+        if constexpr (std::is_same_v<ReturnType, void>) {
+            m_tasks.for_each([&](auto& task) {
+                if (task.done()) task.get();
+            });
+        }
+        else {
+            ReturnType result;
 
-        m_tasks.for_each([&](auto& task) {
-            if (task.done()) result = task.get();
-        });
+            m_tasks.for_each([&](auto& task) {
+                if (task.done()) result = task.get();
+            });
 
-        return result;
+            return result;
+        }
     }
 
-    auto await_resume() && noexcept
+    auto await_resume() &&
     {
-        ReturnType result;
+        if constexpr (std::is_same_v<ReturnType, void>) {
+            m_tasks.for_each([&](auto& task) {
+                if (task.done()) task.get();
+            });
+        }
+        else {
+            ReturnType result;
 
-        m_tasks.for_each([&](auto& task) {
-            if (task.done()) result = std::move(task.get());
-        });
+            m_tasks.for_each([&](auto& task) {
+                if (task.done()) result = std::move(task.get());
+            });
 
-        return result;
+            return result;
+        }
     }
 
 private:
-    bool try_await(Coroutine<> awaiting_coroutine)
+    bool start_tasks(Coroutine<> awaiting_coroutine)
     {
+        m_latch.set_continuation(awaiting_coroutine);
         m_tasks.for_each([&](auto& task) { task.start(m_latch); });
-        return m_latch.try_await(awaiting_coroutine);
+        return !m_latch.is_ready();
     }
 
 private:
@@ -203,6 +218,8 @@ public:
     decltype(auto) get() && { return std::move(m_coroutine.get().promise()).get(); }
 
     bool done() const { return m_coroutine.get().done(); }
+
+    void* address() const { return m_coroutine.get().address(); }
 
 private:
     Resource<Coroutine<Promise>, CoroutineDeleter> m_coroutine;

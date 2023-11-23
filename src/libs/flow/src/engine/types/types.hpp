@@ -21,6 +21,7 @@ using EntityTypeList = TypeList <
     Real,
     String,
     Duration,
+    TimePoint,
 
     Array,
     Dictionary,
@@ -34,9 +35,9 @@ using EntityTypeList = TypeList <
     ActionReply,
     Campaign,
     CampaignReply,
-    ApiCall,
-    ApiCallReply,
-    DeviceInfo,
+    HttpRequest,
+    HttpReply,
+    DeviceInfoRequest,
     DeviceInfoReply
     > ;
 // clang-format on

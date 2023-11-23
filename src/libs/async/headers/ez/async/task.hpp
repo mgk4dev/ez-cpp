@@ -80,7 +80,9 @@ public:
 
     ~Task()
     {
-        if (m_coroutine) { m_coroutine.destroy(); }
+        if (m_coroutine) {
+            m_coroutine.destroy();
+        }
     }
 
     async::StoreCallerAwaiter<T, async::AwaitReturnMode::ConstRef> operator co_await()

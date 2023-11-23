@@ -22,7 +22,7 @@ struct WorkflowDefinition : Value<> {
 struct WorkflowInvocation : Value<> {
     EZ_FLOW_TYPE(EntityCategory::WorkflowInvocation)
     WorkflowDefinition definition;
-    Statement<ast::FunctionCall> instanciation;
+    Enum<Statement<ast::FunctionCall>, Statement<ast::Expression>> instanciation;
     Cow<CallArguments> arguments;
 };
 

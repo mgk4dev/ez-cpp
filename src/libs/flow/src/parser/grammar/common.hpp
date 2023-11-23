@@ -40,7 +40,7 @@ const auto space = x3::space;
 const auto single_line_comment = "//" >> *(x3::char_ - x3::eol) >> (x3::eol | x3::eoi);
 
 EZ_FLOW_RULE0(block_comment);
-EZ_FLOW_DEF(block_comment) = "/*" >> *(block_comment | x3::char_ - "*/") >> "*/";
+EZ_FLOW_DEF(block_comment) = "/*" >> *(block_comment | (x3::char_ - "*/")) >> "*/";
 BOOST_SPIRIT_DEFINE(block_comment)
 
 const auto comment = single_line_comment | block_comment;

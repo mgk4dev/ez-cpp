@@ -1,0 +1,58 @@
+// This is a comment
+b   : boolean    = true;
+i   : integer    = 5285;
+r   : real       = 55.7;
+s   : string     = "hello";
+d   : duration   = 7day;
+a   : array      = [1, 55.5, "hello", 10sec];
+dict: dictionary = (k1 = 1, k2 = 55.5, k3 = "hello", k4 = 10sec);
+
+println ('My values are: {1}, {2}, {3}, {4}, {5}, {6}, {7}', b, i, r, s, d, a , dict);
+
+my_action : action = (
+    id = "<uuid>", 
+    inputs = (
+        input1 = 33,
+        input2 = "toto",
+        input3 = ["val1", "val2", "val3"]
+    )
+);
+
+my_campaign : campaign = (/* .... */ );
+
+dev_info_req : device_info_request = (); 
+
+request : http_request  = (
+    method =  "POST",
+    resource = "host.com",
+    payload = str_format(
+        ""
+    )    
+);
+
+//////
+
+my_action_reply : action_reply = await my_action for 10mn;
+
+my_campaign_reply : campaign_reply = await my_campaign for 10mn;
+
+/////
+
+if my_action_reply is error {
+    println ("Action failed: {1}", my_action_reply);
+}
+elif 33 = 32 {
+    println ("This shouldn't happen");
+}
+else {
+    println ("Finally !!!");
+}
+
+i = 0;
+repeat {
+    i = i + 1;
+    if i > 10 { break; }
+}
+
+
+

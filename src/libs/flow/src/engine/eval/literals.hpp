@@ -1,17 +1,10 @@
 #pragma once
 
-#include "eval.hpp"
+#include "interpreter.hpp"
 
 namespace ez::flow::engine {
 
-Entity to_value(const ast::SingleQuoteString& statement)
-{
-    String result;
-    result = statement;
-    return result;
-}
-
-Entity to_value(const ast::TripleQuoteString& statement)
+Entity to_value(const ast::String& statement)
 {
     String result;
     result = statement;

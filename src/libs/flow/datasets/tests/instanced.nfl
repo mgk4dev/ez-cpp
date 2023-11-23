@@ -1,0 +1,14 @@
+
+schedule_action : workflow = (d : duration ) {
+    i : integer = 0;
+    repeat {
+        i = i + 1;
+        if i == 10 {
+            println('Executed 10 iteration');
+            i = 0;
+        } 
+        delay d;
+    }
+}
+
+await schedule_action(50ms) for 10mn;

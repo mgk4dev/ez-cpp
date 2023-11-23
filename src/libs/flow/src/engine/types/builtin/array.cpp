@@ -10,7 +10,7 @@ std::string representation(const Entity& var)
 {
     std::string result = "[";
 
-    uint index = 0;
+    unsigned int index = 0;
 
     for (const Entity& val : var.as<Array>().value()) {
         result += entity::representation(val);

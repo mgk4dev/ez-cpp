@@ -36,7 +36,7 @@ auto parse_using(const x3::rule<Tag, T>& input_rule,
 
     struct HandlerData {
         std::string_view code;
-        uint end_position = 0;
+        std::size_t end_position = 0;
         void on_statement_parsed(const ast::Located& location)
         {
             end_position = std::max(end_position, location.end_position);

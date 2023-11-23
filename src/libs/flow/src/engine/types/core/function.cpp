@@ -14,7 +14,7 @@ EvalResult Constructor::operator()(Entity dict) const { return call(std::move(di
 Assignment::Assignment()
 {
     call = [](Entity& lhs, const Entity& rhs) -> EvalResult {
-        if (!same_type(lhs.type(), rhs.type())) {
+        if (!same_type(lhs.type(), rhs.type()) && !same_type(rhs.type(), Error::static_type())) {
             return error::invalid_assignment(lhs.type().name, rhs.type().name);
         }
         lhs = rhs;

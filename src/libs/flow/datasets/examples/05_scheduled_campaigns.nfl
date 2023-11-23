@@ -1,0 +1,9 @@
+
+schedule_campaign : workflow = (c : campaign, d : duration ) {
+    repeat {
+        await c for 10mn;
+        delay d;
+    }
+}
+my_campaign : campaign = (question = "Do you like campaigns ?", options = ["Yes", "No", "May be"]);
+await schedule_campaign(my_campaign, 3sec) for 10mn;

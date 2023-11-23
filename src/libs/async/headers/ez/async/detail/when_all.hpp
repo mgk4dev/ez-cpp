@@ -15,10 +15,9 @@ class WhenAllLatch : NonCopiable {
 public:
     WhenAllLatch(uint32_t count) : m_count(count + 1) {}
 
-    WhenAllLatch(WhenAllLatch&& other)
-        : m_count(other.m_count.load(std::memory_order::acquire)),
-          m_awaiting(std::exchange(other.m_awaiting, nullptr))
+    WhenAllLatch(WhenAllLatch&& other) : m_count(other.m_count.load(std::memory_order::acquire))
     {
+        std::swap(m_continuation, other.m_continuation);
     }
 
     WhenAllLatch& operator=(WhenAllLatch&& other)
@@ -26,28 +25,28 @@ public:
         if (std::addressof(other) != this) {
             m_count.store(other.m_count.load(std::memory_order::acquire),
                           std::memory_order::relaxed);
-            m_awaiting = std::exchange(other.m_awaiting, nullptr);
+            std::swap(m_continuation, other.m_continuation);
         }
 
         return *this;
     }
 
-    bool is_ready() const noexcept { return m_awaiting && m_awaiting.done(); }
+    bool is_ready() const noexcept { return m_continuation && m_continuation.done(); }
 
-    bool try_await(Coroutine<> awaiting_coroutine) noexcept
+    void set_continuation(Coroutine<> awaiting_coroutine) noexcept
     {
-        m_awaiting = awaiting_coroutine;
-        return m_count.fetch_sub(1, std::memory_order::acq_rel) > 1;
+        m_continuation = awaiting_coroutine;
+        m_count.fetch_sub(1, std::memory_order::acq_rel) ;
     }
 
     void notify_awaitable_completed() noexcept
     {
-        if (m_count.fetch_sub(1, std::memory_order::acq_rel) == 1) { m_awaiting.resume(); }
+        if (m_count.fetch_sub(1, std::memory_order::acq_rel) == 1) { m_continuation.resume(); }
     }
 
 private:
     std::atomic_uint32_t m_count;
-    Coroutine<> m_awaiting;
+    Coroutine<> m_continuation;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -87,7 +86,7 @@ public:
 
     bool await_suspend(Coroutine<> awaiting_coroutine) noexcept
     {
-        return try_await(awaiting_coroutine);
+        return start_tasks(awaiting_coroutine);
     }
 
     auto await_resume() & noexcept
@@ -101,10 +100,13 @@ public:
     }
 
 private:
-    bool try_await(Coroutine<> awaiting_coroutine)
+    bool start_tasks(Coroutine<> awaiting_coroutine)
     {
+        m_latch.set_continuation(awaiting_coroutine);
+
         m_tasks.for_each([&](auto& task) { task.start(m_latch); });
-        return m_latch.try_await(awaiting_coroutine);
+        m_latch.set_continuation(awaiting_coroutine);
+        return !m_latch.is_ready();
     }
 
 private:

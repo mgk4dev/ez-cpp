@@ -1,23 +1,17 @@
 #include "types.hpp"
 
-#include "../entity_utils.hpp"
+#include "../builtin/dictionary_type.hpp"
 
 namespace ez::flow::engine {
 
 EZ_FLOW_TYPE_IMPL(Action)
 {
-    Type result;
-    result.id = result.name = "action";
-    result.construct.call = [](Entity) -> EvalResult { return Ok{Action{}}; };
-    return result;
+    return DictionaryType<Action, [] { return "action"; }>::construct_type();
 }
 
 EZ_FLOW_TYPE_IMPL(ActionReply)
 {
-    Type result;
-    result.id = result.name = "action_reply";
-    result.construct.call = [](Entity) -> EvalResult { return Ok{ActionReply{}}; };
-    return result;
+    return DictionaryType<ActionReply, [] { return "action_reply"; }>::construct_type();
 }
 
 }  // namespace ez::flow::engine

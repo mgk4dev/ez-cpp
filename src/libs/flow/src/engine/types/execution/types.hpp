@@ -1,39 +1,49 @@
 #pragma once
 
+#include "../builtin/types.hpp"
 #include "../core/value_interface.hpp"
 
 namespace ez::flow::engine {
 
-struct Action : Value<> {
+struct Action : Dictionary {
     EZ_FLOW_TYPE(EntityCategory::Object)
+    using Dictionary::operator=;
 };
 
-struct ActionReply : Value<> {
+struct ActionReply : Dictionary {
     EZ_FLOW_TYPE(EntityCategory::Object)
+    using Dictionary::operator=;
 };
 
-struct ApiCall : Value<> {
+struct HttpRequest : Dictionary {
     EZ_FLOW_TYPE(EntityCategory::Object)
+    using Dictionary::operator=;
 };
 
-struct ApiCallReply : Value<> {
+struct HttpReply : Dictionary {
     EZ_FLOW_TYPE(EntityCategory::Object)
+    using Dictionary::operator=;
 };
 
-struct Campaign : Value<> {
+struct Campaign : Dictionary {
     EZ_FLOW_TYPE(EntityCategory::Object)
+    using Dictionary::Dictionary;
+    using Dictionary::operator=;
 };
 
-struct CampaignReply : Value<> {
+struct CampaignReply : Dictionary {
     EZ_FLOW_TYPE(EntityCategory::Object)
+    using Dictionary::operator=;
 };
 
-struct DeviceInfo : Value<> {
+struct DeviceInfoRequest : Dictionary {
     EZ_FLOW_TYPE(EntityCategory::Object)
+    using Dictionary::operator=;
 };
 
-struct DeviceInfoReply : Value<> {
+struct DeviceInfoReply : Dictionary {
     EZ_FLOW_TYPE(EntityCategory::Object)
+    using Dictionary::operator=;
 };
 
 }  // namespace ez::flow::engine

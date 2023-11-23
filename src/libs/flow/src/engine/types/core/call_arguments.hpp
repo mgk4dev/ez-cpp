@@ -26,8 +26,4 @@ struct CallArguments : public std::vector<CallArgument> {
     Dictionary to_dictionary() const;
 };
 
-struct CallableRequirements {
-    uint arg_count;
-};
-
 }  // namespace ez::flow::engine

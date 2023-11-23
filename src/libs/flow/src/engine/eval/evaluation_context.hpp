@@ -16,20 +16,22 @@ struct VariableEntry {
     Entity value;
 };
 
-enum class PushScopeMode { Inherit, New };
+enum class ScopeType { Function, Loop, Local };
 
 enum class FlowControlPolicy {
-    NoExit,
-    ExitCallScope,
-    ExitCurrentScope,
+    Stay,
+    Return,
+    Break,
 };
 
 struct Scope {
     Shared<Option<Entity>> return_value;
-    FlowControlPolicy flow_control_policy = FlowControlPolicy::NoExit;
+    ScopeType type = ScopeType::Local;
+    FlowControlPolicy flow_control_policy = FlowControlPolicy::Stay;
     std::deque<VariableEntry> entries;
     std::deque<Type> types;
-    PushScopeMode mode = PushScopeMode::Inherit;
+
+    Scope(Shared<Option<Entity>> rv, ScopeType t) : return_value{std::move(rv)}, type{t} {}
 
     void add(Type value);
     void add(FreeFunction value);
@@ -43,8 +45,12 @@ class EvaluationScope {
 public:
     EvaluationScope();
 
-    Scope& push(PushScopeMode);
+    void return_value(Entity);
+    void break_loop();
+
+    Scope& push(ScopeType);
     Scope& current();
+    std::size_t scope_count() const;
 
     void pop();
 
@@ -53,11 +59,6 @@ public:
 
 private:
     std::deque<Scope> m_scopes;
-};
-
-struct EvaluationContext {
-    EvaluationScope scope;
-    Logger logger;
 };
 
 }  // namespace ez::flow::engine

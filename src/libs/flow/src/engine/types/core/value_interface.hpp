@@ -27,7 +27,7 @@ enum class EntityCategory {
 
 struct ValueInterface {
     virtual EntityCategory category() const = 0;
-    const Type& type() const;
+    virtual const Type& type() const;
 };
 
 template <typename Storage = Unit>
@@ -37,8 +37,6 @@ struct Value : public Shared<Storage>, public ValueInterface {
     using Shared<Storage>::Shared;
     using Shared<Storage>::operator=;
 };
-
-
 
 #define EZ_FLOW_TYPE(category_)              \
     EntityCategory category() const override \
@@ -50,7 +48,7 @@ struct Value : public Shared<Storage>, public ValueInterface {
 #define EZ_FLOW_TYPE_DECL             \
     static Type construct_type();     \
     static const Type& static_type(); \
-    const Type& type() const;
+    const Type& type() const override;
 
 #define EZ_FLOW_TYPE_IMPL(T)                    \
     const Type& T::type() const                 \

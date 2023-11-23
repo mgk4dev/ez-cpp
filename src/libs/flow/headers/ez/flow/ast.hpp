@@ -9,11 +9,13 @@
 #include <string>
 #include <vector>
 
+#include <cstdint>
+
 namespace ez::flow::ast {
 
 struct Located {
-    uint start_position = 0;
-    uint end_position = 0;
+    std::size_t start_position = 0;
+    std::size_t end_position = 0;
 };
 
 template <typename T>
@@ -23,6 +25,8 @@ template <typename T, typename Tag>
 struct Element : public T, Located {
     using T::T;
     using T::operator=;
+
+    const T& raw() const { return *this; }
 };
 
 template <typename T, typename Tag>
@@ -38,20 +42,11 @@ struct PodElement : Located {
 
 using Identifier = Element<std::string, struct IdentifierTag>;
 using IdentifierPath = Vector<Identifier, struct IdentifierPathTag>;
-
-//////
-
-using SingleQuoteString = Element<std::string, struct SingleQuoteStringTag>;
-using TripleQuoteString = Element<std::string, struct TripleQuoteStringTag>;
-
-using String = Enum<SingleQuoteString, TripleQuoteString>;
-
-//////
-
+using String = Element<std::string, struct StringTag>;
 using Integer = PodElement<std::int64_t, struct IntegerTag>;
 using Real = PodElement<double, struct RealTag>;
 
-enum class DurationUnit { Ms, Sec, Min, Day, Week, Month };
+enum class DurationUnit { Ms, Sec, Min, Day, Week };
 
 struct Duration : Located {
     std::uint64_t count;
@@ -59,11 +54,10 @@ struct Duration : Located {
 };
 // clang-format off
 using Literal = Enum <
-    SingleQuoteString,
-    TripleQuoteString,
     bool,
     Integer,
     Real,
+    String,
     Duration
 >;
 // clang-format on
@@ -135,7 +129,7 @@ enum class UnaryOperator { Plus, Minus, Not };
 enum class MultiplicativeOperator { Mult, Div };
 enum class AdditiveOperator { Plus, Minus };
 enum class RelationalOperator { Less, LessEq, Greater, GreaterEq };
-enum class EqualityOperator { Eq, NotEq, In };
+enum class EqualityOperator { Eq, NotEq, In, Is };
 enum class LogicalOperator { And, Or };
 
 /////////////////////////////////////////////////////
@@ -223,12 +217,17 @@ struct ReturnStatement : Located {
     Expression expression;
 };
 
+struct BreakStatement : Located {};
+
 struct RaiseStatement : Located {
     Expression expression;
 };
 
 struct IfBlock;
 using IfBlockFwd = Forward<IfBlock>;
+
+struct RepeatBlock;
+using RepeatBlockFwd = Forward<RepeatBlock>;
 
 struct WorkflowDefinition;
 using WorkflowDefinitionFwd = Forward<WorkflowDefinition>;
@@ -243,8 +242,10 @@ using WorkflowStatement = Enum <
     DelayStatement,
     ReturnStatement,
     RaiseStatement,
+    BreakStatement,
     Expression,
     IfBlockFwd,
+    RepeatBlockFwd,
     WorkflowDefinitionFwd
 >;
 // clang-format on
@@ -262,6 +263,10 @@ struct IfBlock : Located {
     WorkflowScope else_block;
 };
 
+struct RepeatBlock : Located {
+    WorkflowScope scope;
+};
+
 struct WorkflowDefinition : Located {
     Identifier name;
     Option<Signature> signature;
@@ -269,5 +274,29 @@ struct WorkflowDefinition : Located {
 };
 
 using Program = Vector<WorkflowStatement, struct ProgramTag>;
+
+template <typename T>
+auto unwrap(T&& val) -> decltype(auto)
+{
+    return EZ_FWD(val);
+}
+
+template <typename T>
+T& unwrap(Forward<T>& val)
+{
+    return val.get();
+}
+
+template <typename T>
+const T& unwrap(const Forward<T>& val)
+{
+    return val.get();
+}
+
+template <typename T>
+T&& unwrap(Forward<T>&& val)
+{
+    return std::move(val.get());
+}
 
 }  // namespace ez::flow::ast

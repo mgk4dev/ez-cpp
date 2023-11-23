@@ -1,15 +1,11 @@
-restart : workflow (switch: integer, arg1 : string, arg2 : string) -> string = {
-    if switch == 1 {
-        return arg1;
+
+schedule : workflow (act : action, d : duration ) = {
+    repeat {
+        println('Executing action {1}', act);
+        await act for 10mn;
+        delay d;
     }
-    elif switch == 2 {
-        return arg2;
-    }
-    raise 'Invalid index';
 }
+act : action = (command = "./scripts/append_to_log.sh", args = "hello");
 
-
-result : string = try await restart(5, 'arg1', 'arg2') for 1mn;
-print(result);
-
-
+await schedule(act, 5sec) for 10mn;

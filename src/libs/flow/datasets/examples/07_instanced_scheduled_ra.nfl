@@ -1,0 +1,11 @@
+
+schedule_action : workflow = (act : action, d : duration ) {
+    repeat {
+        println('Executing action {1}', instance_id);
+        await act for 10mn;
+        delay d;
+    }
+}
+act : action = (command = "./scripts/append_to_log.sh", args = str_format("scheduled_ra-{1}", instance_id));
+
+await schedule_action(act, 3sec) for 10mn;

@@ -5,7 +5,7 @@
 
 namespace ez {
 
-enum class LogLevel : uint { Info = 1, Warning = 2, Error = 4, Trace = 8 };
+enum class LogLevel  { Info = 1, Warning = 2, Error = 4, Trace = 8 };
 
 struct Logger {
     std::function<void(LogLevel, const std::string&)> log_impl = [](auto&&...) {};
@@ -19,19 +19,19 @@ struct Logger {
     template <typename... Args>
     void warning(std::format_string<Args...> str, Args&&... args)
     {
-        log_impl(LogLevel::Info, std::format(str, std::forward<Args>(args)...));
+        log_impl(LogLevel::Warning, std::format(str, std::forward<Args>(args)...));
     }
 
     template <typename... Args>
     void error(std::format_string<Args...> str, Args&&... args)
     {
-        log_impl(LogLevel::Info, std::format(str, std::forward<Args>(args)...));
+        log_impl(LogLevel::Error, std::format(str, std::forward<Args>(args)...));
     }
 
     template <typename... Args>
     void trace(std::format_string<Args...> str, Args&&... args)
     {
-        log_impl(LogLevel::Info, std::format(str, std::forward<Args>(args)...));
+        log_impl(LogLevel::Trace, std::format(str, std::forward<Args>(args)...));
     }
 };
 

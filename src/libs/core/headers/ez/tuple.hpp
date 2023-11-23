@@ -94,6 +94,7 @@ template <class... Ts>
 Tuple(std::tuple<Ts...>&&) -> Tuple<Ts...>;
 
 }  // namespace ez
+
 namespace std {
 template <typename... Ts>
 struct tuple_size<ez::Tuple<Ts...>> : integral_constant<size_t, sizeof...(Ts)> {};

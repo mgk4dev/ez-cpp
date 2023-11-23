@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ez/async/task.hpp>
-#include <ez/result.hpp>
 
 #include <boost/json.hpp>
 
@@ -23,13 +22,9 @@ struct DecomposeSignature<R_(Arg_)> {
 }  // namespace detail
 
 using JsonObject = boost::json::object;
-using ReplyError = std::runtime_error;
 
 template <typename T>
-using Reply = Result<T, ReplyError>;
-
-template <typename T>
-using AsyncTask = async::Task<Reply<T>>;
+using AsyncTask = async::Task<T>;
 
 // clang-format off
 template <typename Signature>
@@ -42,8 +37,6 @@ using AsyncRequest = std::function<
 using ActionRequest = AsyncRequest<JsonObject(JsonObject)>;
 using CampaignRequest = AsyncRequest<JsonObject(JsonObject)>;
 using DeviceInfoRequest = AsyncRequest<JsonObject(JsonObject)>;
-using ApiCallRequest = AsyncRequest<JsonObject(JsonObject)>;
-
-
+using HttpRequest = AsyncRequest<JsonObject(JsonObject)>;
 
 }  // namespace ez::flow::ext

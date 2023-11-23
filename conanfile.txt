@@ -12,3 +12,7 @@ CMakeToolchain
 
 [layout]
 cmake_layout
+
+
+[options]
+boost:without_stacktrace=True

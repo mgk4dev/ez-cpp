@@ -26,3 +26,38 @@ cmake build .
 ```
 
 
+### Snippets
+
+#### Atomic
+
+```C++
+    Atomic<std::vector<int>> vec;
+    const size_t size = 10000;
+
+    auto producer = [&vec](size_t count) {
+        for (size_t i = 0; i < count; ++i) { vec->push_back(i); }
+    };
+
+    auto consumer = [&vec](size_t max) {
+        size_t total = 0;
+
+        while (total != max) {
+            vec.edit([&](auto& vec) {
+                if (!vec.empty()) {
+                    vec.pop_back();
+                    ++total;
+                }
+            });
+        }
+    };
+
+    auto p1 = std::async(std::launch::async, producer, size);
+    auto p2 = std::async(std::launch::async, producer, size);
+    auto c = std::async(std::launch::async, consumer, size * 2);
+
+    p1.wait();
+    p2.wait();
+    c.wait();
+
+    ASSERT_TRUE(vec->empty());
+```

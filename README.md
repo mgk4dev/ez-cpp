@@ -22,7 +22,7 @@ Interpreter and virtual machine for the experimental flow async programming lang
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=(Debug|Release) ..
-make
+cmake build .
 ```
 
 

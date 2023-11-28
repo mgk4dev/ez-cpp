@@ -7,17 +7,25 @@
 
 namespace ez {
 
+///
+/// Box is a heap allocated unique value wrapper. It can hold a type T or any type deriving from T. Box can
+/// be used for passing abstract types and manipulate them as move only values.
+/// Usage:
+/// @code
+/// struct A { virtual ~A() = default; virtual int foo() const { return 0; } };
+/// struct B : public A { int foo() const { return 25; } };
+/// Box<A> box{B{}};
+/// ASSERT_EQ(box->foo(), 25);
+/// @endcode
+///
 template <typename T>
 class Box {
 public:
     Box() : m_data{std::make_unique<T>()} {}
 
-    Box(Inplace, auto&&... args) : m_data{std::make_unique<T>(EZ_FWD(args)...)}
-    {
-    }
+    Box(Inplace, auto&&... args) : m_data{std::make_unique<T>(EZ_FWD(args)...)} {}
 
-    Box(trait::DerivedFrom<T> auto&& val)
-        : m_data{std::make_unique<EZ_DECAY_T(val)>(EZ_FWD(val))}
+    Box(trait::DerivedFrom<T> auto&& val) : m_data{std::make_unique<EZ_DECAY_T(val)>(EZ_FWD(val))}
 
     {
     }

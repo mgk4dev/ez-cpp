@@ -36,6 +36,19 @@ struct CaseT<void> {
 template <typename T = void>
 constexpr CaseT<T> Case;
 
+
+/// Enum is an extension of std::variant with visitation features.
+/// Usage:
+/// @code
+/// Enum<int, double, std::string> val = 25;
+/// ASSERT_TRUE(val.is<int>());
+/// std::cout << val.as<int>();
+/// val.match(
+///     [](int val)   { std::cout << "It is an int : " << val ; }
+///     [](double val){ std::cout << "It is an double : " << val ; }
+///     [](auto&& val){ std::cout << "It is something else " ; }
+/// );
+/// @endcode
 template <typename... Ts>
 class Enum : public std::variant<Ts...> {
 public:

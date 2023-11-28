@@ -38,6 +38,15 @@ auto transform_tuple(Tuple<Ts...>&& tuple, auto&& f)
 
 }  // namespace detail
 
+/// Extension of std::tuple with simpler access API.
+/// Usage:
+/// @code
+/// Tuple tuple{1, 2, 3};
+/// auto strings = tuple.transformed([](auto val) { return std::to_string(val); });
+/// ASSERT_EQ(strings[constexpr_<0>], "1");
+/// ASSERT_EQ(strings[constexpr_<1>], "2");
+/// ASSERT_EQ(strings[constexpr_<2>], "3");
+/// @endcode
 template <typename... Ts>
 class Tuple : public std::tuple<Ts...> {
 public:

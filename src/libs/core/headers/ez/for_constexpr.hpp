@@ -4,6 +4,13 @@
 
 namespace ez {
 
+/// Compile time for loops.
+/// Usage
+/// @code
+/// auto tuple = std::make_tuple(10, 10, 10);
+/// for_constexpr<0, 3>([&](auto index) { std::get<index.value>(tuple) = index.value; });
+/// @endcode
+///
 template <auto begin, auto end, typename F, typename... Args>
 constexpr void for_constexpr(F&& f, Args&&... args)
 {

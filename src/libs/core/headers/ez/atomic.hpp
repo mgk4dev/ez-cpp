@@ -22,6 +22,19 @@ struct LockHelper<std::mutex> {
     static inline void unlock_shared(std::mutex& m) { m.unlock(); }
 };
 
+///
+/// Atomic is a utility type to protect the access to an object
+/// in read/write mode across multiple threads.
+/// Usage:
+///   @code
+///   Atomic<std::vector<int>> vec;
+///   vec->push_back(22); // unique lock then push_back then unlock
+///   auto size = std::as_const(vec)->size() ; // shared lock then size() then unlock
+///   vec.edit([](std::vector<int>& vec)
+///   {
+///      vec.push_back(33);
+///   });
+///   @endcode
 template <typename T, typename Mutex = std::shared_mutex>
 class Atomic {
     T m_data;

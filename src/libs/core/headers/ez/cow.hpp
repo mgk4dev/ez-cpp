@@ -6,7 +6,18 @@
 #include <memory>
 
 namespace ez {
-
+///
+/// Cow is a copy on write value wrapper.
+/// Usage:
+/// @code
+/// Cow<std::string> cow{in_place, 4, '='};
+/// ASSERT_EQ(cow.value(), "====");
+/// cow = "toto";
+/// ASSERT_EQ(cow.use_count(), 1);
+/// auto cow2 = cow;
+/// ASSERT_EQ(cow.use_count(), 2);
+/// @endcode
+///
 template <typename T>
 class Cow {
 public:

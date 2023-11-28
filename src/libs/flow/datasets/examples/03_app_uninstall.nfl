@@ -1,5 +1,3 @@
-// https://ci-manual.dev.nexthink.cloud/workflows/manage/edit/c2c49857-3eaf-4624-bbaf-74817e560e6f/version/1/editor
-
 unistall_app : workflow = (ask_permission : boolean) {
     if ask_permission {
         ask_user : campaign = (question = "Uninstall app ?", options = ["Yes", "No", "Later"]);

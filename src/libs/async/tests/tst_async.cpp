@@ -209,9 +209,7 @@ TEST(Async, repeat_delay)
     WorkGuard guard{context};
 
     auto work = [&](uint count) -> Task<> {
-        while (count--) {
-            co_await delay(context, 1ms, 10);
-        }
+        while (count--) { co_await delay(context, 1ms, 10); }
         context.stop();
     };
 
@@ -219,3 +217,88 @@ TEST(Async, repeat_delay)
     async::post(context, [t]() mutable { t->resume(); });
     context.run();
 }
+
+struct FinalAwaiter {
+    bool await_ready() noexcept { return false; }
+    Coroutine<> await_suspend(auto current) noexcept { return current.promise().next; }
+    void await_resume() noexcept {}
+};
+
+struct ReturnObject {
+    struct promise_type {
+        int result;
+        std::exception_ptr exception = nullptr;
+        bool has_value = false;
+
+        std::coroutine_handle<> next = std::noop_coroutine();
+
+        std::suspend_always initial_suspend() const noexcept { return {}; }
+
+        FinalAwaiter final_suspend() const noexcept { return {}; }
+
+        void return_value(int val)
+        {
+            result = val;
+            has_value = true;
+        }
+        void unhandled_exception()
+        {
+            exception = std::current_exception();
+            has_value = true;
+        }
+        ReturnObject get_return_object() noexcept
+        {
+            return {std::coroutine_handle<promise_type>::from_promise(*this)};
+        }
+    };
+
+    ReturnObject(std::coroutine_handle<promise_type> handle) : m_handle{handle} {}
+
+    ReturnObject(const ReturnObject&) = delete;
+    ReturnObject& operator=(const ReturnObject&) = delete;
+
+    ReturnObject(ReturnObject&& rhs) { std::swap(m_handle, rhs.m_handle); }
+    ReturnObject& operator=(ReturnObject&& rhs)
+    {
+        std::swap(m_handle, rhs.m_handle);
+        return *this;
+    }
+
+    ~ReturnObject() { m_handle.destroy(); }
+
+    bool await_ready() noexcept { return m_handle.promise().has_value; }
+    std::coroutine_handle<> await_suspend(auto caller) noexcept
+    {
+        m_handle.promise().next = caller;
+        return m_handle;
+    }
+    int await_resume() noexcept { return m_handle.promise().result; }
+    void resume() { m_handle.resume(); }
+
+private:
+    std::coroutine_handle<promise_type> m_handle;
+};
+
+ReturnObject sum(int a, int b)
+{
+    std::cout << "Executing sum" << std::endl;
+    co_return a + b;
+}
+
+ReturnObject test()
+{
+    std::cout << "Executing test" << std::endl;
+    auto s = sum(10, 20);
+    int result = co_await s;
+    std::cout << "Sum is " << result << std::endl;
+    co_return result;
+}
+
+TEST(Async, demo)
+{
+    auto coco = test();
+    coco.resume();
+}
+
+
+

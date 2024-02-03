@@ -16,7 +16,7 @@ constexpr void for_constexpr(F&& f, Args&&... args)
 {
     static_assert(begin <= end, "Invalid for_constexpr indices");
     if constexpr (begin < end) {
-        f(constexpr_<begin>, args...);
+        f(EZ_CONSTEXP(begin), args...);
         for_constexpr<begin + 1, end>(f, args...);
     }
 }

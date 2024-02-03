@@ -1,8 +1,14 @@
 #pragma once
 
+#include <ez/async/task.hpp>
+
+#include <ez/shared.hpp>
+
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/post.hpp>
 #include <boost/asio/thread_pool.hpp>
+
+#include <queue>
 
 namespace ez::async {
 
@@ -19,5 +25,20 @@ private:
 using ThreadPool = boost::asio::thread_pool;
 
 using boost::asio::post;
+
+class TaskPool {
+public:
+    TaskPool(IoContext& ctx) : m_context{ctx} {}
+
+    void post(Shared<Task<>> task)
+    {
+        m_tasks.push(task);
+        async::post(m_context.get(), [task]() mutable { task->resume(); });
+    }
+
+private:
+    Ref<IoContext> m_context;
+    std::queue<Shared<Task<>>> m_tasks;
+};
 
 }  // namespace ez::async

@@ -42,9 +42,8 @@ Fail(T&&) -> Fail<std::decay_t<T>>;
 
 ///
 /// Result<T, E> is the type used for returning and propagating errors. It is an enum with the
-/// variants, Ok<T>, representing success and containing a value, and Fail<E>, representing error and
-/// containing an error value.
-/// Usage:
+/// variants, Ok<T>, representing success and containing a value, and Fail<E>, representing error
+/// and containing an error value. Usage:
 /// @code
 /// enum class Error { Cause1, Cause2 };
 /// auto task = []() -> Result<std::string, Error> { return Ok{"hello"}; };
@@ -60,7 +59,7 @@ Fail(T&&) -> Fail<std::decay_t<T>>;
 ///
 /// @endcode
 template <typename T, typename E>
-class Result : public Enum<Ok<T>, Fail<E>> {
+class [[nodiscard]] Result : public Enum<Ok<T>, Fail<E>> {
 public:
     using Super = Enum<Ok<T>, Fail<E>>;
 

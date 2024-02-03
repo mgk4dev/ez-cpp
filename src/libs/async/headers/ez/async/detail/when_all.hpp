@@ -13,7 +13,7 @@ namespace ez::async::detail {
 
 class WhenAllLatch : NonCopiable {
 public:
-    WhenAllLatch(uint32_t count) : m_count(count + 1) {}
+    WhenAllLatch(std::uint32_t count) : m_count(count + 1) {}
 
     WhenAllLatch(WhenAllLatch&& other) : m_count(other.m_count.load(std::memory_order::acquire))
     {
@@ -36,7 +36,7 @@ public:
     void set_continuation(Coroutine<> awaiting_coroutine) noexcept
     {
         m_continuation = awaiting_coroutine;
-        m_count.fetch_sub(1, std::memory_order::acq_rel) ;
+        m_count.fetch_sub(1, std::memory_order::acq_rel);
     }
 
     void notify_awaitable_completed() noexcept
@@ -103,9 +103,7 @@ private:
     bool start_tasks(Coroutine<> awaiting_coroutine)
     {
         m_latch.set_continuation(awaiting_coroutine);
-
         m_tasks.for_each([&](auto& task) { task.start(m_latch); });
-        m_latch.set_continuation(awaiting_coroutine);
         return !m_latch.is_ready();
     }
 

@@ -64,7 +64,8 @@ Task<> Interpreter::eval(Statement<ast::AssignmentStatement> statement)
 {
     auto lhs = co_await eval(statement >> statement.ast().path);
     auto expression = co_await eval(statement >> statement.ast().expression);
-    entity::assign(lhs, expression);
+    auto r = entity::assign(lhs, expression);
+    unused(r);
 }
 
 Task<> Interpreter::eval(Statement<ast::DelayStatement> statement)

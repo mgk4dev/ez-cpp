@@ -2,7 +2,7 @@ message("++++ Root project directory : ${CMAKE_SOURCE_DIR}")
 message("++++ Build directory        : ${CMAKE_CURRENT_BINARY_DIR}")
 
 execute_process(COMMAND 
-	conan install 
+        /opt/homebrew/opt/conan@1/bin/conan install
 		-of ${CMAKE_CURRENT_BINARY_DIR} 
 		--build missing
 		${CMAKE_SOURCE_DIR}/conanfile.txt  

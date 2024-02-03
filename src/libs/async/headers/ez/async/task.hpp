@@ -80,9 +80,7 @@ public:
 
     ~Task()
     {
-        if (m_coroutine) {
-            m_coroutine.destroy();
-        }
+        if (m_coroutine) { m_coroutine.destroy(); }
     }
 
     async::StoreCallerAwaiter<T, async::AwaitReturnMode::ConstRef> operator co_await()
@@ -96,9 +94,10 @@ public:
         return {m_coroutine};
     }
 
-    bool done() const { return  m_coroutine.done(); }
+    bool done() const { return m_coroutine.done(); }
     void resume() { m_coroutine.resume(); }
     void* address() const { return m_coroutine.address(); }
+    Coroutine<> handle() const { return m_coroutine; }
 
 private:
     Coroutine<Promise> m_coroutine = nullptr;

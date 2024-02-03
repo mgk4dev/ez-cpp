@@ -36,6 +36,11 @@ struct CaseT<void> {
 template <typename T = void>
 constexpr CaseT<T> Case;
 
+template <typename T>
+struct Is {};
+
+template <typename T>
+constexpr Is<T> is;
 
 /// Enum is an extension of std::variant with visitation features.
 /// Usage:
@@ -61,6 +66,12 @@ public:
 
     template <typename T>
     bool is() const
+    {
+        return std::holds_alternative<T>(*this);
+    }
+
+    template <typename T>
+    bool operator&&(Is<T>) const
     {
         return std::holds_alternative<T>(*this);
     }

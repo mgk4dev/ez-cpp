@@ -20,7 +20,7 @@ template <typename... Op>
 auto race(Operation<Op>&... operations) -> detail::Race<Operation<Op>...>::TaskType
 {
     auto result = co_await when_any(operations...);
-    (operations.cancel() + ...);
+    unused(operations.cancel() ...);
     co_return result;
 }
 

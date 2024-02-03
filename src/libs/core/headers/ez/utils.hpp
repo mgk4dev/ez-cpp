@@ -60,3 +60,5 @@ template <auto value>
 constexpr CompileTime<value> constexpr_;  // compile time
 
 }  // namespace ez
+
+#define EZ_CONSTEXP(val) ez::constexpr_<val>

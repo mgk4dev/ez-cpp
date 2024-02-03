@@ -15,7 +15,7 @@ namespace detail {
 template <size_t... indices>
 auto transform_impl(auto&& f, auto&& tuple, std::index_sequence<indices...>)
 {
-    return std::make_tuple(f(EZ_FWD(tuple)[constexpr_<indices>])...);
+    return std::make_tuple(f(EZ_FWD(tuple)[EZ_CONSTEXP(indices)])...);
 };
 
 template <typename... Ts>

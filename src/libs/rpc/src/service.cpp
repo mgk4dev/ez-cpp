@@ -3,7 +3,7 @@
 #include <ez/rpc/function.hpp>
 #include <ez/rpc/serializer.hpp>
 
-#include <ranges>
+#include "protobuf/messages.pb.h"
 
 namespace ez::rpc {
 
@@ -12,57 +12,92 @@ void AbstractService::poll()
     Message message;
 
     while (transport->receive(message)) {
-        auto request_result = deserialize<Request>(message.payload);
+        auto request_result = deserialize<protobuf::Request>(message.payload);
         if (!request_result) continue;
 
-        Request request = std::move(request_result).value();
+        protobuf::Request request = std::move(request_result).value();
 
-        const auto& request_id = request.request_id;
-        const auto& name_space = request.name_space;
-        const auto& fn_name = request.function_name;
+        const auto& request_id = request.id();
+        const auto& name_space = request.name_space();
+        const auto& fn_name = request.function_name();
         const auto& peer_id = message.peer_id;
 
         AbstractFunction* f = find_function(name_space, fn_name);
 
         if (!f) {
-            Reply reply;
+            protobuf::Error error;
+            error.set_code(protobuf::Error_Code_FunctionNotFound);
+            error.set_what(std::format("Function {}.{} not found", name_space, fn_name));
 
-            reply.request_id = request_id;
-            reply.type = ReplyType::Error;
-            reply.result = serialize(Error::remote_error("Remote function not found"));
+            protobuf::Reply reply;
+            reply.set_request_id(request_id);
+            *reply.mutable_error() = std::move(error);
 
-            auto send = [this](PeerId peer_id, Reply reply) -> async::Task<> {
-                co_await transport->send(peer_id, serialize(reply));
-            };
-            task_pool.post(send(peer_id, std::move(reply)));
+            task_pool << [this](PeerId peer_id, protobuf::Reply reply) -> async::Task<> {
+                auto ok = co_await send(std::move(peer_id), std::move(reply));
+                // TODO log error
+                unused(ok);
+            }(peer_id, std::move(reply));
         }
 
-        auto exec = [this](AbstractFunction* f, std::vector<ByteArray> args, PeerId peer_id,
-                           RequestId request_id) -> async::Task<> {
-            auto reply_result = co_await f->invoke(args);
+        std::vector<ByteArray> args;
 
-            if (reply_result) {
-                reply_result.value().request_id = request_id;
+        for (auto& arg : request.arguments()) args.push_back(ByteArray{arg});
 
-                auto ok = co_await transport->send(peer_id, serialize(reply_result.value()));
-
-                unused(ok);
-                co_return;
-            }
-
-            Reply reply;
-            reply.type = ReplyType::Error;
-            reply.result = serialize(Error::remote_error(reply_result.error().what()));
-
-            auto ok = co_await transport->send(peer_id, serialize(reply));
-
-            unused(ok);
-        };
-
-        task_pool.post(exec(f, std::move(request.arguments), peer_id, request_id));
+        task_pool << exec(f, std::move(args), peer_id, RequestId{request_id});
     }
 
     start();
+}
+
+async::Task<> AbstractService::exec(AbstractFunction* f,
+                                    std::vector<ByteArray> args,
+                                    PeerId peer_id,
+                                    RequestId request_id)
+{
+    Result<RawReply, Error> invoke_result = co_await f->invoke(args);
+
+    if (!invoke_result) {
+        auto ok = co_await send_error(invoke_result.error(), peer_id, request_id);
+        // TODO log error
+        unused(ok);
+    }
+
+    RawReply& invoke_return = invoke_result.value();
+
+    if (!invoke_return) {
+        auto ok = co_await send_error(invoke_return.error(), peer_id, request_id);
+        // TODO log error
+        unused(ok);
+    }
+
+    protobuf::Reply reply;
+    reply.set_request_id(request_id.value());
+    reply.set_value(invoke_return.value().value());
+
+    auto ok = co_await send(peer_id, reply);
+    // TODO log error
+    unused(ok);
+    co_return;
+}
+
+AsyncResult<> AbstractService::send_error(const Error& e, PeerId peer_id, RequestId request_id)
+{
+    protobuf::Reply reply;
+    reply.set_request_id(request_id.value());
+
+    protobuf::Error error;
+    error.set_code(protobuf::Error_Code(e.code));
+    error.set_what(e.what);
+
+    *reply.mutable_error() = std::move(error);
+
+    co_return co_await transport->send(peer_id, serialize(reply));
+}
+
+AsyncResult<> AbstractService::send(PeerId peer_id, protobuf::Reply reply)
+{
+    co_return co_await transport->send(peer_id, serialize(reply));
 }
 
 void AbstractService::start()

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ez/rpc/messages.hpp>
 #include <ez/rpc/transport.hpp>
 #include <ez/rpc/types.hpp>
 
@@ -22,7 +21,7 @@ public:
     virtual AsyncResult<RequestId> invoke(std::string_view name_space,
                                           std::string_view fn_name,
                                           std::vector<ByteArray> arguments,
-                                          Reply* reply) = 0;
+                                          RawReply* reply) = 0;
 
     virtual void set_response_callback(const RequestId& request_id, std::function<void()> wake) = 0;
 };
@@ -71,10 +70,10 @@ public:
         });
     }
 
-    auto* operator->() { return &m_schemas.value()[EZ_CONSTEXP(0)]; }
+    auto& functions() { return m_schemas.value()[EZ_CONSTEXP(0)]; }
 
     template <typename T>
-    auto& schema()
+    auto& functions()
     {
         return std::get<T>(m_schemas.value());
     }

@@ -1,4 +1,3 @@
-
 add_executable(ez_rpc_tests
     main.cpp 
     tst_rpc.cpp

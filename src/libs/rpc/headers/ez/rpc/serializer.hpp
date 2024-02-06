@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ez/rpc/messages.hpp>
 #include <ez/rpc/types.hpp>
 
 #include <ez/result.hpp>
@@ -36,16 +35,12 @@ EZ_RPC_POD_SERIALIZER(std::uint64_t);
 EZ_RPC_POD_SERIALIZER(std::int16_t);
 EZ_RPC_POD_SERIALIZER(std::int32_t);
 EZ_RPC_POD_SERIALIZER(std::int64_t);
-
 EZ_RPC_POD_SERIALIZER(float);
 EZ_RPC_POD_SERIALIZER(double);
-
 EZ_RPC_POD_SERIALIZER(bool);
 
 EZ_RPC_SERIALIZER(std::string);
-EZ_RPC_SERIALIZER(Request);
-EZ_RPC_SERIALIZER(Reply);
-EZ_RPC_SERIALIZER(Error);
+//EZ_RPC_SERIALIZER(Error);
 
 //////////////////////////////////////////////////////////////////////////////
 

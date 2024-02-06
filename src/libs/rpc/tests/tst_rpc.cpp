@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <ez/rpc/function.hpp>
 #include <ez/rpc/remote_service.hpp>
+#include <ez/rpc/schema.hpp>
 #include <ez/rpc/service.hpp>
 
 #include <ez/async/when_all.hpp>
@@ -167,7 +167,7 @@ void init_functions(SchemaV2& schema)
 
 auto make_task(RemoteService& remote_service) -> async::Task<>
 {
-    auto& remote = remote_service.schema<SchemaV2>();
+    auto& remote = remote_service.functions<SchemaV2>();
 
     auto foo = co_await remote.get_foo();
     std::cout << "Result is '" << foo.value() << "'" << std::endl;
@@ -183,15 +183,19 @@ TEST(Rpc, test)
     async::IoContext service_context, client_context;
 
     Service service{service_context, transport.make_server()};
-    service.schema<SchemaV1>().get_foo = []() -> async::Task<std::string> { co_return "foo 1"; };
-    service.schema<SchemaV2>().get_foo = []() -> async::Task<std::string> { co_return "foo 2"; };
+    service.implementation<SchemaV1>().get_foo = []() -> async::Task<std::string> {
+        co_return "foo 1";
+    };
+    service.implementation<SchemaV2>().get_foo = []() -> async::Task<std::string> {
+        co_return "foo 2";
+    };
 
-    service.schema<SchemaV1>().ping = [](MyProtobufMessage msg) -> MyProtobufMessage {
+    service.implementation<SchemaV1>().ping = [](MyProtobufMessage msg) -> MyProtobufMessage {
         msg.data = "pong 1 " + msg.data;
         return msg;
     };
 
-    service.schema<SchemaV2>().ping = [](MyProtobufMessage msg) -> MyProtobufMessage {
+    service.implementation<SchemaV2>().ping = [](MyProtobufMessage msg) -> MyProtobufMessage {
         msg.data = "pong 2 " + msg.data;
         return msg;
     };

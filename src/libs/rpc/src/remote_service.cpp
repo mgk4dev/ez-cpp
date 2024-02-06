@@ -3,13 +3,23 @@
 #include <ez/rpc/function.hpp>
 #include <ez/rpc/serializer.hpp>
 
+#include "protobuf/messages.pb.h"
+
 #include <boost/asio/steady_timer.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace ez::rpc {
 
+RequestId make_request_id()
+{
+    return RequestId{boost::uuids::to_string(boost::uuids::random_generator()())};
+}
+
 struct RemoteServiceBaseImpl : public AbstractRemoteService {
     struct Query {
-        Reply* reply;
+        RawReply* reply;
         std::function<void()> wake;
     };
 
@@ -29,14 +39,19 @@ struct RemoteServiceBaseImpl : public AbstractRemoteService {
     AsyncResult<RequestId> invoke(std::string_view name_space,
                                   std::string_view fn_name,
                                   std::vector<ByteArray> arguments,
-                                  Reply* reply) override
+                                  RawReply* reply) override
     {
         auto id = make_request_id();
 
         auto& query = queries[id];
         query.reply = reply;
-        Request request{id, std::string{name_space}, std::string{fn_name}, std::move(arguments)};
-        auto ok = co_await transport->send(Serializer<Request>::serialize(request));
+        protobuf::Request request;
+        request.set_id(id.value());
+        *request.mutable_name_space() = name_space;
+        *request.mutable_function_name() = fn_name;
+        for (auto& arg : arguments) *request.add_arguments() = arg.value();
+
+        auto ok = co_await transport->send(serialize(request));
         if (!ok) co_return ok.wrapped_error();
         co_return Ok{std::move(id)};
     }
@@ -52,15 +67,24 @@ struct RemoteServiceBaseImpl : public AbstractRemoteService {
         ByteArray data;
 
         while (transport->receive(data)) {
-            auto reply = Serializer<Reply>::deserialize(data);
-            if (!reply) continue;
-            const auto& request_id = reply.value().request_id;
+            auto reply_result = Serializer<protobuf::Reply>::deserialize(data);
+            if (!reply_result) {
+                // TODO log error
+                continue;
+            }
+
+            protobuf::Reply& reply = reply_result.value();
+
+            const auto request_id = RequestId{reply.request_id()};
 
             if (!queries.contains(request_id)) continue;
 
             auto& query = queries[request_id];
 
-            *query.reply = reply.value();
+            if (reply.has_value()) { *query.reply = Ok{ByteArray{reply.value()}}; }
+            else {
+                *query.reply = Fail{Error{Error::Code(reply.error().code()), reply.error().what()}};
+            }
 
             async::post(context_.get(), query.wake);
             queries.erase(request_id);

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ez/rpc/messages.hpp>
 #include <ez/rpc/transport.hpp>
 
 #include <ez/async/executor.hpp>
@@ -17,6 +16,10 @@
 namespace ez::rpc {
 
 class AbstractFunction;
+
+namespace protobuf {
+class Reply;
+}  // namespace protobuf
 
 struct ServiceOptions {
     std::chrono::microseconds poll_interval = std::chrono::milliseconds{100};
@@ -43,6 +46,15 @@ public:
 
     virtual AbstractFunction* find_function(std::string_view name_space,
                                             std::string_view function_name) = 0;
+
+    async::Task<> exec(AbstractFunction* f,
+                       std::vector<ByteArray> args,
+                       PeerId peer_id,
+                       RequestId request_id);
+
+    AsyncResult<> send_error(const Error& e, PeerId peer_id, RequestId request_id);
+
+    AsyncResult<> send(PeerId peer_id, protobuf::Reply reply);
 };
 
 template <typename... Schemas>
@@ -58,10 +70,10 @@ public:
         return m_impl->transport->bind_to(address);
     }
 
-    auto& schema() { return m_impl->schemas[EZ_CONSTEXP(0)]; }
+    auto& implementation() { return m_impl->schemas[EZ_CONSTEXP(0)]; }
 
     template <typename T>
-    auto& schema()
+    auto& implementation()
     {
         return std::get<T>(m_impl->schemas);
     }

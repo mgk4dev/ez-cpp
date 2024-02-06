@@ -1,0 +1,30 @@
+syntax = "proto3";
+package ez.rpc.protobuf;
+
+
+message Request {
+    string id = 1;
+    string function_name = 2;
+    string name_space = 3;
+    repeated bytes arguments = 4;
+}
+
+message Error {
+    enum Code {
+        TimeoutError = 0;
+        SendRequestError = 1 ;
+        FunctionNotFound = 2 ;
+        InternalError = 3 ;
+    }
+    Code code = 1;
+    string what = 2;
+}
+
+
+message Reply {
+    string request_id = 1;
+    oneof payload {
+        bytes value = 2;
+        Error error = 3;
+    }
+}

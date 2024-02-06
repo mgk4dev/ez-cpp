@@ -15,29 +15,22 @@ using RequestId = StrongType<std::string, struct RequestIdTag, mixin::Comparable
 
 using ParsingError = std::runtime_error;
 
-class Error : public std::runtime_error {
-public:
-    enum Kind { FailedToSendRequest, Timeout, RemoteError };
+struct Error {
+    // Keep the same values as in messages.proto.Error.Code
+    enum Code : int { Timeout, FailedToSendRequest, FunctionNotFound, InternalError };
 
-    Error(Kind k, auto&& message) : std::runtime_error{EZ_FWD(message)}, m_kind{k} {}
+    Code code;
+    std::string what;
 
     static Error send_request_failure()
     {
         return Error{FailedToSendRequest, "Failed to send request"};
     }
     static Error timeout() { return Error{Timeout, "Response timeout"}; }
-    static Error remote_error(auto&& message) { return Error{RemoteError, EZ_FWD(message)}; }
-
-    Kind kind() const { return m_kind; }
-
-private:
-    Kind m_kind;
+    static Error internal_error(auto&& message) { return Error{InternalError, EZ_FWD(message)}; }
 };
 
-inline bool operator==(const Error& lhs, const Error& rhs)
-{
-    return lhs.kind() == rhs.kind() && std::string_view{lhs.what()} == std::string_view{rhs.what()};
-}
+using RawReply = Result<ByteArray, Error>;
 
 template <typename T = void>
 using AsyncResult = async::Task<Result<T, Error>>;

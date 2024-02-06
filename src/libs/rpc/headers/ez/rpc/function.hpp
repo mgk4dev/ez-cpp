@@ -11,16 +11,16 @@ class AbstractRemoteService;
 class AbstractFunction {
 public:
     virtual std::string_view name() const = 0;
-    virtual AsyncResult<Reply> invoke(std::span<const ByteArray>) = 0;
+    virtual AsyncResult<RawReply> invoke(std::span<const ByteArray>) = 0;
 
     void set_client(AbstractRemoteService* client);
     const std::string& name_space() const;
     void set_name_space(std::string_view name_space);
 
 protected:
-    AsyncResult<Reply> invoke_remote(std::string_view name_space,
-                                     std::string_view function_name,
-                                     std::vector<ByteArray> args);
+    AsyncResult<RawReply> invoke_remote(std::string_view name_space,
+                                        std::string_view function_name,
+                                        std::vector<ByteArray> args);
 
 private:
     AbstractRemoteService* m_client = nullptr;
@@ -34,8 +34,8 @@ template <typename R, typename... Args>
 class Function<R(Args...)> : public AbstractFunction {
 public:
     using ReturnType = AsyncResult<R>;
-    using AsyncImplemenationType = std::function<async::Task<R>(Args...)>;
-    using SyncImplemenationType = std::function<R(Args...)>;
+    using AsyncImplemenationType = std::function<async::Task<R>(arg::in<Args>...)>;
+    using SyncImplemenationType = std::function<R(arg::in<Args>...)>;
 
     Function(std::string_view name) : m_name{name.begin(), name.end()} {}
 
@@ -49,29 +49,41 @@ public:
 
     Function& operator=(SyncImplemenationType&& impl)
     {
-        m_impl = [impl = std::move(impl)](Args... args) mutable -> async::Task<R> {
-            co_return impl(std::move(args)...);
+        m_impl = [impl = std::move(impl)](arg::in<Args>... args) mutable -> async::Task<R> {
+            co_return impl(args...);
         };
         return *this;
     }
 
-    // server side
-    AsyncResult<Reply> invoke(std::span<const ByteArray> args) override
+    void bind_to(Function impl)
     {
-        auto arg_tuple = func::extract_args<Args...>(args);
+        m_impl = [impl = std::move(impl)](arg::in<Args>... args) -> async::Task<R> {
+            auto result = co_await impl(args...);
+            if (result) { co_return result.value(); }
+            throw result.error();
+        };
+    }
 
-        if (!arg_tuple) co_return Fail{Error::remote_error(arg_tuple.error().what())};
+    // server side
+    AsyncResult<RawReply> invoke(std::span<const ByteArray> args) override
+    {
+        try {
+            auto arg_tuple = func::extract_args<Args...>(args);
 
-        auto result = co_await std::apply(m_impl, std::move(arg_tuple.value()));
+            if (!arg_tuple) co_return Fail{Error::internal_error(arg_tuple.error().what())};
 
-        Reply reply;
-        reply.result = Serializer<R>::serialize(result);
-        reply.type = ReplyType::Value;
-        co_return Ok{std::move(reply)};
+            auto result = co_await std::apply(m_impl, std::move(arg_tuple.value()));
+
+            RawReply reply = Ok{std::move(serialize(result))};
+            co_return Ok{std::move(reply)};
+        }
+        catch (const Error& error) {
+            co_return Fail{std::move(error)};
+        }
     }
 
     // client side
-    ReturnType operator()(Args... args)
+    ReturnType operator()(arg::in<Args>... args)
     {
         auto arg_array = func::serialize_args(args...);
 
@@ -87,5 +99,3 @@ private:
 };
 
 }  // namespace ez::rpc
-
-#define EZ_RPC_NAMESAPCE(name) static inline constexpr std::string_view name_space = EZ_STR(name)

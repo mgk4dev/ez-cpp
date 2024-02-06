@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <ez/result.hpp>
-#include <ez/try.hpp>
 
 using namespace ez;
 
@@ -145,22 +144,4 @@ TEST(Result, value_or)
         Result<int, std::string> result = Fail{"error"};
         ASSERT_EQ(result | 5, 5);
     }
-}
-
-TEST(Result, try)
-{
-    auto get_result = [](auto arg) -> Result<int, std::string> { return arg; };
-
-    auto result = [&](auto arg) -> Result<int, std::string> {
-        EZ_TRY(auto val, get_result(arg));
-        return Ok{val * 2};
-    };
-
-    auto value = result(Ok{10});
-    ASSERT_TRUE(value);
-    ASSERT_EQ(value.value(), 20);
-
-    auto error = result(Fail{"Some errror"});
-    ASSERT_FALSE(error);
-    ASSERT_EQ(error.error(), "Some errror");
 }

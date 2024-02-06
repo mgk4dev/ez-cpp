@@ -30,13 +30,13 @@ struct WaitForResponse {
     Unit result() { return {}; }
 };
 
-AsyncResult<Reply> AbstractFunction::invoke_remote(std::string_view name_space,
+AsyncResult<RawReply> AbstractFunction::invoke_remote(std::string_view name_space,
                                                    std::string_view function_name,
                                                    std::vector<ByteArray> args)
 {
-    Reply reply;
+    RawReply reply;
     auto id = co_await m_client->invoke(name_space, function_name, std::move(args), &reply);
-    if (!id) co_return id.wrapped_error();
+    if (!id) co_return Fail{id.error()};
 
     co_await async::ContextFreeOperation<WaitForResponse>{*m_client, id.value()};
     co_return Ok{std::move(reply)};

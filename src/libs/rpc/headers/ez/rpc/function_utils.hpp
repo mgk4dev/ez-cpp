@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ez/rpc/messages.hpp>
 #include <ez/rpc/serializer.hpp>
 
 #include <ez/option.hpp>
@@ -41,11 +40,12 @@ std::vector<ByteArray> serialize_args(const Args&... args_)
 }
 
 template <typename R>
-Result<R, Error> get_return_value(Reply reply)
+Result<R, Error> get_return_value(RawReply reply)
 {
-    auto result = Serializer<R>::deserialize(reply.result);
-    if (!result) return Fail{Error::remote_error("Failed to parse result")};
-    return Ok{std::move(result.value())};
+    if (reply) { return Ok{deserialize<R>(reply.value()).value()}; }
+    else {
+        return Fail{reply.error()};
+    }
 }
 
 }  // namespace ez::rpc::func

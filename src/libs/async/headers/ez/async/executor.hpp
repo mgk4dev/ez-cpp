@@ -36,6 +36,12 @@ public:
         async::post(m_context.get(), [task]() mutable { task->resume(); });
     }
 
+    TaskPool& operator<<(Shared<Task<>> task)
+    {
+        post(std::move(task));
+        return *this;
+    }
+
 private:
     Ref<IoContext> m_context;
     std::queue<Shared<Task<>>> m_tasks;

@@ -3,6 +3,7 @@ boost/1.83.0
 gtest/cci.20210126
 benchmark/1.8.3
 jfalcou-eve/v2023.02.15
+protobuf/3.21.12
 
 [generators]
 cmake

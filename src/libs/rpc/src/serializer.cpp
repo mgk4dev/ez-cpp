@@ -1,173 +1,83 @@
 #include <ez/rpc/serializer.hpp>
 
+#include "protobuf/messages.pb.h"
+
+#include <google/protobuf/wrappers.pb.h>
+
 #include <boost/json.hpp>
 #include <boost/json/src.hpp>
 
 namespace ez::rpc {
 
-namespace json = boost::json;
+template <typename>
+struct ProtobufWrapper;
 
-#define EZ_RPC_NUMBER_SERIALIZER_IMPL(T)                                      \
-    ByteArray Serializer<T>::serialize(T val)                                 \
-    {                                                                         \
-        return ByteArray{json::serialize(json::value(val))};                  \
-    }                                                                         \
-    Result<T, ParsingError> Serializer<T>::deserialize(const ByteArray& data) \
-    {                                                                         \
-        try {                                                                 \
-            return Ok{json::parse(data.value()).to_number<T>()};              \
-        }                                                                     \
-        catch (const std::exception& e) {                                     \
-            return Fail{e.what()};                                            \
-        }                                                                     \
+#define EZ_RPC_MAP_TYPE(T, P)   \
+    template <>                 \
+    struct ProtobufWrapper<T> { \
+        using Type = P;         \
     }
 
-#define EZ_RPC_SERIALIZER_IMPL(T, convert)                                    \
-    ByteArray Serializer<T>::serialize(T val)                                 \
-    {                                                                         \
-        return ByteArray{json::serialize(json::value(val))};                  \
-    }                                                                         \
-    Result<T, ParsingError> Serializer<T>::deserialize(const ByteArray& data) \
-    {                                                                         \
-        try {                                                                 \
-            return Ok{json::parse(data.value()).convert()};                   \
-        }                                                                     \
-        catch (const std::exception& e) {                                     \
-            return Fail{e.what()};                                            \
-        }                                                                     \
+EZ_RPC_MAP_TYPE(bool, google::protobuf::BoolValue);
+EZ_RPC_MAP_TYPE(double, google::protobuf::DoubleValue);
+EZ_RPC_MAP_TYPE(float, google::protobuf::FloatValue);
+EZ_RPC_MAP_TYPE(std::string, google::protobuf::StringValue);
+EZ_RPC_MAP_TYPE(int32_t, google::protobuf::Int32Value);
+EZ_RPC_MAP_TYPE(int64_t, google::protobuf::Int64Value);
+EZ_RPC_MAP_TYPE(uint32_t, google::protobuf::UInt32Value);
+EZ_RPC_MAP_TYPE(uint64_t, google::protobuf::UInt64Value);
+
+#define EZ_RPC_PRIMITIVE_SERIALIZER(T)                                                \
+    ByteArray Serializer<T>::serialize(const T& val)                                  \
+    {                                                                                 \
+        typename ProtobufWrapper<T>::Type proto;                                      \
+        proto.set_value(val);                                                         \
+        return ByteArray{proto.SerializeAsString()};                                  \
+    }                                                                                 \
+    Result<T, ParsingError> Serializer<T>::deserialize(const ByteArray& data)         \
+    {                                                                                 \
+        typename ProtobufWrapper<T>::Type proto;                                      \
+        if (proto.ParseFromString(data.value())) return Ok{std::move(proto.value())}; \
+        return Fail{"Failed to parse value"};                                         \
     }
 
-///////////////////////////////////////////////////////////////////////////////
-
-EZ_RPC_NUMBER_SERIALIZER_IMPL(std::uint16_t)
-EZ_RPC_NUMBER_SERIALIZER_IMPL(std::uint32_t)
-EZ_RPC_NUMBER_SERIALIZER_IMPL(std::uint64_t)
-
-EZ_RPC_NUMBER_SERIALIZER_IMPL(std::int16_t)
-EZ_RPC_NUMBER_SERIALIZER_IMPL(std::int32_t)
-EZ_RPC_NUMBER_SERIALIZER_IMPL(std::int64_t)
-
-EZ_RPC_NUMBER_SERIALIZER_IMPL(float)
-EZ_RPC_NUMBER_SERIALIZER_IMPL(double)
-
-EZ_RPC_SERIALIZER_IMPL(bool, as_bool)
-
-//////////////////////////////////////////////////////////////////////////////
-
-ByteArray Serializer<std::string>::serialize(const std::string& val)
-{
-    return ByteArray{json::serialize(json::value(val))};
-}
-Result<std::string, ParsingError> Serializer<std::string>::deserialize(const ByteArray& data)
-{
-    try {
-        return Ok{json::parse(data.value()).as_string()};
+#define EZ_RPC_PRIMITIVE_POD_SERIALIZER(T)                                            \
+    ByteArray Serializer<T>::serialize(T val)                                         \
+    {                                                                                 \
+        typename ProtobufWrapper<T>::Type proto;                                      \
+        proto.set_value(val);                                                         \
+        return ByteArray{proto.SerializeAsString()};                                  \
+    }                                                                                 \
+    Result<T, ParsingError> Serializer<T>::deserialize(const ByteArray& data)         \
+    {                                                                                 \
+        typename ProtobufWrapper<T>::Type proto;                                      \
+        if (proto.ParseFromString(data.value())) return Ok{std::move(proto.value())}; \
+        return Fail{"Failed to parse value"};                                         \
     }
-    catch (const std::exception& e) {
-        return Fail{e.what()};
-    }
-}
 
-ByteArray Serializer<Request>::serialize(const Request& req)
-{
-    json::array args;
-    for (auto&& arg : req.arguments) args.push_back(json::string{arg.value()});
+EZ_RPC_PRIMITIVE_POD_SERIALIZER(bool)
+EZ_RPC_PRIMITIVE_POD_SERIALIZER(double)
+EZ_RPC_PRIMITIVE_POD_SERIALIZER(float)
+EZ_RPC_PRIMITIVE_POD_SERIALIZER(int32_t)
+EZ_RPC_PRIMITIVE_POD_SERIALIZER(int64_t)
+EZ_RPC_PRIMITIVE_POD_SERIALIZER(uint32_t)
+EZ_RPC_PRIMITIVE_POD_SERIALIZER(uint64_t)
 
-    // clang-format off
-    json::object obj{
-        {"request_id", req.request_id.value()},
-        {"name_space", req.name_space},
-        {"function_name", req.function_name},
-        {"arguments", args}
-    };
-    // clang-format on
+EZ_RPC_PRIMITIVE_SERIALIZER(std::string)
 
-    return ByteArray{json::serialize(obj)};
-}
+// ByteArray Serializer<Error>::serialize(const Error& error)
+// {
+//     protobuf::Error proto;
+//     proto.set_code(error.kind());
+//     proto.set_what(error.what());
+//     return serialize(proto);
+// }
 
-Result<Request, ParsingError> Serializer<Request>::deserialize(const ByteArray& data)
-{
-    try {
-        Request result;
-
-        json::value val = json::parse(data.value());
-        json::object& obj = val.as_object();
-
-        result.request_id = RequestId{obj.at("request_id").as_string()};
-        result.name_space = obj.at("name_space").as_string();
-        result.function_name = obj.at("function_name").as_string();
-
-        for (auto& arg : obj.at("arguments").as_array()) {
-            result.arguments.push_back(ByteArray{arg.as_string()});
-        }
-
-        return Ok{std::move(result)};
-    }
-    catch (const std::exception& e) {
-        return Fail{e.what()};
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-ByteArray Serializer<Reply>::serialize(const Reply& rep)
-{
-    // clang-format off
-    json::object obj{
-        {"request_id", rep.request_id.value()},
-        {"result", rep.result.value()},
-        {"type", std::to_underlying(rep.type)}
-    };
-    // clang-format on
-
-    return ByteArray{json::serialize(obj)};
-}
-
-Result<Reply, ParsingError> Serializer<Reply>::deserialize(const ByteArray& data)
-{
-    try {
-        Reply result;
-
-        json::value val = json::parse(data.value());
-        json::object& obj = val.as_object();
-
-        result.request_id = RequestId{obj.at("request_id").as_string()};
-        result.result = ByteArray{obj.at("result").as_string()};
-        result.type = static_cast<ReplyType>(obj.at("type").as_int64());
-
-        return Ok{std::move(result)};
-    }
-    catch (const std::exception& e) {
-        return Fail{e.what()};
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-ByteArray Serializer<Error>::serialize(const Error& error)
-{
-    // clang-format off
-    json::object obj{
-        {"kind", error.kind()},
-        {"message", error.what()}
-    };
-    // clang-format on
-
-    return ByteArray{json::serialize(obj)};
-}
-
-Result<Error, ParsingError> Serializer<Error>::deserialize(const ByteArray& data)
-{
-    try {
-        json::value val = json::parse(data.value());
-        json::object& obj = val.as_object();
-        Error::Kind kind = static_cast<Error::Kind>(obj.at("kind").as_int64());
-        Error result{kind, std::string{obj.at("message").as_string()}};
-        return Ok{std::move(result)};
-    }
-    catch (const std::exception& e) {
-        return Fail{e.what()};
-    }
-}
+// Result<Error, ParsingError> Serializer<Error>::deserialize(const ByteArray& data)
+// {
+//     Result<protobuf::Error, ParsingError> proto = deserialize<protobuf::Error>(data);
+//     if (!proto) return proto.error();
+//     return Ok{Error{proto.value().code(), proto.value().what()}};
+// }
 
 }  // namespace ez::rpc

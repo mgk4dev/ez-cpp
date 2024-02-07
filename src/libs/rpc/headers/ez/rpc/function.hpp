@@ -57,7 +57,7 @@ public:
 
     void bind_to(Function impl)
     {
-        m_impl = [impl = std::move(impl)](arg::in<Args>... args) -> async::Task<R> {
+        m_impl = [impl = std::move(impl)](arg::in<Args>... args) mutable -> async::Task<R> {
             auto result = co_await impl(args...);
             if (result) { co_return result.value(); }
             throw result.error();

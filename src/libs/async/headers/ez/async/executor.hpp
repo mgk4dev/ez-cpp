@@ -8,7 +8,7 @@
 #include <boost/asio/post.hpp>
 #include <boost/asio/thread_pool.hpp>
 
-#include <queue>
+#include <deque>
 
 namespace ez::async {
 
@@ -30,21 +30,14 @@ class TaskPool {
 public:
     TaskPool(IoContext& ctx) : m_context{ctx} {}
 
-    void post(Shared<Task<>> task)
-    {
-        m_tasks.push(task);
-        async::post(m_context.get(), [task]() mutable { task->resume(); });
-    }
+    TaskPool& operator<<(Task<> task);
 
-    TaskPool& operator<<(Shared<Task<>> task)
-    {
-        post(std::move(task));
-        return *this;
-    }
+private:
+    void cleanup();
 
 private:
     Ref<IoContext> m_context;
-    std::queue<Shared<Task<>>> m_tasks;
+    std::deque<Shared<Task<>>> m_tasks;
 };
 
 }  // namespace ez::async

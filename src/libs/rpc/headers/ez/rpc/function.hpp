@@ -3,6 +3,7 @@
 #include <ez/rpc/function_utils.hpp>
 
 #include <functional>
+#include <span>
 
 namespace ez::rpc {
 

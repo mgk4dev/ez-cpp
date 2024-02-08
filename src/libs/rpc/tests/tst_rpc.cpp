@@ -221,7 +221,7 @@ TEST(Rpc, test)
 
         async::TaskPool task_pool{client_context};
 
-        task_pool.post(make_task(remote_service));
+        task_pool << make_task(remote_service);
 
         client_context.run();
     });

@@ -3,11 +3,11 @@
 #include "../conversion/json.hpp"
 #include "../types/entity_utils.hpp"
 
-#include <ez/async/delay.hpp>
-#include <ez/async/when_any.hpp>
+#include <ez/async/Delay.hpp>
+#include <ez/async/WhenAny.hpp>
 
-#include <ez/scope_guard.hpp>
-#include <ez/trait.hpp>
+#include <ez/ScopeGuard.hpp>
+#include <ez/Traits.hpp>
 
 #include <iostream>
 
@@ -24,7 +24,7 @@ Task<> Interpreter::eval(Statement<ast::VariableDeclaration> statement)
     auto exists = evaluation_scope.current().find_entity(statement.ast().name);
     if (exists) {
         throw EvaluationError{
-            std::format("'{}' already declaraed in the current scope ", statement.ast().name),
+            std::format("'{}' already declaraed in the current scope ", statement.ast().name.raw()),
             statement.ast()};
     }
 
@@ -49,7 +49,7 @@ Task<> Interpreter::eval(Statement<ast::WorkflowDefinition> statement)
 
     if (exists) {
         throw EvaluationError{
-            std::format("'{}' already declaraed in the current scope ", statement.ast().name),
+            std::format("'{}' already declaraed in the current scope ", statement.ast().name.raw()),
             statement.ast()};
     }
 
@@ -398,7 +398,7 @@ Task<Entity> Interpreter::eval(WorkflowInvocation awaitable)
             if (!expected_type) {
                 throw EvaluationError::build(
                     awaitable.instanciation.as<Statement<ast::FunctionCall>>().ast().arguments,
-                    "Type {} not found", argument_declaration.at(0).type);
+                    "Type {} not found", argument_declaration.at(0).type.raw());
             }
 
             if (!same_type(*expected_type, argument->type())) {

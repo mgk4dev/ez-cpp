@@ -15,7 +15,7 @@ std::chrono::system_clock::duration DurationStorage::to_std_duration() const
         case ast::DurationUnit::Day: return days{count};
         case ast::DurationUnit::Week: return weeks{count};
     }
-    std::unreachable();
+    std::terminate();
 }
 
 std::chrono::milliseconds DurationStorage::to_milliseconds() const
@@ -29,6 +29,7 @@ std::chrono::milliseconds DurationStorage::to_milliseconds() const
             case ast::DurationUnit::Day: return count * 1000 * 60 * 24;
             case ast::DurationUnit::Week: return count * 1000 * 60 * 24 * 7;
         }
+        std::terminate();
     }()};
 
     return result;
@@ -50,6 +51,7 @@ EZ_FLOW_TYPE_IMPL(Duration)
                 case ast::DurationUnit::Day: return "day";
                 case ast::DurationUnit::Week: return "week";
             }
+            std::terminate();
         }());
 
         return "false";

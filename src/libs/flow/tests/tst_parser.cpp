@@ -4,7 +4,7 @@
 #include "parser/generic_parser.hpp"
 #include "parser/grammar/grammar.hpp"
 
-#include <ez/meta.hpp>
+#include <ez/TypeUtils.hpp>
 
 using namespace ez;
 using namespace ez::flow;

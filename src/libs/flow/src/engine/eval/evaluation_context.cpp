@@ -60,7 +60,7 @@ Scope& EvaluationScope::push(ScopeType mode)
         case ScopeType::Function:
             return m_scopes.emplace_back(Option<Entity>{}, ScopeType::Function);
     }
-    std::unreachable();
+    std::terminate();
 }
 
 void EvaluationScope::pop()

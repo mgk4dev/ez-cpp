@@ -5,7 +5,7 @@
 
 #include "eval/interpreter.hpp"
 
-#include <ez/shared.hpp>
+#include <ez/Shared.hpp>
 
 #include <boost/spirit/home/x3/support/utility/error_reporting.hpp>
 

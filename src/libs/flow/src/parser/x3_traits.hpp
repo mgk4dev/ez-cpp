@@ -1,9 +1,10 @@
 #pragma once
 
+#include <ez/Enum.hpp>
+
 #include <boost/spirit/home/x3/support/traits/is_variant.hpp>
 #include <boost/spirit/home/x3/support/traits/variant_find_substitute.hpp>
 #include <boost/spirit/home/x3/support/traits/variant_has_substitute.hpp>
-#include <ez/enum.hpp>
 
 namespace boost::spirit::x3::traits {
 template <typename... Ts>

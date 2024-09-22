@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ez/meta.hpp>
+#include <ez/TypeUtils.hpp>
 
 #include "builtin/functions.hpp"
 #include "builtin/types.hpp"

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ez/flow/ast.hpp>
-#include <ez/trait.hpp>
+#include <ez/Traits.hpp>
 
 #include <boost/spirit/home/x3.hpp>
 #include <boost/spirit/home/x3/support/context.hpp>

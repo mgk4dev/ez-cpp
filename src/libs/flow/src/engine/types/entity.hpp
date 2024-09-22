@@ -2,7 +2,7 @@
 
 #include "types.hpp"
 
-#include <ez/enum.hpp>
+#include <ez/Enum.hpp>
 
 #include <cstdint>
 

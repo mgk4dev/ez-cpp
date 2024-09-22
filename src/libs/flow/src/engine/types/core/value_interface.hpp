@@ -2,9 +2,9 @@
 
 #include "errors.hpp"
 
-#include <ez/option.hpp>
-#include <ez/result.hpp>
-#include <ez/shared.hpp>
+#include <ez/Option.hpp>
+#include <ez/Result.hpp>
+#include <ez/Shared.hpp>
 
 namespace ez::flow::engine {
 

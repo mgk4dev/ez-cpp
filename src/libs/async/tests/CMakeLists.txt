@@ -3,7 +3,7 @@ find_package(Boost REQUIRED)
 add_executable(ez_async_tests
     main.cpp 
     tst_async.cpp
-    tst_receiver.cpp
+    tst_Receiver.cpp
 )
 
 target_link_libraries(ez_async_tests

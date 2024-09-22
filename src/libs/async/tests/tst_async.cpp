@@ -2,8 +2,8 @@
 
 #include <ez/async/all.hpp>
 
-#include <ez/scope_guard.hpp>
-#include <ez/utils.hpp>
+#include <ez/ScopeGuard.hpp>
+#include <ez/Utils.hpp>
 
 #include <thread>
 

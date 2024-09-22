@@ -124,7 +124,7 @@ Task<Entity> Interpreter::eval(Statement<ast::UnaryExpression> statement)
             case ast::UnaryOperator::Minus: return result_type.unary_op_minus(value);
             case ast::UnaryOperator::Not: return result_type.unary_op_not(value);
         }
-        std::unreachable();
+        std::terminate();
     }();
 
     co_return entity::ensure_value(std::move(result), statement.ast());
@@ -145,7 +145,7 @@ Task<Entity> Interpreter::eval(Statement<ast::MultiplicativeExpression> statemen
                 case ast::MultiplicativeOperator::Div:
                     return result_type.binary_op_div(result, term_value);
             }
-            std::unreachable();
+            std::terminate();
         }();
 
         result = entity::ensure_value(std::move(operation_result), ast_term.term);
@@ -168,7 +168,7 @@ Task<Entity> Interpreter::eval(Statement<ast::AdditiveExpression> statement)
                 case ast::AdditiveOperator::Plus: return result_type.binary_op_plus(lhs, rhs);
                 case ast::AdditiveOperator::Minus: return result_type.binary_op_minus(lhs, rhs);
             }
-            std::unreachable();
+            std::terminate();
         }();
 
         lhs = entity::ensure_value(std::move(operation_result), ast_term.term);
@@ -196,7 +196,7 @@ Task<Entity> Interpreter::eval(Statement<ast::RelationalExpression> statement)
                 case ast::RelationalOperator::GreaterEq:
                     return result_type.binary_op_greater_eq(lhs, rhs);
             }
-            std::unreachable();
+            std::terminate();
         }();
 
         lhs = entity::ensure_value(std::move(operation_result), ast_term.term);
@@ -242,7 +242,7 @@ Task<Entity> Interpreter::eval(Statement<ast::EqualityExpression> statement)
                     case ast::EqualityOperator::In: return rhs.type().binary_op_contains(rhs, lhs);
                     case ast::EqualityOperator::Is: assert(false);
                 }
-                std::unreachable();
+                std::terminate();
             }();
             lhs = entity::ensure_value(std::move(operation_result), ast_term.term);
         }
@@ -265,7 +265,7 @@ Task<Entity> Interpreter::eval(Statement<ast::Expression> statement)
                 case ast::LogicalOperator::And: return result_type.binary_op_and(lhs, rhs);
                 case ast::LogicalOperator::Or: return result_type.binary_op_or(lhs, rhs);
             }
-            std::unreachable();
+            std::terminate();
         }();
 
         lhs = entity::ensure_value(std::move(operation_result), ast_term.term);

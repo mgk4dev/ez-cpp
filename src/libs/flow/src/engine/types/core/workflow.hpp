@@ -4,7 +4,7 @@
 
 #include <ez/flow/statement.hpp>
 
-#include <ez/cow.hpp>
+#include <ez/Cow.hpp>
 
 namespace ez::flow::ast {
 

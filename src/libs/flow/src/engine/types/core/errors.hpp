@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ez/flow/ast.hpp>
-#include <ez/result.hpp>
+#include <ez/Result.hpp>
 
 #include <format>
 #include <stdexcept>

@@ -1,2 +1,2 @@
 add_subdirectory(libs)
-add_subdirectory(experiments)
+add_subdirectory(apps)

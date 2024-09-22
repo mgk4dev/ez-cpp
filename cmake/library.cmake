@@ -9,9 +9,9 @@ function (ez_add_library target_name lib_folder)
     list(FILTER source_files_ INCLUDE REGEX "src/(.*)")
 
 
-    message("++++ Header files '${header_files_}'")
-    message("++++ Private header files '${private_header_files_}'")
-    message("++++ Source files '${source_files_}'")
+    message("-- Header files '${header_files_}'")
+    message("-- Private header files '${private_header_files_}'")
+    message("-- Source files '${source_files_}'")
 
 
     add_library(${target_name} STATIC)
@@ -25,7 +25,6 @@ function (ez_add_library target_name lib_folder)
 
     target_include_directories(${target_name} PUBLIC ${lib_folder}/headers)
     set_target_properties(${target_name} PROPERTIES LINKER_LANGUAGE CXX)
-    target_compile_features(${target_name} PUBLIC cxx_std_23)
 endfunction()
 
 
@@ -34,7 +33,7 @@ function (ez_add_header_only_library target_name lib_folder)
 
     list(FILTER header_files_ INCLUDE REGEX "headers/(.*)")
 
-    message("++++ Header files '${header_files_}'")
+    message("-- Header files '${header_files_}'")
 
     add_library(${target_name} INTERFACE)
 
@@ -45,5 +44,4 @@ function (ez_add_header_only_library target_name lib_folder)
 
     target_include_directories(${target_name} INTERFACE ${lib_folder}/headers)
     set_target_properties(${target_name} PROPERTIES LINKER_LANGUAGE CXX)
-   # target_compile_features(${target_name} PUBLIC cxx_std_23)
 endfunction()

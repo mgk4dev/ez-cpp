@@ -4,7 +4,7 @@
 #include "../types/core/type.hpp"
 #include "../types/entity.hpp"
 
-#include <ez/reporting.hpp>
+#include <ez/Logger.hpp>
 
 #include <deque>
 #include <vector>

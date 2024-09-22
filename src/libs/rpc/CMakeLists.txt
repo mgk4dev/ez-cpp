@@ -16,11 +16,6 @@ target_link_libraries(ez_rpc_protobuf PUBLIC protobuf::libprotobuf)
 
 ez_add_library(ez_rpc ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_sources(ez_rpc
-  PRIVATE
-    src/serializer.cpp
-)
-
 target_link_libraries(ez_rpc
     PUBLIC
         ez_core

@@ -5,8 +5,8 @@
 #include <ez/flow/extensions.hpp>
 #include <ez/flow/statement.hpp>
 
-#include <ez/async/executor.hpp>
-#include <ez/async/task.hpp>
+#include <ez/async/Executor.hpp>
+#include <ez/async/Task.hpp>
 
 namespace ez::flow::engine {
 

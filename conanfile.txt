@@ -1,19 +1,13 @@
 [requires]
-boost/1.83.0
-gtest/cci.20210126
-benchmark/1.8.3
-jfalcou-eve/v2023.02.15
-protobuf/3.21.12
+boost/1.86.0
+gtest/1.15.0
+protobuf/5.27.0
 
 [generators]
-cmake
-cmake_paths
 CMakeDeps
 CMakeToolchain
 
 [layout]
 cmake_layout
 
-
 [options]
-boost:without_stacktrace=True

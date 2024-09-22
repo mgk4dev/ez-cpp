@@ -3,10 +3,10 @@
 #include <ez/flow/extensions.hpp>
 #include <ez/flow/program.hpp>
 
-#include <ez/async/executor.hpp>
+#include <ez/async/Executor.hpp>
 
-#include <ez/box.hpp>
-#include <ez/reporting.hpp>
+#include <ez/Box.hpp>
+#include <ez/Logger.hpp>
 
 namespace ez::flow {
 

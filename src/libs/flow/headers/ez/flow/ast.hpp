@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ez/enum.hpp>
-#include <ez/option.hpp>
-#include <ez/tuple.hpp>
+#include <ez/Enum.hpp>
+#include <ez/Option.hpp>
+#include <ez/Tuple.hpp>
 
 #include <boost/variant/recursive_wrapper.hpp>
 

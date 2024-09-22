@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
 
-#include <ez/rpc/remote_service.hpp>
-#include <ez/rpc/schema.hpp>
-#include <ez/rpc/service.hpp>
+#include <ez/rpc/RemoteService.hpp>
+#include <ez/rpc/Schema.hpp>
+#include <ez/rpc/Service.hpp>
 
-#include <ez/async/when_all.hpp>
+#include <ez/async/WhenAll.hpp>
 
-#include <ez/atomic.hpp>
-#include <ez/shared.hpp>
+#include <ez/Atomic.hpp>
+#include <ez/Shared.hpp>
 
 #include <format>
 #include <future>

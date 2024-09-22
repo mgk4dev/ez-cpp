@@ -1,20 +1,7 @@
 
-add_executable(ez_core_tests
+file(GLOB_RECURSE SRC_FILES *.cpp)
 
-    main.cpp
-    tst_Box.cpp
-    tst_Enum.cpp
-    tst_Result.cpp
-    tst_Shared.cpp
-    tst_Traits.cpp
-    tst_TypeUtils.cpp
-    tst_Atomic.cpp
-    tst_Cow.cpp
-    tst_ScopeGuard.cpp
-    tst_StrongType.cpp
-    tst_Tuple.cpp
-    tst_Utils.cpp
-)
+add_executable(ez_core_tests ${SRC_FILES})
 
 target_link_libraries(ez_core_tests 
     PRIVATE

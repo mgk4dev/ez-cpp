@@ -28,6 +28,14 @@ using Ref = std::reference_wrapper<T>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+template <typename Enum>
+inline constexpr typename std::underlying_type_t<Enum> as_int(Enum val) noexcept
+{
+    return static_cast<typename std::underlying_type_t<Enum>>(val);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 template <typename... Ts>
 struct DebugType;
 

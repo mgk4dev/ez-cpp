@@ -65,7 +65,7 @@ void check(bool condition, const Expression& expression, Behaviors&&... behavior
 #ifdef NDEBUG
 #define EZ_ASSERT(condition)
 #else
-#define EZ_ASSERT(condition) EZ_CONTRACT(condition, ::ez::contract::printError, ::ez::contract::terminate)
+#define EZ_ASSERT(condition) EZ_CONTRACT(condition, ::ez::contract::print_error, ::ez::contract::terminate)
 #endif
 
 #if defined( _MSC_VER ) && !defined( __clang__ )

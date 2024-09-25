@@ -4,11 +4,11 @@
 
 using namespace ez;
 
-enum class Error { Cause1, Cause2 };
+enum class ErrorCode { Cause1, Cause2 };
 
 TEST(Result, valid_by_default)
 {
-    Result<std::string, Error> result;
+    Result<std::string, ErrorCode> result;
 
     ASSERT_TRUE(result.has_value());
     ASSERT_TRUE(result);
@@ -17,7 +17,7 @@ TEST(Result, valid_by_default)
 
 TEST(Result, void_value_is_accepted)
 {
-    Result<void, Error> result;
+    Result<void, ErrorCode> result;
 
     ASSERT_TRUE(result.has_value());
     ASSERT_TRUE(result);
@@ -25,7 +25,7 @@ TEST(Result, void_value_is_accepted)
 
 TEST(Result, valid_by_default_with_value)
 {
-    auto task = []() -> Result<std::string, Error> { return Ok{"hello"}; };
+    auto task = []() -> Result<std::string, ErrorCode> { return Ok{"hello"}; };
 
     auto result = task();
 
@@ -37,26 +37,26 @@ TEST(Result, valid_by_default_with_value)
 
 TEST(Result, created_properly_from_fail_type)
 {
-    auto task = []() -> Result<std::string, Error> { return Fail{Error::Cause1}; };
+    auto task = []() -> Result<std::string, ErrorCode> { return Fail{ErrorCode::Cause1}; };
     auto result = task();
     ASSERT_TRUE(!result);
     ASSERT_TRUE(result.is_error());
-    ASSERT_EQ(result.error(), Error::Cause1);
+    ASSERT_EQ(result.error(), ErrorCode::Cause1);
 }
 
 TEST(Result, access_value_from_error_throws)
 {
-    auto task = []() -> Result<std::string, Error> { return Fail{Error::Cause1}; };
+    auto task = []() -> Result<std::string, ErrorCode> { return Fail{ErrorCode::Cause1}; };
 
     auto result = task();
 
-    ASSERT_THROW(result.value(), Error);
+    ASSERT_THROW(result.value(), ErrorCode);
 }
 
 TEST(Result, is_copy_contructible_from_result)
 {
-    Result<std::string, Error> result = Ok{"hello"};
-    Result<std::string, Error> copy = result;
+    Result<std::string, ErrorCode> result = Ok{"hello"};
+    Result<std::string, ErrorCode> copy = result;
 
     ASSERT_TRUE(copy);
     ASSERT_EQ(copy.value(), result.value());
@@ -64,8 +64,8 @@ TEST(Result, is_copy_contructible_from_result)
 
 TEST(Result, is_copyable_from_result)
 {
-    Result<std::string, Error> result = Ok{"hello"};
-    Result<std::string, Error> copy;
+    Result<std::string, ErrorCode> result = Ok{"hello"};
+    Result<std::string, ErrorCode> copy;
     copy = result;
 
     ASSERT_TRUE(copy);
@@ -74,7 +74,7 @@ TEST(Result, is_copyable_from_result)
 
 TEST(Result, is_copy_constructible_from_error)
 {
-    Result<std::string, Error> resultError = Fail{Error::Cause1};
+    Result<std::string, ErrorCode> resultError = Fail{ErrorCode::Cause1};
     auto errorCopy = resultError;
 
     ASSERT_FALSE(resultError);
@@ -83,8 +83,8 @@ TEST(Result, is_copy_constructible_from_error)
 
 TEST(Result, is_copyable_from_erro)
 {
-    Result<std::string, Error> result = Fail{Error::Cause1};
-    Result<std::string, Error> copy;
+    Result<std::string, ErrorCode> result = Fail{ErrorCode::Cause1};
+    Result<std::string, ErrorCode> copy;
     copy = result;
 
     ASSERT_FALSE(result);
@@ -96,11 +96,11 @@ TEST(Result, is_move_constructible)
     std::vector data{1, 2, 3, 4};
     const auto* data_ptr = data.data();
 
-    Result<std::vector<int>, Error> result = Ok{std::move(data)};
+    Result<std::vector<int>, ErrorCode> result = Ok{std::move(data)};
     const auto* ptr = result.value().data();
     ASSERT_EQ(data_ptr, ptr);
 
-    Result<std::vector<int>, Error> copy = std::move(result);
+    Result<std::vector<int>, ErrorCode> copy = std::move(result);
     ASSERT_TRUE(copy);
     ASSERT_EQ(copy.value().data(), data_ptr);
 }

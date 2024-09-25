@@ -52,4 +52,7 @@ concept IsTemplate = detail::IsTemplateImpl<T, Template>::value;
 template <typename Callable, typename Signature>
 concept Fn = detail::IsInvocable<Callable, Signature>::value;
 
+template <typename T>
+concept IsEnum = std::is_enum_v<T>;
+
 }  // namespace ez::trait

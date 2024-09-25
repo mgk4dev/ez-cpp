@@ -2,6 +2,7 @@
 
 #include <ez/Enum.hpp>
 #include <ez/ValueWrapper.hpp>
+#include <ez/Error.hpp>
 
 #include <memory>
 #include <variant>
@@ -58,7 +59,7 @@ Fail(T&&) -> Fail<std::decay_t<T>>;
 /// ASSERT_EQ(result.error(), Error::Cause1);
 ///
 /// @endcode
-template <typename T, typename E>
+template <typename T, typename E = Error>
 class [[nodiscard]] Result : public Enum<Ok<T>, Fail<E>> {
 public:
     using Super = Enum<Ok<T>, Fail<E>>;

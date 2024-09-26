@@ -49,7 +49,7 @@ Ranges merge(const Ranges& rngs1, const Ranges& rngs2)
     for (auto&& range : rngs1) {
         print("range", range);
 
-        for (auto&& overlapping : std::ranges::equal_range(
+        for (auto &&overlapping : std::ranges::equal_range(
                  rngs2, range, [](Range lhs, Range rhs) { return lhs.end < rhs.begin; })) {
             print("  overlapping: ", overlapping);
             result.push_back(get_overlap(range, overlapping).value());
@@ -90,7 +90,6 @@ int main()
     run({ {1, 3}, {9, 10}, {11, 15} },
         { {4, 5}, {19, 20} });
     // clang-format on
-
 
     // clang-format off
     run({ {1, 3}, {9, 10}, {11, 15} },

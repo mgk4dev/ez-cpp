@@ -6,7 +6,6 @@
 #include <memory>
 
 namespace ez {
-
 ///
 /// Box is a heap allocated unique value wrapper. It can hold a type T or any type deriving from T.
 /// Box can be used for passing abstract types and manipulate them as move only values. Usage:

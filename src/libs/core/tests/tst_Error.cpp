@@ -3,43 +3,27 @@
 #include <ez/Error.hpp>
 #include <ez/Result.hpp>
 
-namespace mylib
-{
-enum class FooError
-{
-    Reason1,
-    Reason2
-};
+namespace mylib {
+enum class FooError { Reason1, Reason2 };
 
-enum class UnusedError
-{
-    Reason1,
-    Reason2
-};
+enum class UnusedError { Reason1, Reason2 };
 
 std::string to_string(FooError value) noexcept
 {
-    switch (value)
-    {
-        case FooError::Reason1:
-            return "Reason 1";
-        case FooError::Reason2:
-            return "Reason 2";
+    switch (value) {
+        case FooError::Reason1: return "Reason 1";
+        case FooError::Reason2: return "Reason 2";
     }
     return "Success";
 }
 
-std::string to_string(UnusedError) noexcept
-{
-    return "Success";
-}
+std::string to_string(UnusedError) noexcept { return "Success"; }
 
 }  // namespace mylib
-namespace ez
-{
+namespace ez {
 EZ_ERROR_INFO(mylib::FooError, "FOO-ERROR", fn_overload<mylib::FooError>(mylib::to_string))
 EZ_ERROR_INFO(mylib::UnusedError, "UNUSED-ERROR", fn_overload<mylib::UnusedError>(mylib::to_string))
-}  // namespace p4d
+}  // namespace ez
 
 using namespace ez;
 using namespace mylib;
@@ -64,7 +48,6 @@ TEST(Error, comparison)
     ASSERT_NE(error, UnusedError::Reason2);
 
     ASSERT_EQ(error, error2);
-
 }
 
 TEST(Error, id)
@@ -88,13 +71,11 @@ TEST(Error, result_throw_error_code)
     auto f = []() -> Result<std::string> { return Fail(FooError::Reason1); };
 
     auto result = f();
-    try
-    {
+    try {
         std::cout << result.value();
         FAIL();
     }
-    catch (const Error& code)
-    {
+    catch (const Error& code) {
         ASSERT_EQ(code, FooError::Reason1);
     }
 }
@@ -104,13 +85,11 @@ TEST(Error, result_throw_exception)
     auto f = []() -> Result<std::string> { return Fail(FooError::Reason1); };
 
     auto result = f();
-    try
-    {
+    try {
         std::cout << result.value();
         FAIL();
     }
-    catch (const std::exception& exception)
-    {
+    catch (const std::exception& exception) {
         ASSERT_EQ(std::string(exception.what()), "Reason 1");
     }
 }

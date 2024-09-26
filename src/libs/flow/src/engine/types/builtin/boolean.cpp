@@ -3,7 +3,6 @@
 #include "../entity_utils.hpp"
 
 namespace ez::flow::engine {
-
 EZ_FLOW_TYPE_IMPL(Boolean)
 {
     Type result;

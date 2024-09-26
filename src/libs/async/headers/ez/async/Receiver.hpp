@@ -9,12 +9,10 @@
 #include <exception>
 
 namespace ez::async {
-
 template <typename T>
 class Receiver;
 
 namespace detail {
-
 template <typename Self>
 struct ReturnValue {
     void return_value(auto&& val) { static_cast<Self&>(*this).set_value(EZ_FWD(val)); }

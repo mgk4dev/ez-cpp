@@ -8,7 +8,6 @@
 #include <sstream>
 
 namespace ez::flow {
-
 engine::FreeFunction engine::make_panic_function()
 {
     FreeFunction panic;

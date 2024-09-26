@@ -12,7 +12,6 @@
 #include <iostream>
 
 namespace ez::flow {
-
 namespace x3 = boost::spirit::x3;
 
 template <typename Tag, typename T>

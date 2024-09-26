@@ -10,7 +10,6 @@
 #include <vector>
 
 namespace ez::flow::engine {
-
 struct Error : Value<> {
     EZ_FLOW_TYPE(EntityCategory::Error)
     std::string what;
@@ -52,15 +51,13 @@ struct DurationStorage {
     ast::DurationUnit unit = ast::DurationUnit::Ms;
 
     std::chrono::system_clock::duration to_std_duration() const;
-    std::chrono::milliseconds to_milliseconds()const;
+    std::chrono::milliseconds to_milliseconds() const;
 };
 
 struct Duration : Value<DurationStorage> {
     EZ_FLOW_TYPE(EntityCategory::Object)
     using ValueType::ValueType;
     using ValueType::operator=;
-
-
 };
 
 struct TimePoint : Value<> {

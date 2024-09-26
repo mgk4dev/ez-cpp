@@ -3,7 +3,6 @@
 #include "../entity_utils.hpp"
 
 namespace ez::flow::engine {
-
 TimePoint TimePoint::now()
 {
     TimePoint tp;

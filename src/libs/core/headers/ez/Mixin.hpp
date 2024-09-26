@@ -64,7 +64,6 @@
     }
 
 namespace ez::mixin {
-
 template <typename Self, typename Tag>
 struct MixinBase {
 protected:
@@ -168,7 +167,8 @@ struct ArrowOp : public MixinBase<Self, struct ArrowOpTag> {
 };
 
 template <typename Self, typename ValueType>
-struct Hashable : public MixinBase<Self, struct HashableTag> {};
+struct Hashable : public MixinBase<Self, struct HashableTag> {
+};
 
 //=========================================================
 
@@ -181,6 +181,7 @@ struct NumberSemantic : BinaryPlusOp<Self, ValueType>,
                         GenericValueStarEqOp<Self, ValueType>,
                         ValueDivOp<Self, ValueType>,
                         GenericValueDivEqOp<Self, ValueType>,
-                        Comparable<Self, ValueType> {};
+                        Comparable<Self, ValueType> {
+};
 
 }  // namespace ez::mixin

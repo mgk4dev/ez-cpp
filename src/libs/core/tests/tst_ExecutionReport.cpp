@@ -146,8 +146,7 @@ TEST(ExecutionReport, execution_guard_set_error_warning_on_running_sub_report)
     auto report1 = root.create_sub_report(reporting::name = "Report 1");
     auto report11 = report1.create_sub_report(reporting::name = "Report 1 1");
     auto report111 = report11.create_sub_report(reporting::name = "Report 1 1 1");
-    auto report12 =
-        report1.create_sub_report(reporting::name = "Report 1 2");
+    auto report12 = report1.create_sub_report(reporting::name = "Report 1 2");
 
     ASSERT_EQ(report1.status(), ExecutionStatus::Pending);
     ASSERT_EQ(report11.status(), ExecutionStatus::Pending);
@@ -215,7 +214,6 @@ TEST(ExecutionReport, log_messages_are_properly_saved)
         ASSERT_EQ(item.parent_report(), report);
     }
 }
-
 
 TEST(ExecutionReport, sub_reports_are_properly_created)
 {
@@ -457,7 +455,9 @@ TEST(ExecutionReport, reader_and_writer_example)
 
     root_report.add_observer(observer);
 
-    for (size_t i = 0; i < iteration_count; ++i) { root_report.debug(std::format("message {}", i)); }
+    for (size_t i = 0; i < iteration_count; ++i) {
+        root_report.debug(std::format("message {}", i));
+    }
 
     ASSERT_EQ(futures.size(), iteration_count);
 

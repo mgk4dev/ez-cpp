@@ -3,8 +3,10 @@
 #include <ez/Functional.hpp>
 
 using namespace ez;
-struct ByteArray {};
-struct String {};
+struct ByteArray {
+};
+struct String {
+};
 struct Overloaded {
     void foo() {}
     void foo(ByteArray) {}

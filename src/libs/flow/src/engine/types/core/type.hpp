@@ -6,7 +6,6 @@
 #include <map>
 
 namespace ez::flow::engine {
-
 struct Type {
     std::string id = "undefined";
     std::string name = "undefined";
@@ -46,9 +45,6 @@ struct Type {
 };
 
 // types are static variables
-inline bool same_type(const Type& lhs, const Type& rhs)
-{
-    return lhs.id == rhs.id;
-}
+inline bool same_type(const Type& lhs, const Type& rhs) { return lhs.id == rhs.id; }
 
 }  // namespace ez::flow::engine

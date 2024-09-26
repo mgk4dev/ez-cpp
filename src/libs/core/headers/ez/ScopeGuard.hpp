@@ -5,7 +5,6 @@
 #include <utility>
 
 namespace ez {
-
 template <typename F>
 struct ScopeExitAction {
     ~ScopeExitAction() { f(); }

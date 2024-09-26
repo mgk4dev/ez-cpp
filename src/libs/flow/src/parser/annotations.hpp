@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ez/flow/ast.hpp>
 #include <ez/Traits.hpp>
+#include <ez/flow/ast.hpp>
 
 #include <boost/spirit/home/x3.hpp>
 #include <boost/spirit/home/x3/support/context.hpp>
@@ -10,7 +10,6 @@
 #include <ostream>
 
 namespace ez::flow::parser {
-
 namespace x3 = boost::spirit::x3;
 
 struct HandlerTag;
@@ -33,6 +32,7 @@ struct SuccessHandler {
 };
 
 template <typename Tag>
-struct RuleTag : SuccessHandler {};
+struct RuleTag : SuccessHandler {
+};
 
 }  // namespace ez::flow::parser

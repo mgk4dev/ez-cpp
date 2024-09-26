@@ -4,7 +4,6 @@
 #include <ez/async/Types.hpp>
 
 namespace ez::async {
-
 enum class AwaitReturnMode { ConstRef, Move };
 
 template <typename T>

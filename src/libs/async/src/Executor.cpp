@@ -3,7 +3,6 @@
 #include <algorithm>
 
 namespace ez::async {
-
 TaskPool& TaskPool::operator<<(Task<> task)
 {
     auto wrap = [this](Task<> task) mutable -> Task<> {

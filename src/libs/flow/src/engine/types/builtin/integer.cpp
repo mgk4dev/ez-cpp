@@ -3,7 +3,6 @@
 #include "../entity_utils.hpp"
 
 namespace ez::flow::engine {
-
 EZ_FLOW_UNARY_OP_NOT_SUPPORTED(unary_op_plus, "+")
 EZ_FLOW_UNARY_OP_NOT_SUPPORTED(unary_op_minus, "-")
 

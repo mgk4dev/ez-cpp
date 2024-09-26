@@ -12,7 +12,6 @@
 #include <atomic>
 
 namespace ez::async::detail {
-
 class WhenAnyLatch : NonCopiable {
 public:
     WhenAnyLatch() {}

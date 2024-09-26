@@ -4,8 +4,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace ez
-{
+namespace ez {
 template <typename T>
 class FunctionView;
 
@@ -21,26 +20,27 @@ class FunctionView;
 ///   @endcode
 
 template <typename R, typename... T>
-class FunctionView<R(T...)>
-{
+class FunctionView<R(T...)> {
 public:
     FunctionView() = default;
     FunctionView(std::nullptr_t);
 
     template <typename Callable>
-    FunctionView(Callable&& callable,
-                 typename std::enable_if<!std::is_same<typename std::remove_reference<Callable>::type,
-                                                       FunctionView>::value>::type* = nullptr);
+    FunctionView(
+        Callable&& callable,
+        typename std::enable_if<!std::is_same<typename std::remove_reference<Callable>::type,
+                                              FunctionView>::value>::type* = nullptr);
 
     R operator()(T... params) const;
     explicit operator bool() const;
 
 private:
-    R (*m_callback)(void* callable, T... params) = nullptr;
+    typedef R (*CallbackType)(void* callable, T... params);
+    CallbackType m_callback = nullptr;
     void* m_callable;
 
     template <typename Callable>
-    static R genericCallback(void* callable, T... params)
+    static R generic_callback(void* callable, T... params)
     {
         return (*reinterpret_cast<Callable*>(callable))(std::forward<T>(params)...);
     }
@@ -51,26 +51,16 @@ template <typename T>
 class FreeFunction;
 
 template <typename R, typename... Ts>
-class FreeFunction<R(Ts...)>
-{
+class FreeFunction<R(Ts...)> {
 public:
     typedef R (*FuncPtr)(Ts...);
 
     FreeFunction() = default;
 
-    FreeFunction(FuncPtr ptr)
-        : m_callable{ptr}
-    {
-    }
+    FreeFunction(FuncPtr ptr) : m_callable{ptr} {}
 
-    R operator()(Ts... params) const
-    {
-        return m_callable(params...);
-    }
-    explicit operator bool() const
-    {
-        return m_callable != nullptr;
-    }
+    R operator()(Ts... params) const { return m_callable(params...); }
+    explicit operator bool() const { return m_callable != nullptr; }
 
 private:
     FuncPtr m_callable = nullptr;
@@ -87,9 +77,10 @@ template <typename R, typename... T>
 template <typename Callable>
 inline FunctionView<R(T...)>::FunctionView(
     Callable&& callable,
-    typename std::enable_if<!std::is_same<typename std::remove_reference<Callable>::type, FunctionView>::value>::type*)
-    : m_callback(genericCallback<typename std::remove_reference<Callable>::type>)
-      , m_callable(const_cast<void*>(reinterpret_cast<const void*>(std::addressof(callable))))
+    typename std::enable_if<
+        !std::is_same<typename std::remove_reference<Callable>::type, FunctionView>::value>::type*)
+    : m_callback(generic_callback<typename std::remove_reference<Callable>::type>),
+      m_callable(const_cast<void*>(reinterpret_cast<const void*>(std::addressof(callable))))
 {
 }
 
@@ -107,11 +98,9 @@ inline FunctionView<R(T...)>::operator bool() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace internal
-{
+namespace internal {
 template <typename... Args>
-struct FnNonConstOverload
-{
+struct FnNonConstOverload {
     template <typename R, typename T>
     constexpr auto operator()(R (T::*ptr)(Args...)) const noexcept -> decltype(ptr)
     {
@@ -124,8 +113,7 @@ struct FnNonConstOverload
     }
 };
 template <typename... Args>
-struct FnConstOverload
-{
+struct FnConstOverload {
     template <typename R, typename T>
     constexpr auto operator()(R (T::*ptr)(Args...) const) const noexcept -> decltype(ptr)
     {
@@ -139,8 +127,7 @@ struct FnConstOverload
 };
 
 template <typename... Args>
-struct FnOverload : FnConstOverload<Args...>, FnNonConstOverload<Args...>
-{
+struct FnOverload : FnConstOverload<Args...>, FnNonConstOverload<Args...> {
     using FnConstOverload<Args...>::of;
     using FnConstOverload<Args...>::operator();
     using FnNonConstOverload<Args...>::of;
@@ -175,4 +162,4 @@ constexpr internal::FnConstOverload<Args...> fn_const_overload = {};
 template <typename... Args>
 constexpr internal::FnNonConstOverload<Args...> fn_non_const_overload = {};
 
-}  // namespace p4d
+}  // namespace ez

@@ -1,14 +1,13 @@
 #pragma once
 
-#include <ez/flow/ast.hpp>
 #include <ez/Result.hpp>
+#include <ez/flow/ast.hpp>
 
 #include <format>
 #include <stdexcept>
 #include <string_view>
 
 namespace ez::flow::engine {
-
 class EvaluationError : public std::runtime_error {
 public:
     ast::Located location;
@@ -43,7 +42,6 @@ public:
 };
 
 namespace error {
-
 template <typename... Args>
 inline auto generic(std::format_string<Args...> base, Args&&... args)
 {

@@ -3,7 +3,6 @@
 #include <ez/flow/program.hpp>
 
 namespace ez::flow::engine {
-
 template <typename T>
 struct Statement {
     const Program<ast::Program>* program_ptr = nullptr;

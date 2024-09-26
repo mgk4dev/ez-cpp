@@ -11,7 +11,6 @@
 #include <boost/uuid/uuid_io.hpp>
 
 namespace ez::rpc {
-
 RequestId make_request_id()
 {
     return RequestId{boost::uuids::to_string(boost::uuids::random_generator()())};

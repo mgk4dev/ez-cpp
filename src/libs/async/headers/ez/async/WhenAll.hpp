@@ -3,7 +3,6 @@
 #include <ez/async/detail/WhenAll.hpp>
 
 namespace ez::async {
-
 template <trait::Awaitable... Awaitables>
 auto when_all(Awaitables&&... awaitables)
 {

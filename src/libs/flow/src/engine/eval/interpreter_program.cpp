@@ -3,7 +3,6 @@
 #include "../types/entity_utils.hpp"
 
 namespace ez::flow::engine {
-
 Task<> Interpreter::eval(Statement<ast::Program> program)
 {
     for (const auto& statement : program.ast()) {

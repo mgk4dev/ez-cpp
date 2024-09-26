@@ -4,7 +4,6 @@
 #include "entity.hpp"
 
 namespace ez::flow::engine::entity {
-
 inline std::string representation(const Entity& var) { return var.type().representation(var); }
 
 inline EvalResult construct(const Type& type, Entity&& arguments)
@@ -89,17 +88,11 @@ struct StaticPropertyBuilder {
     }
 };
 
-#define EZ_FLOW_MEM_FN(T, type_name, name)             \
-    ez::flow::engine::entity::MemberFunctionBuilder<T> \
-    {                                                  \
-        type_name, name                                \
-    }
+#define EZ_FLOW_MEM_FN(T, type_name, name) \
+    ez::flow::engine::entity::MemberFunctionBuilder<T> { type_name, name }
 
-#define EZ_FLOW_STATIC_PROPERTY(T, R, type_name, name)    \
-    ez::flow::engine::entity::StaticPropertyBuilder<T, R> \
-    {                                                     \
-        type_name, name                                   \
-    }
+#define EZ_FLOW_STATIC_PROPERTY(T, R, type_name, name) \
+    ez::flow::engine::entity::StaticPropertyBuilder<T, R> { type_name, name }
 
 #define EZ_FLOW_BINARY_OP(T, op)                                                            \
     [](const Entity& lhs, const Entity& rhs) {                                              \
@@ -109,11 +102,8 @@ struct StaticPropertyBuilder {
 #define EZ_FLOW_UNARY_OP(T, op) \
     [](const Entity& arg) { return arg.apply_visitor([](const auto& val) { return op(val); }); }
 
-#define EZ_FLOW_UNARY_OP_NOT_SUPPORTED(op, symbol)           \
-    EvalResult op(const auto& arg)                           \
-    {                                                        \
-        return error::op_not_found(symbol, arg.type().name); \
-    }
+#define EZ_FLOW_UNARY_OP_NOT_SUPPORTED(op, symbol) \
+    EvalResult op(const auto& arg) { return error::op_not_found(symbol, arg.type().name); }
 
 #define EZ_FLOW_BINARY_OP_NOT_SUPPORTED(T, op, symbol)                        \
     EvalResult op(const T& lhs, const auto& rhs)                              \
@@ -122,9 +112,6 @@ struct StaticPropertyBuilder {
     }
 
 #define EZ_FLOW_BINARY_OP_IMPL(name, R, Lhs, Rhs, op) \
-    EvalResult name(const Lhs& lhs, const Rhs& rhs)   \
-    {                                                 \
-        return Ok{R{lhs.value() op rhs.value()}};     \
-    }
+    EvalResult name(const Lhs& lhs, const Rhs& rhs) { return Ok{R{lhs.value() op rhs.value()}}; }
 
 }  // namespace ez::flow::engine::entity

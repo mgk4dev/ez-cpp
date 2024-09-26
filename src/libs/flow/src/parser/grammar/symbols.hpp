@@ -5,7 +5,6 @@
 #include <iostream>
 
 namespace ez::flow::grammar {
-
 const auto semicolon = x3::lexeme[';'];
 const auto semicolons = +semicolon;
 const auto optional_semicolons = *semicolon;
@@ -86,7 +85,7 @@ struct BuiltinTypes : x3::symbols<> {
 EZ_FLOW_RULE(ast::Identifier, identifier);
 EZ_FLOW_RULE(ast::IdentifierPath, identifier_path);
 
-const auto identifier_base = x3::raw[x3::lexeme[(x3::alpha | '_')>> *(x3::alnum | '_')]];
+const auto identifier_base = x3::raw[x3::lexeme[(x3::alpha | '_') >> *(x3::alnum | '_')]];
 
 auto reserved = x3::lexeme[keyword >> !identifier_base];
 

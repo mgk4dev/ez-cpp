@@ -5,7 +5,6 @@
 #include <vector>
 
 namespace ez::flow::engine {
-
 struct Entity;
 struct Dictionary;
 struct CallArgument;

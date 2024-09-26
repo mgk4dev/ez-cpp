@@ -7,7 +7,6 @@
 #include <ez/Utils.hpp>
 
 namespace ez::async {
-
 template <typename Op>
 class Operation {
 public:

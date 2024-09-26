@@ -8,7 +8,6 @@
 #include <span>
 
 namespace ez::rpc::func {
-
 template <typename... Args>
 Result<Tuple<Args...>, ParsingError> extract_args(std::span<const ByteArray> args)
 {

@@ -4,13 +4,7 @@
 
 using namespace ez;
 
-enum MyFlags
-{
-    NoOption,
-    Option1 = 1,
-    Option2 = 2,
-    Option3 = 4
-};
+enum MyFlags { NoOption, Option1 = 1, Option2 = 2, Option3 = 4 };
 
 TEST(Flags, make_flags_regular_enum)
 {
@@ -51,13 +45,7 @@ TEST(Flags, or_regular_enum)
     ASSERT_FALSE(f.test(Option3));
 }
 
-enum class Options
-{
-    NoOption,
-    Option1 = 1,
-    Option2 = 2,
-    Option3 = 4
-};
+enum class Options { NoOption, Option1 = 1, Option2 = 2, Option3 = 4 };
 
 TEST(Flags, make_flags_class_enum)
 {

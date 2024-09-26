@@ -33,5 +33,4 @@ void PrintError::operator()(const Expression& expression) const
     print_failed_expression(expression);
 }
 
-
 }  // namespace ez::contract

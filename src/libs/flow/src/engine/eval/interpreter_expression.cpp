@@ -5,7 +5,6 @@
 #include "literals.hpp"
 
 namespace ez::flow::engine {
-
 Task<Entity> Interpreter::eval(Statement<ast::Literal> statement)
 {
     co_return statement.ast().apply_visitor([&](const auto& literal) { return to_value(literal); });

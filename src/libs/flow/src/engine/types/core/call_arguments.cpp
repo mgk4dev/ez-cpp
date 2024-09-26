@@ -6,7 +6,6 @@
 #include <ranges>
 
 namespace ez::flow::engine {
-
 void CallArguments::push(Entity&& value)
 {
     push_back(CallArgument(size(), none, std::move(value)));

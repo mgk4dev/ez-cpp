@@ -32,8 +32,8 @@
 #define EZ_PUSH_WARNING _Pragma("GCC diagnostic push")
 #define EZ_POP_WARNING _Pragma("GCC diagnostic pop")
 #define EZ_GNU_DISABLE_WARNING_INTERNAL2(warningName) #warningName
-#define EZ_GNU_DISABLE_WARNING(warningName)                                                                           \
-_Pragma(EZ_GNU_DISABLE_WARNING_INTERNAL2(GCC diagnostic ignored warningName))
+#define EZ_GNU_DISABLE_WARNING(warningName) \
+    _Pragma(EZ_GNU_DISABLE_WARNING_INTERNAL2(GCC diagnostic ignored warningName))
 #ifdef __clang__
 #define EZ_CLANG_DISABLE_WARNING(warningName) EZ_GNU_DISABLE_WARNING(warningName)
 #define EZ_GCC_DISABLE_WARNING(warningName)

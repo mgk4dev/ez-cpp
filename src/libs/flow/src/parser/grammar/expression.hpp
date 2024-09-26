@@ -4,7 +4,6 @@
 #include "symbols.hpp"
 
 namespace ez::flow::grammar {
-
 EZ_FLOW_RULE(ast::Declaration, declaration);
 EZ_FLOW_RULE(ast::DeclarationList, declaration_list);
 EZ_FLOW_RULE(ast::Signature, signature);

@@ -5,7 +5,6 @@
 #include <boost/json.hpp>
 
 namespace ez::flow::engine {
-
 using JsonObject = boost::json::object;
 using JsonArray = boost::json::array;
 using JsonValue = boost::json::value;

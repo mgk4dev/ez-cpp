@@ -4,8 +4,7 @@
 #include <functional>
 
 namespace ez {
-
-enum class LogLevel  { Info = 1, Warning = 2, Error = 4, Trace = 8 };
+enum class LogLevel { Info = 1, Warning = 2, Error = 4, Trace = 8 };
 
 struct Logger {
     std::function<void(LogLevel, const std::string&)> log_impl = [](auto&&...) {};

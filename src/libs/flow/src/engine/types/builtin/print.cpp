@@ -9,7 +9,6 @@
 #include <iostream>
 
 namespace ez::flow::engine {
-
 Result<std::string, std::string> format_args(const CallArguments& args)
 {
     if (args.size() < 1 || !args.front().value.is<String>()) {
@@ -26,7 +25,9 @@ Result<std::string, std::string> format_args(const CallArguments& args)
 
         boost::format fmt{base_string};
 
-        for (std::size_t i = 1; i < args.size(); ++i) { fmt % entity::representation(args[i].value); }
+        for (std::size_t i = 1; i < args.size(); ++i) {
+            fmt % entity::representation(args[i].value);
+        }
 
         return Ok{fmt.str()};
     }

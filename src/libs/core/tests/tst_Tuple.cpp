@@ -32,7 +32,7 @@ TEST(Tupe, transformed)
     auto strings = tuple.transformed([](auto val) { return std::to_string(val); });
 
     static_assert(
-        std::is_same_v<EZ_DECAY_T(strings), Tuple<std::string, std::string, std::string> >);
+        std::is_same_v<EZ_DECAY_T(strings), Tuple<std::string, std::string, std::string>>);
 
     ASSERT_EQ(strings[EZ_CONSTEXP(0)], "1");
     ASSERT_EQ(strings[EZ_CONSTEXP(1)], "2");

@@ -9,7 +9,6 @@
 
 namespace ez::flow::ext {
 namespace detail {
-
 template <typename... T>
 struct DecomposeSignature;
 

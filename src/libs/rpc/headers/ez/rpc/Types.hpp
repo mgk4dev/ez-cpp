@@ -8,7 +8,6 @@
 #include <ez/StrongType.hpp>
 
 namespace ez::rpc {
-
 using ByteArray = StrongType<std::string, struct ByteArrayTag, mixin::Comparable>;
 using PeerId = StrongType<std::string, struct PeerIdTag, mixin::Comparable, mixin::Hashable>;
 using RequestId = StrongType<std::string, struct RequestIdTag, mixin::Comparable, mixin::Hashable>;

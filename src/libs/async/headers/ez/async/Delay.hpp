@@ -7,7 +7,6 @@
 #include <boost/asio/steady_timer.hpp>
 
 namespace ez::async {
-
 using SteadyTimer = boost::asio::steady_timer;
 using Duration = std::chrono::steady_clock::duration;
 
@@ -48,7 +47,8 @@ inline auto delay(IoContext& context, Duration duration, R&& return_value = {})
     return Operation{context, Delay<std::decay_t<R>>{duration, EZ_FWD(return_value)}};
 }
 
-struct TimeoutTag {};
+struct TimeoutTag {
+};
 constexpr TimeoutTag timeout{};
 
 }  // namespace ez::async

@@ -12,7 +12,6 @@
 #include <boost/pfr.hpp>
 
 namespace ez::rpc {
-
 class AbstractFunction;
 
 class AbstractRemoteService {
@@ -58,11 +57,7 @@ public:
         : RemoteServiceBase{context, std::move(client)}
     {
         m_schemas->for_each([&]<typename T>(T& schema) {
-            if constexpr (requires {
-                              {
-                                  T::name_space
-                              };
-                          }) {
+            if constexpr (requires { {T::name_space}; }) {
                 boost::pfr::for_each_field(schema, [&](auto& f) { setup(f, T::name_space); });
             }
             else {

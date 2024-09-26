@@ -3,9 +3,7 @@
 #include "../entity_utils.hpp"
 
 namespace ez::flow::engine {
-
 namespace array {
-
 std::string representation(const Entity& var)
 {
     std::string result = "[";

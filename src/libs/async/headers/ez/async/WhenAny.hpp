@@ -3,7 +3,6 @@
 #include <ez/async/detail/WhenAny.hpp>
 
 namespace ez::async {
-
 template <trait::Awaitable... Awaitables>
 auto when_any(Awaitables&&... awaitables)
 {

@@ -3,7 +3,6 @@
 #include "../entity_utils.hpp"
 
 namespace ez::flow::engine {
-
 std::chrono::system_clock::duration DurationStorage::to_std_duration() const
 {
     using namespace std::chrono;

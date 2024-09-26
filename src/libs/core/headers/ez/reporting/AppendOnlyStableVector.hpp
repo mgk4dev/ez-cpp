@@ -8,7 +8,6 @@
 #include <boost/container/static_vector.hpp>
 
 namespace ez::internal {
-
 /// Append only stable vector.
 /// Preserves elements addresses after insertion and keeps track of
 /// the element count in an atomic variable.
@@ -122,4 +121,4 @@ private:
     std::atomic_size_t m_capacity{0};
     std::atomic_size_t m_blockCount{0};
 };
-}  // namespace ez::detail
+}  // namespace ez::internal

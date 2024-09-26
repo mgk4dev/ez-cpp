@@ -5,7 +5,6 @@
 #include <ez/Preprocessor.hpp>
 
 namespace ez::flow::engine {
-
 #define EZ_FLOW_APPLY_TO(arg) (arg) >> [&](auto&& self) -> decltype(auto)
 
 #define EZ_FLOW_APPLY EZ_FLOW_APPLY_TO(*this)

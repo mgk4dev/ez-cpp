@@ -21,17 +21,18 @@ AlwaysBreakTemplateDeclarations: true
 BinPackArguments: true
 BinPackParameters: false
 BraceWrapping:
-  AfterClass: true
+  AfterClass: false
+  AfterStruct: false
+  AfterUnion: false
   AfterControlStatement: true
   AfterEnum: true
   AfterFunction: true
   AfterNamespace: false
   AfterObjCDeclaration: true
-  AfterStruct: true
-  AfterUnion: true
   BeforeCatch: true
   BeforeElse: true
   IndentBraces: true
+  SplitEmptyFunction: false
 BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Stroustrup
 BreakBeforeTernaryOperators: true
@@ -72,7 +73,7 @@ PenaltyExcessCharacter: 1000000
 PenaltyReturnTypeOnItsOwnLine: 200
 PointerAlignment: Left
 ReflowComments: true
-ShortNamespaceLines: 0
+#ShortNamespaceLines: 0
 SortIncludes: true
 SpaceAfterCStyleCast: false
 SpaceBeforeAssignmentOperators: true

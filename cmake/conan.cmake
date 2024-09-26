@@ -6,6 +6,8 @@ execute_process(COMMAND
                 -of ${CMAKE_CURRENT_BINARY_DIR}
                 --build missing
                 -s build_type=${CMAKE_BUILD_TYPE}
+                -r conan-center
+                -p msvc2022
                 ${CMAKE_SOURCE_DIR}/conanfile.txt
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         RESULT_VARIABLE conan_cmd_result)

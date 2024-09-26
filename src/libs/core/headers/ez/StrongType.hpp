@@ -7,7 +7,6 @@
 #include <functional>
 
 namespace ez {
-
 ///
 /// StrongType is a type wrapper to add semantic to a base type and avoid programming mistakes:
 /// Example of ambiguous code:

@@ -8,7 +8,6 @@
 #include <vector>
 
 namespace ez::rpc {
-
 template <typename T>
 struct Serializer;
 
@@ -40,18 +39,21 @@ EZ_RPC_POD_SERIALIZER(double);
 EZ_RPC_POD_SERIALIZER(bool);
 
 EZ_RPC_SERIALIZER(std::string);
-//EZ_RPC_SERIALIZER(Error);
+// EZ_RPC_SERIALIZER(Error);
 
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-concept ProtobufLike = requires(T obj) {
+concept ProtobufLike = requires(T obj)
+{
     {
         obj.SerializeAsString()
-    } -> trait::Is<std::string>;
+    }
+    ->trait::Is<std::string>;
     {
         obj.ParseFromString(std::declval<std::string>())
-    } -> trait::Is<bool>;
+    }
+    ->trait::Is<bool>;
 };
 
 template <ProtobufLike T>

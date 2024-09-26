@@ -6,7 +6,6 @@
 #include <memory>
 
 namespace ez {
-
 template <typename T>
 class Shared {
 public:

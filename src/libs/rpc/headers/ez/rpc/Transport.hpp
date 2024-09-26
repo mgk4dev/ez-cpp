@@ -3,7 +3,6 @@
 #include <ez/rpc/Types.hpp>
 
 namespace ez::rpc::transport {
-
 struct Client {
     virtual ~Client() = default;
     virtual Result<void, std::runtime_error> connect(const std::string&) = 0;

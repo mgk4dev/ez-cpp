@@ -4,7 +4,6 @@
 #include "call_arguments.hpp"
 
 namespace ez::flow::engine {
-
 EvalResult Type::get_property(Entity& self, std::string_view property_name) const
 {
     if (auto iter = static_properties.find(property_name); iter != static_properties.end()) {

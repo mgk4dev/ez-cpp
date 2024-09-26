@@ -3,7 +3,6 @@
 #include "symbols.hpp"
 
 namespace ez::flow::grammar {
-
 EZ_FLOW_RULE(ast::String, string);
 EZ_FLOW_RULE(ast::Integer, integer);
 EZ_FLOW_RULE(ast::Real, real);

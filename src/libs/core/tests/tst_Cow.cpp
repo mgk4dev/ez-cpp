@@ -46,7 +46,6 @@ TEST(Cow, rvalue_constructor)
 }
 
 namespace cow {
-
 struct A {
     virtual ~A() = default;
     virtual int foo() const { return 0; }

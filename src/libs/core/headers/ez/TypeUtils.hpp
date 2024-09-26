@@ -4,7 +4,6 @@
 #include <utility>
 
 namespace ez {
-
 template <typename T>
 struct Type {
     using Inner = T;

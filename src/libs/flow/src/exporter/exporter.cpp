@@ -6,9 +6,7 @@
 #include <ostream>
 
 namespace ez::flow {
-
 namespace json {
-
 using Object = boost::json::object;
 using Value = boost::json::value;
 using Array = boost::json::array;

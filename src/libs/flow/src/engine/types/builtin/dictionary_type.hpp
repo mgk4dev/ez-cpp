@@ -3,11 +3,10 @@
 #include "../entity_utils.hpp"
 
 namespace ez::flow::engine {
-
 template <typename T, auto name>
 struct DictionaryType {
-
-    static EvalResult construct(Entity arg)  {
+    static EvalResult construct(Entity arg)
+    {
         if (arg.is<Void>()) return Ok{T{}};
         if (arg.is<T>()) return Ok{std::move(arg)};
         if (arg.is<Error>()) return Ok{std::move(arg)};
@@ -16,7 +15,6 @@ struct DictionaryType {
             result.value() = arg.as<Dictionary>().value();
             return Ok{std::move(result)};
         }
-
 
         return error::invalid_constructor(T::static_type().name, arg.type().name);
     };

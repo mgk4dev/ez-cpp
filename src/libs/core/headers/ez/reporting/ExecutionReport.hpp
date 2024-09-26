@@ -1,12 +1,12 @@
 #pragma once
 
 #include <ez/Atomic.hpp>
+#include <ez/NamedArgument.hpp>
 #include <ez/StrongType.hpp>
 #include <ez/Time.hpp>
+#include <ez/Traits.hpp>
 #include <ez/Tuple.hpp>
 #include <ez/Utils.hpp>
-#include <ez/NamedArgument.hpp>
-#include <ez/Traits.hpp>
 
 #include <ez/reporting/AppendOnlyStableVector.hpp>
 #include <ez/reporting/Types.hpp>
@@ -95,8 +95,6 @@ constexpr NamedArgument<ProgressWeight> weight{};
 
 }  // namespace reporting
 
-
-
 struct ExecutionReportData;
 
 class ExecutionReportItem {
@@ -144,7 +142,7 @@ private:
     /// Null constructor. An ExecutionReportItem created with this constructor is invalid.
     ExecutionReportItem() { m_payload.message = nullptr; }
     ExecutionReportItem(const ExecutionLogMessage* message,
-                         const ExecutionReportData* parent) noexcept;
+                        const ExecutionReportData* parent) noexcept;
     explicit ExecutionReportItem(const ExecutionReportData* report) noexcept;
 };
 
@@ -169,7 +167,7 @@ struct ExecutionReportData : std::enable_shared_from_this<ExecutionReportData> {
     ///
     std::atomic<ExecutionStatus> status{ExecutionStatus::Pending};
     ///
-    ExecutionReportFlags flags {ExecutionReportFlag::Empty};
+    ExecutionReportFlags flags{ExecutionReportFlag::Empty};
 
     ElapsedTime duration;
 
@@ -178,7 +176,6 @@ struct ExecutionReportData : std::enable_shared_from_this<ExecutionReportData> {
     /// Flags for ExecutionStatusGuard to know what was logged.
     std::atomic_bool warning_logged{false};
     std::atomic_bool error_logged{false};
-
 };
 
 class ExecutionLogMessageBuilder {
@@ -186,7 +183,9 @@ public:
     ExecutionLogMessageBuilder(ExecutionReport&,
                                ExecutionLogCategory category,
                                const std::string& header = {});
-    ExecutionLogMessageBuilder(ExecutionReport&, ExecutionLogCategory category, std::string&& header);
+    ExecutionLogMessageBuilder(ExecutionReport&,
+                               ExecutionLogCategory category,
+                               std::string&& header);
 
     ExecutionLogMessageBuilder(const ExecutionLogMessageBuilder&) = delete;
     ExecutionLogMessageBuilder(ExecutionLogMessageBuilder&&);
@@ -196,9 +195,7 @@ public:
 
     ~ExecutionLogMessageBuilder();
 
-
     ExecutionLogMessageBuilder& operator<<(std::string_view) &;
-
 
 private:
     ExecutionReport* m_report = nullptr;
@@ -276,7 +273,6 @@ public:
     /// @note Removing an InvalidExecutionObserverId (-1) has no effect
     void remove_observer(ExecutionObserverId);
 
-
     //// Write API: task side Thread safety condition: Max 1 writer, multiple
     /// readers
     /// Create a sub report.
@@ -306,7 +302,6 @@ public:
     ExecutionLogMessageBuilder debug(const std::string& header = {});
     ExecutionLogMessageBuilder debug(std::string&& header);
 
-
     //// Status, progress, cancel
     /// Set the execution status of the ExecutionReport.
     void set_status(ExecutionStatus s);
@@ -322,8 +317,6 @@ public:
 
     /// True if any sub report is busy
     bool has_busy_sub_report() const;
-
-
 
     //// Read API: client side. Thread safety condition: Max 1 writer, multiple
     /// readers
@@ -359,7 +352,6 @@ public:
     /// Equivalent to set_progress_weight(0)
     void exclude_from_parent_progress();
 
-
 private:
     ExecutionReport(std::nullptr_t);
     /// Notify the observer (if valid) of a new ExecutionEvent.
@@ -382,12 +374,14 @@ void apply_args(ExecutionReport& report, Args&&... args)
     ez::dispatch_args(
         Tuple{std::forward<Args>(args)...},
         [&](trait::AnyRef<reporting::Name> auto&& name) { report.set_name(EZ_FWD(name).value()); },
-        [&](trait::AnyRef<reporting::Description> auto&& description) { report.set_description(EZ_FWD(description).value()); },
+        [&](trait::AnyRef<reporting::Description> auto&& description) {
+            report.set_description(EZ_FWD(description).value());
+        },
         [&](reporting::ReportFlags flags) { report.set_flags(flags.value()); },
         [&](const ExecutionObserver& observer) { report.add_observer(observer); },
         [&](reporting::ProgressWeight w) { report.set_progress_weight(w.value()); });
 }
-}  // namespace detail
+}  // namespace internal
 
 template <typename... Args>
 ExecutionReport::ExecutionReport(Inplace, Args&&... args)
@@ -421,14 +415,12 @@ inline auto ExecutionReport::duration() const { return m_data->duration.elapsed(
 
 inline auto ExecutionReport::start_time() const { return m_data->duration.startTime(); }
 
-
-
 }  // namespace ez
 
 namespace std {
 template <>
 struct hash<ez::ExecutionReport> {
-    std::size_t operator()(const ez::ExecutionReport&  report) const noexcept
+    std::size_t operator()(const ez::ExecutionReport& report) const noexcept
     {
         return hash<const void*>{}(report.data_ptr());
     }

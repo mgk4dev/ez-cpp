@@ -9,7 +9,6 @@
 #include <boost/spirit/home/x3.hpp>
 
 namespace ez::flow::grammar {
-
 namespace x3 = boost::spirit::x3;
 template <typename Id>
 using RuleTag = parser::RuleTag<Id>;

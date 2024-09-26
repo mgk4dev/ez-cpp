@@ -6,7 +6,6 @@
 #include <span>
 
 namespace ez::rpc {
-
 class AbstractRemoteService;
 
 class AbstractFunction {

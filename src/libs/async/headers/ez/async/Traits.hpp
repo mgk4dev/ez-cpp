@@ -6,7 +6,6 @@
 #include <ez/Utils.hpp>
 
 namespace ez::trait {
-
 // clang-format off
 template <typename T>
 concept Awaiter = requires(T awaitable) {

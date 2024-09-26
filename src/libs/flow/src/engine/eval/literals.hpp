@@ -3,7 +3,6 @@
 #include "interpreter.hpp"
 
 namespace ez::flow::engine {
-
 Entity to_value(const ast::String& statement)
 {
     String result;

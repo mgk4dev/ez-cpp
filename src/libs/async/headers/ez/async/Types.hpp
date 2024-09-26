@@ -4,7 +4,6 @@
 #include <stdexcept>
 
 namespace ez::async {
-
 template <typename P = void>
 using Coroutine = std::coroutine_handle<P>;
 

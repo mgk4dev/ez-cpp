@@ -7,7 +7,6 @@
 #include <ostream>
 
 namespace ez::flow::ast {
-
 template <typename T>
 inline std::ostream& operator<<(std::ostream& stream, const Identifier& val)
 {
@@ -55,9 +54,9 @@ inline std::ostream& operator<<(std::ostream& stream, EqualityOperator op)
     return stream << "EqualityOperator " << std::to_underlying(op);
 }
 
-inline std::ostream& operator<<(std::ostream& stream,const WorkflowDefinition&)
+inline std::ostream& operator<<(std::ostream& stream, const WorkflowDefinition&)
 {
-    return stream << "Workflow" ;
+    return stream << "Workflow";
 }
 
 template <typename T>

@@ -32,7 +32,6 @@ TEST(Parser, identifier)
         auto result = flow::parse_using(grammar::identifier, code);
         ASSERT_TRUE(result) << result.error_message;
         ASSERT_EQ(result.ast.raw(), code);
-
     };
 
     test_identifier("toto");
@@ -41,7 +40,6 @@ TEST(Parser, identifier)
     test_identifier("formented");
     test_identifier("repeated");
     test_identifier("return_code");
-
 }
 
 TEST(Parser, identifier_path)
@@ -512,7 +510,7 @@ TEST(Parser, delay)
     ASSERT_TRUE(result) << result.error_message;
 }
 
-TEST(Parser, return)
+TEST(Parser, return )
 {
     auto code = "return 5sec";
     auto result = flow::parse_using(grammar::return_statement, code);

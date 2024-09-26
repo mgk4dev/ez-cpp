@@ -2,8 +2,7 @@
 
 #include <ez/reporting/ExecutionReport.hpp>
 
-namespace ez
-{
+namespace ez {
 ///
 /// ExecutionStatusGuard is helper acting like RAII to help setting the status
 /// of an ExecutionReport.
@@ -15,8 +14,7 @@ namespace ez
 /// ExecutionStatus::Cancelled
 /// or ExecutionStatus::Error.
 ///
-class ExecutionStatusGuard
-{
+class ExecutionStatusGuard {
 public:
     ExecutionStatusGuard() = default;
     ExecutionStatusGuard(ExecutionReport& reprort);
@@ -38,4 +36,4 @@ public:
 private:
     ExecutionReport* m_report{nullptr};
 };
-}  // namespace p4d
+}  // namespace ez

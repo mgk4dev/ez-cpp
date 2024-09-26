@@ -1,15 +1,14 @@
 #pragma once
 
+#include <ez/Resource.hpp>
 #include <ez/async/Receiver.hpp>
 #include <ez/async/Traits.hpp>
 #include <ez/async/Types.hpp>
-#include <ez/Resource.hpp>
 
 #include <condition_variable>
 #include <mutex>
 
 namespace ez::async::detail {
-
 class SyncWaitEvent {
 public:
     void set()

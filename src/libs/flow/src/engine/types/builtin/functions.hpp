@@ -1,7 +1,6 @@
 #pragma once
 
 namespace ez::flow::engine {
-
 struct FreeFunction;
 
 FreeFunction make_println_function();

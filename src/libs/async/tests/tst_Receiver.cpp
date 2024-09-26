@@ -41,10 +41,10 @@ TEST(Receiver, empty)
     ASSERT_THROW(receiver.get(), ValueNotSet);
 }
 
-
 TEST(Receiver, non_copiable)
 {
-    using T =  Tuple<async::detail::WhenAllContinuationTask<int>, async::detail::WhenAllContinuationTask<int>>;
+    using T = Tuple<async::detail::WhenAllContinuationTask<int>,
+                    async::detail::WhenAllContinuationTask<int>>;
 
     Receiver<T> receiver;
 
@@ -59,4 +59,3 @@ TEST(Receiver, non_copiable)
 
     ASSERT_THROW(receiver.get(), std::runtime_error);
 }
-

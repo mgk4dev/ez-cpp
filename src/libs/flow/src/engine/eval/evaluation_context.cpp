@@ -3,7 +3,6 @@
 #include "../types/builtin/functions.hpp"
 
 namespace ez::flow::engine {
-
 void Scope::add(Type type) { types.push_back(std::move(type)); }
 
 void Scope::add(FreeFunction function) { entries.push_back({function.name, function}); }

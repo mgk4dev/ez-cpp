@@ -46,7 +46,6 @@ TEST(Shared, rvalue_constructor)
 }
 
 namespace shared {
-
 struct A {
     virtual ~A() = default;
     virtual int foo() const { return 0; }

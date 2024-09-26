@@ -44,7 +44,10 @@ public:
     template <typename T>
     friend constexpr bool operator!=(const Flags<T>& a, const Flags<T>& b) noexcept;
 
-    constexpr bool test(Enum flag) const noexcept { return (m_value & ez::as_int(flag)) == ez::as_int(flag); }
+    constexpr bool test(Enum flag) const noexcept
+    {
+        return (m_value & ez::as_int(flag)) == ez::as_int(flag);
+    }
     template <typename... Values>
     constexpr bool all(Values... values) const noexcept
     {

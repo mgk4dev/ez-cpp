@@ -4,7 +4,6 @@
 #include <ez/async/Task.hpp>
 
 namespace ez::async {
-
 template <typename E>
 struct ScheduleAwaiter {
     E* executor;

@@ -7,7 +7,6 @@
 #include <ez/Shared.hpp>
 
 namespace ez::flow::engine {
-
 struct Entity;
 struct Type;
 struct CallArguments;
@@ -38,11 +37,8 @@ struct Value : public Shared<Storage>, public ValueInterface {
     using Shared<Storage>::operator=;
 };
 
-#define EZ_FLOW_TYPE(category_)              \
-    EntityCategory category() const override \
-    {                                        \
-        return category_;                    \
-    }                                        \
+#define EZ_FLOW_TYPE(category_)                                    \
+    EntityCategory category() const override { return category_; } \
     EZ_FLOW_TYPE_DECL
 
 #define EZ_FLOW_TYPE_DECL             \
@@ -50,16 +46,13 @@ struct Value : public Shared<Storage>, public ValueInterface {
     static const Type& static_type(); \
     const Type& type() const override;
 
-#define EZ_FLOW_TYPE_IMPL(T)                    \
-    const Type& T::type() const                 \
-    {                                           \
-        return T::static_type();                \
-    }                                           \
-    const Type& T::static_type()                \
-    {                                           \
-        static const auto t = construct_type(); \
-        return t;                               \
-    }                                           \
+#define EZ_FLOW_TYPE_IMPL(T)                                 \
+    const Type& T::type() const { return T::static_type(); } \
+    const Type& T::static_type()                             \
+    {                                                        \
+        static const auto t = construct_type();              \
+        return t;                                            \
+    }                                                        \
     Type T::construct_type()
 
 }  // namespace ez::flow::engine

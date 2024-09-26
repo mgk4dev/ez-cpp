@@ -3,7 +3,6 @@
 #include <utility>
 
 namespace ez {
-
 template <typename T, typename Deleter>
 class Resource {
 public:

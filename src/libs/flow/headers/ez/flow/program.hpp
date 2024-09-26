@@ -3,7 +3,6 @@
 #include <ez/flow/ast.hpp>
 
 namespace ez::flow {
-
 template <typename Ast>
 struct Program {
     std::string code;

@@ -9,7 +9,6 @@
 #include <ez/async/Task.hpp>
 
 namespace ez::flow::engine {
-
 using async::Task;
 
 struct Interpreter {

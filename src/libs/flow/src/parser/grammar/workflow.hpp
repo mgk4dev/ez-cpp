@@ -3,7 +3,6 @@
 #include "expression.hpp"
 
 namespace ez::flow::grammar {
-
 EZ_FLOW_RULE(ast::ImportStatement, import_statement);
 
 EZ_FLOW_RULE(ast::VariableDeclaration, variable_declaration);

@@ -12,7 +12,6 @@
 #include <cstdint>
 
 namespace ez::flow::ast {
-
 struct Located {
     std::size_t start_position = 0;
     std::size_t end_position = 0;
@@ -151,7 +150,8 @@ using RelationalExpression = BinaryExpression<AdditiveExpression, RelationalOper
 using EqualityExpression = BinaryExpression<RelationalExpression, EqualityOperator>;
 using LogicalExpression = BinaryExpression<EqualityExpression, LogicalOperator>;
 
-struct Expression : LogicalExpression {};
+struct Expression : LogicalExpression {
+};
 
 //////////
 
@@ -217,7 +217,8 @@ struct ReturnStatement : Located {
     Expression expression;
 };
 
-struct BreakStatement : Located {};
+struct BreakStatement : Located {
+};
 
 struct RaiseStatement : Located {
     Expression expression;

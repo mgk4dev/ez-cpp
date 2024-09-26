@@ -10,7 +10,6 @@
 #include "execution/types.hpp"
 
 namespace ez::flow::engine {
-
 // clang-format off
 using EntityTypeList = TypeList <
     Error,

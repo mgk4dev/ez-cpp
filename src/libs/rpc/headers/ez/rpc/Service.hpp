@@ -14,7 +14,6 @@
 #include <queue>
 
 namespace ez::rpc {
-
 class AbstractFunction;
 
 namespace protobuf {
@@ -95,11 +94,7 @@ private:
             AbstractFunction* result = nullptr;
 
             schemas.for_each([&]<typename T>(T& schema) {
-                if constexpr (requires {
-                                  {
-                                      T::name_space
-                                  };
-                              }) {
+                if constexpr (requires { {T::name_space}; }) {
                     boost::pfr::for_each_field(schema, [&](auto& f) {
                         if (f.name() == name && name_space == schema.name_space) result = &f;
                     });

@@ -3,7 +3,6 @@
 #include "../builtin/dictionary_type.hpp"
 
 namespace ez::flow::engine {
-
 EZ_FLOW_TYPE_IMPL(DeviceInfoRequest)
 {
     return DictionaryType<DeviceInfoRequest,

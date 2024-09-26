@@ -10,7 +10,6 @@
 #include <vector>
 
 namespace ez::flow::engine {
-
 struct VariableEntry {
     std::string name;
     Entity value;

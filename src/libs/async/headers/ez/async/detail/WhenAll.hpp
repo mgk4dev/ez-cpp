@@ -11,7 +11,6 @@
 #include <atomic>
 
 namespace ez::async::detail {
-
 class WhenAllLatch : NonCopiable {
 public:
     WhenAllLatch(std::uint32_t count) : m_count(count + 1) {}

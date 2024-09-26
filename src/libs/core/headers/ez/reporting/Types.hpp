@@ -22,10 +22,7 @@ enum class ExecutionLogCategory : unsigned char {
 
 enum class ExecutionEventType { StatusChanged, ProgressChanged, MessageAdded, SubReportAdded };
 
-enum class ExecutionReportFlag {
-    Empty = 0,
-    IsTerminal = 1
-};
+enum class ExecutionReportFlag { Empty = 0, IsTerminal = 1 };
 
 struct ExecutionEvent {
     ExecutionEventType type;

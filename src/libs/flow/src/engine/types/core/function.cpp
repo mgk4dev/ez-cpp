@@ -4,7 +4,6 @@
 #include "call_arguments.hpp"
 
 namespace ez::flow::engine {
-
 Constructor::Constructor() {}
 Constructor::Constructor(Callable impl) : call{std::move(impl)} {}
 EvalResult Constructor::operator()(Entity dict) const { return call(std::move(dict)); }

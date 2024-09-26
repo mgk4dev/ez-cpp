@@ -5,7 +5,6 @@
 #include <ez/Utils.hpp>
 
 namespace ez::async {
-
 auto sync_wait(trait::Awaitable auto awaitable)
 {
     detail::SyncWaitEvent event;

@@ -5,9 +5,7 @@
 #include <ez/async/WhenAny.hpp>
 
 namespace ez::async {
-
 namespace detail {
-
 template <typename... Operations>
 struct Race {
     using ReturnType = typename detail::WhenAnyReturn<Operations...>::Type;

@@ -5,8 +5,8 @@
 #include <optional>
 
 namespace ez {
-
-struct None {};
+struct None {
+};
 
 inline constexpr None none{};
 

@@ -4,7 +4,6 @@
 #include "../core/value_interface.hpp"
 
 namespace ez::flow::engine {
-
 struct Action : Dictionary {
     EZ_FLOW_TYPE(EntityCategory::Object)
     using Dictionary::operator=;

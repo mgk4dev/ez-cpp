@@ -7,7 +7,6 @@
 #include <cstdint>
 
 namespace ez::flow::engine {
-
 struct Reference;
 
 struct Entity : public EntityTypeList::ApplyTo<Enum> {

@@ -11,7 +11,6 @@
 #include <deque>
 
 namespace ez::async {
-
 using IoContext = boost::asio::io_context;
 class WorkGuard {
 public:

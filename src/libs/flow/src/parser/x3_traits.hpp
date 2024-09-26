@@ -8,7 +8,8 @@
 
 namespace boost::spirit::x3::traits {
 template <typename... Ts>
-struct is_variant<ez::Enum<Ts...>> : mpl::true_ {};
+struct is_variant<ez::Enum<Ts...>> : mpl::true_ {
+};
 
 template <typename attribute, typename... Ts>
 struct variant_has_substitute_impl<ez::Enum<Ts...>, attribute> {

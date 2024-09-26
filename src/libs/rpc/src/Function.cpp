@@ -5,7 +5,6 @@
 #include <ez/async/Operation.hpp>
 
 namespace ez::rpc {
-
 void AbstractFunction::set_client(AbstractRemoteService* client) { m_client = client; }
 
 const std::string& AbstractFunction::name_space() const { return m_name_space; }
@@ -31,8 +30,8 @@ struct WaitForResponse {
 };
 
 AsyncResult<RawReply> AbstractFunction::invoke_remote(std::string_view name_space,
-                                                   std::string_view function_name,
-                                                   std::vector<ByteArray> args)
+                                                      std::string_view function_name,
+                                                      std::vector<ByteArray> args)
 {
     RawReply reply;
     auto id = co_await m_client->invoke(name_space, function_name, std::move(args), &reply);

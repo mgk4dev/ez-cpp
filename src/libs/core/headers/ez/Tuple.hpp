@@ -5,12 +5,10 @@
 #include <tuple>
 
 namespace ez {
-
 template <typename... Ts>
 class Tuple;
 
 namespace detail {
-
 template <size_t... indices>
 auto transform_impl(auto&& f, auto&& tuple, std::index_sequence<indices...>)
 {
@@ -105,10 +103,12 @@ Tuple(std::tuple<Ts...>&&) -> Tuple<Ts...>;
 
 namespace std {
 template <typename... Ts>
-struct tuple_size<ez::Tuple<Ts...>> : integral_constant<size_t, sizeof...(Ts)> {};
+struct tuple_size<ez::Tuple<Ts...>> : integral_constant<size_t, sizeof...(Ts)> {
+};
 
 template <size_t I, typename... Ts>
-struct tuple_element<I, ez::Tuple<Ts...>> : public tuple_element<I, std::tuple<Ts...>> {};
+struct tuple_element<I, ez::Tuple<Ts...>> : public tuple_element<I, std::tuple<Ts...>> {
+};
 
 template <size_t I, typename... Ts>
 decltype(auto) get(const ez::Tuple<Ts...>& tuple)

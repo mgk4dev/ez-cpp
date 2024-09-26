@@ -9,7 +9,6 @@
 #include <ez/Logger.hpp>
 
 namespace ez::flow {
-
 class Engine {
 public:
     Engine(async::IoContext&);

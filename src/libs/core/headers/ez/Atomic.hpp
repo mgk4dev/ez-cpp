@@ -6,7 +6,6 @@
 #include <utility>
 
 namespace ez {
-
 template <typename Mutex>
 struct LockHelper {
     static inline void lock(Mutex& m) { m.lock(); }

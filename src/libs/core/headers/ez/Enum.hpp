@@ -6,7 +6,6 @@
 #include <variant>
 
 namespace ez {
-
 template <typename... Visitors>
 struct Overload : Visitors... {
     using Visitors::operator()...;
@@ -37,7 +36,8 @@ template <typename T = void>
 constexpr CaseT<T> Case;
 
 template <typename T>
-struct Is {};
+struct Is {
+};
 
 template <typename T>
 constexpr Is<T> is;

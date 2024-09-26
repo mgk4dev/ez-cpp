@@ -1,14 +1,13 @@
 #pragma once
 
 #include <ez/Enum.hpp>
-#include <ez/ValueWrapper.hpp>
 #include <ez/Error.hpp>
+#include <ez/ValueWrapper.hpp>
 
 #include <memory>
 #include <variant>
 
 namespace ez {
-
 template <typename T>
 class Ok : public ValueWrapper<T> {
 public:
@@ -24,7 +23,7 @@ public:
 
 template <typename T>
 Ok(T&&) -> Ok<std::decay_t<T>>;
-Ok() -> Ok<void>;
+Ok()->Ok<void>;
 
 //////////////////////////////////////////////////////////////////////////////
 

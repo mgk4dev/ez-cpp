@@ -4,7 +4,6 @@
 #include <type_traits>
 
 namespace ez::trait::detail {
-
 template <typename... T>
 struct IsInvocable;
 
@@ -30,7 +29,6 @@ struct IsTemplateImpl<Template1<Args...>, Template2> {
 }  // namespace ez::trait::detail
 
 namespace ez::trait {
-
 template <typename T, typename U>
 concept Is = std::same_as<T, U>;
 

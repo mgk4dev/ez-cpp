@@ -11,7 +11,6 @@
 #include <iostream>
 
 namespace ez::flow::ext {
-
 inline std::string to_string(boost::json::value value)
 {
     return boost::json::value_to<std::string>(value);

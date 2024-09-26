@@ -46,7 +46,6 @@ TEST(Box, rvalue_constructor)
 }
 
 namespace box {
-
 struct A {
     virtual ~A() = default;
     virtual int foo() const { return 0; }

@@ -6,7 +6,6 @@
 #include "protobuf/messages.pb.h"
 
 namespace ez::rpc {
-
 void AbstractService::poll()
 {
     Message message;

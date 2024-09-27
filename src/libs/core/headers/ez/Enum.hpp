@@ -2,19 +2,11 @@
 
 #include <ez/Traits.hpp>
 #include <ez/Utils.hpp>
+#include <ez/Overload.hpp>
 
 #include <variant>
 
 namespace ez {
-template <typename... Visitors>
-struct Overload : Visitors... {
-    using Visitors::operator()...;
-};
-
-template <class... Visitors>
-Overload(Visitors...) -> Overload<Visitors...>;
-
-///////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
 struct CaseT {

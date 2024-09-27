@@ -49,12 +49,6 @@ public:
 
     auto get_return_object() noexcept { return make_coroutine(*this); }
 
-    auto return_value(auto&& value) noexcept
-    {
-        Receiver<R>::set_value(EZ_FWD(value));
-        return final_suspend();
-    }
-
     std::suspend_always initial_suspend() noexcept { return {}; }
 
     auto final_suspend() noexcept
@@ -103,10 +97,10 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-auto make_sync_wait_task(trait::Awaitable auto awaitable)
-    -> SyncWaitTask<typename trait::AwaitableTraits<EZ_DECAY_T(awaitable)>::R>
+template <trait::Awaitable Awaitable>
+auto make_sync_wait_task(Awaitable awaitable)
+    -> SyncWaitTask<typename trait::AwaitableTraits<Awaitable>::R>
 {
-    using Awaitable = EZ_DECAY_T(awaitable);
     using R = typename trait::AwaitableTraits<Awaitable>::R;
 
     if constexpr (std::is_void_v<R>) {

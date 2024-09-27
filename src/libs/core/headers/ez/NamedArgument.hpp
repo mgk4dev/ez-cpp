@@ -1,7 +1,6 @@
 #pragma once
 
-#include <ez/Enum.hpp>
-#include <ez/Tuple.hpp>
+#include <utility>
 
 namespace ez {
 template <typename T>
@@ -12,11 +11,5 @@ struct NamedArgument {
         return T{std::forward<U>(val)};
     }
 };
-
-template <typename Tuple, typename... Fs>
-void dispatch_args(Tuple&& tuple, Fs&&... fs)
-{
-    EZ_FWD(tuple).template for_each(Overload{EZ_FWD(fs)...});
-}
 
 }  // namespace ez

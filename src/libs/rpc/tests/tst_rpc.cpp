@@ -111,7 +111,7 @@ struct Transport {
 
     Box<rpc::transport::Client> make_client(const rpc::PeerId& id)
     {
-        messages.client->insert({id, {}});
+        messages.client->insert(std::make_pair(id, std::deque<rpc::ByteArray>{}));
         return Client{messages, id};
     }
     Box<rpc::transport::Server> make_server() { return Server{messages}; }

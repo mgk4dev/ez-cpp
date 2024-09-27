@@ -75,78 +75,38 @@ public:
     Result& operator=(const Result&) = default;
     Result& operator=(Result&& e) = default;
 
-    Result(const Ok<void>& val) : Super{val} {}
-    Result(Ok<void>&& val) : Super{val} {}
+    Result(const Ok<void>& val);
+    Result(Ok<void>&& val);
 
     template <typename TT>
-    Result(const Ok<TT>& val) : Super{Ok<T>{val.value()}}
-    {
-    }
+    Result(const Ok<TT>& val);
 
     template <typename TT>
-    Result(Ok<TT>&& val) : Super{Ok<T>{std::move(val).value()}}
-    {
-    }
+    Result(Ok<TT>&& val);
 
     template <typename EE>
-    Result(const Fail<EE>& e) : Super{Fail<E>{e.value()}}
-    {
-    }
+    Result(const Fail<EE>& e);
 
     template <typename EE>
-    Result(Fail<EE>&& e) : Super{Fail<E>{std::move(e).value()}}
-    {
-    }
+    Result(Fail<EE>&& e);
 
-    explicit operator bool() const { return Super::index() == 0; }
-    bool has_value() const { return Super::index() == 0; }
-    bool is_error() const { return Super::index() == 1; }
+    explicit operator bool() const;
+    bool has_value() const;
+    bool is_error() const;
 
-    decltype(auto) value() const&
-    {
-        has_value_or_throw();
-        if constexpr (std::is_same_v<T, void>) { return; }
-        else {
-            return std::get<Ok<T>>(*this).value();
-        }
-    }
+    decltype(auto) value() const&;
+    decltype(auto) value() &;
+    decltype(auto) value() &&;
 
-    decltype(auto) value() &
-    {
-        has_value_or_throw();
-        if constexpr (std::is_same_v<T, void>) { return; }
-        else {
-            return std::get<Ok<T>>(*this).value();
-        }
-    }
-    decltype(auto) value() &&
-    {
-        has_value_or_throw();
-        if constexpr (std::is_same_v<T, void>) { return; }
-        else {
-            return std::move(std::get<Ok<T>>(*this)).value();
-        }
-    }
+    const E& error() const&;
+    E& error() &;
+    E error() &&;
 
-    const E& error() const& { return std::get<Fail<E>>(*this).value(); }
-    E& error() & { return std::get<Fail<E>>(*this).value(); }
-    E error() && { return std::move(std::get<Fail<E>>(*this).value()); }
+    template <typename V>
+    T operator|(V&& val) const&;
 
-    const Fail<E>& wrapped_error() const& { return std::get<Fail<E>>(*this); }
-    Fail<E>& wrapped_error() & { return std::get<Fail<E>>(*this); }
-    Fail<E> wrapped_error() && { return std::move(std::get<Fail<E>>(*this)); }
-
-    T operator|(auto&& val) const&
-    {
-        if (has_value()) return value();
-        return EZ_FWD(val);
-    }
-
-    T operator|(auto&& val) &&
-    {
-        if (has_value()) return std::move(*this).value();
-        return EZ_FWD(val);
-    }
+    template <typename V>
+    T operator|(V&& val) &&;
 
 private:
     void has_value_or_throw() const
@@ -154,5 +114,121 @@ private:
         if (!has_value()) throw error();
     }
 };
+
+template <typename T, typename E>
+Result<T, E>::Result(const Ok<void>& val) : Super{val}
+{
+}
+
+template <typename T, typename E>
+Result<T, E>::Result(Ok<void>&& val) : Super{val}
+{
+}
+
+template <typename T, typename E>
+template <typename TT>
+Result<T, E>::Result(const Ok<TT>& val) : Super{Ok<T>{val.value()}}
+{
+}
+
+template <typename T, typename E>
+template <typename TT>
+Result<T, E>::Result(Ok<TT>&& val) : Super{Ok<T>{std::move(val).value()}}
+{
+}
+
+template <typename T, typename E>
+template <typename EE>
+Result<T, E>::Result(const Fail<EE>& e) : Super{Fail<E>{e.value()}}
+{
+}
+
+template <typename T, typename E>
+template <typename EE>
+Result<T, E>::Result(Fail<EE>&& e) : Super{Fail<E>{std::move(e).value()}}
+{
+}
+
+template <typename T, typename E>
+Result<T, E>::operator bool() const
+{
+    return Super::index() == 0;
+}
+
+template <typename T, typename E>
+bool Result<T, E>::has_value() const
+{
+    return Super::index() == 0;
+}
+
+template <typename T, typename E>
+bool Result<T, E>::is_error() const
+{
+    return Super::index() == 1;
+}
+
+template <typename T, typename E>
+decltype(auto) Result<T, E>::value() const&
+{
+    has_value_or_throw();
+    if constexpr (std::is_same_v<T, void>) { return; }
+    else {
+        return std::get<Ok<T>>(*this).value();
+    }
+}
+
+template <typename T, typename E>
+decltype(auto) Result<T, E>::value() &
+{
+    has_value_or_throw();
+    if constexpr (std::is_same_v<T, void>) { return; }
+    else {
+        return std::get<Ok<T>>(*this).value();
+    }
+}
+
+template <typename T, typename E>
+decltype(auto) Result<T, E>::value() &&
+{
+    has_value_or_throw();
+    if constexpr (std::is_same_v<T, void>) { return; }
+    else {
+        return std::move(std::get<Ok<T>>(*this)).value();
+    }
+}
+
+template <typename T, typename E>
+const E& Result<T, E>::error() const&
+{
+    return std::get<Fail<E>>(*this).value();
+}
+
+template <typename T, typename E>
+E& Result<T, E>::error() &
+{
+    return std::get<Fail<E>>(*this).value();
+}
+
+template <typename T, typename E>
+E Result<T, E>::error() &&
+{
+    return std::move(std::get<Fail<E>>(*this).value());
+}
+
+template <typename T, typename E>
+template <typename V>
+T Result<T, E>::operator|(V&& val) const&
+{
+    if (has_value()) return value();
+    return std::forward<V>(val);
+}
+
+template <typename T, typename E>
+template <typename V>
+T Result<T, E>::operator|(V&& val) &&
+{
+    if (has_value()) return std::move(*this).value();
+    return std::forward<V>(val);
+}
 
 }  // namespace ez

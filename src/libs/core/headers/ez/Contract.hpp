@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ez/Preprocessor.hpp>
+#include <ez/Os.hpp>
 
 namespace ez::contract {
 struct Expression {
@@ -68,10 +69,10 @@ void check(bool condition, const Expression& expression, Behaviors&&... behavior
 #define EZ_ASSERT(condition) EZ_CONTRACT(condition, ::ez::contract::print_error, ::ez::contract::terminate)
 #endif
 
-#if defined( _MSC_VER ) && !defined( __clang__ )
-# define EZ_UNREACHABLE() __assume(false)
-#else
+#if defined EZ_OS_WINDOWS
 # define EZ_UNREACHABLE() __builtin_unreachable()
+#else
+# define EZ_UNREACHABLE() __assume(false)
 #endif
 
 // clang-format on

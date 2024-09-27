@@ -29,9 +29,9 @@ struct Error {
     static Error internal_error(auto&& message) { return Error{InternalError, EZ_FWD(message)}; }
 };
 
-using RawReply = Result<ByteArray, Error>;
+using RawReply = Result<ByteArray, rpc::Error>;
 
 template <typename T = void>
-using AsyncResult = async::Task<Result<T, Error>>;
+using AsyncResult = async::Task<Result<T, rpc::Error>>;
 
 }  // namespace ez::rpc

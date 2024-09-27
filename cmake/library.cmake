@@ -8,7 +8,7 @@ function (ez_add_library target_name lib_folder)
     list(FILTER private_header_files_ INCLUDE REGEX "src/(.*)")
     list(FILTER source_files_ INCLUDE REGEX "src/(.*)")
 
-
+    message("-- Adding library '${target_name}'")
     message("-- Header files '${header_files_}'")
     message("-- Private header files '${private_header_files_}'")
     message("-- Source files '${source_files_}'")

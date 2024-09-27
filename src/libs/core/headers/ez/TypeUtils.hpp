@@ -4,6 +4,10 @@
 #include <utility>
 
 namespace ez {
+
+template <typename... Ts>
+struct TypeList;
+
 template <typename T>
 struct Type {
     using Inner = T;
@@ -12,6 +16,12 @@ struct Type {
     consteval bool operator==(Type<U>) const
     {
         return std::is_same_v<T, U>;
+    }
+
+    template <typename... Us>
+    consteval auto operator+(TypeList<Us...>) const
+    {
+        return TypeList<T, Us...>{};
     }
 };
 
@@ -32,7 +42,15 @@ struct TypeList {
     {
         return (std::same_as<T, Ts> || ...);
     }
+
+    template <typename... Us>
+    consteval auto operator+(TypeList<Us...>) const
+    {
+        return TypeList<Ts..., Us...>{};
+    }
 };
+
+namespace meta {
 
 template <typename... Ts>
 constexpr TypeList<Ts...> type_list;
@@ -44,18 +62,6 @@ void for_each(TypeList<T, Ts...>, auto&& f)
 {
     f(type<T>);
     for_each(type_list<Ts...>, f);
-}
-
-template <typename... Ts, typename... Us>
-consteval auto operator+(Type<Ts...>, TypeList<Us...>)
-{
-    return TypeList<Ts..., Us...>{};
-}
-
-template <typename T, typename... Us>
-consteval auto operator+(Type<T>, TypeList<Us...>)
-{
-    return TypeList<T, Us...>{};
 }
 
 template <typename T>
@@ -80,5 +86,5 @@ consteval auto front_type(TypeList<T, Ts...>)
 {
     return Type<T>{};
 }
-
+}  // namespace meta
 }  // namespace ez

@@ -2,6 +2,7 @@
 
 #include "common.hpp"
 
+#include <array>
 #include <iostream>
 
 namespace ez::flow::grammar {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ez/Overload.hpp>
 #include <ez/Utils.hpp>
 
 #include <tuple>
@@ -8,7 +9,7 @@ namespace ez {
 template <typename... Ts>
 class Tuple;
 
-namespace detail {
+namespace internal {
 template <size_t... indices>
 auto transform_impl(auto&& f, auto&& tuple, std::index_sequence<indices...>)
 {
@@ -33,7 +34,7 @@ auto transform_tuple(Tuple<Ts...>&& tuple, auto&& f)
     return Tuple{transform_impl(f, std::move(tuple), std::make_index_sequence<sizeof...(Ts)>{})};
 }
 
-}  // namespace detail
+}  // namespace internal
 
 /// Extension of std::tuple with simpler access API.
 /// Usage:
@@ -82,9 +83,9 @@ public:
         for_constexpr<0, sizeof...(Ts)>([&](auto index) { f(this->operator[](index)); });
     }
 
-    auto transformed(auto&& f) & { return detail::transform_tuple(*this, EZ_FWD(f)); }
-    auto transformed(auto&& f) const& { return detail::transform_tuple(*this, EZ_FWD(f)); }
-    auto transformed(auto&& f) && { return detail::transform_tuple(std::move(*this), EZ_FWD(f)); }
+    auto transformed(auto&& f) & { return internal::transform_tuple(*this, EZ_FWD(f)); }
+    auto transformed(auto&& f) const& { return internal::transform_tuple(*this, EZ_FWD(f)); }
+    auto transformed(auto&& f) && { return internal::transform_tuple(std::move(*this), EZ_FWD(f)); }
 };
 
 template <class... Ts>
@@ -98,6 +99,40 @@ Tuple(std::tuple<Ts...>&) -> Tuple<Ts...>;
 
 template <class... Ts>
 Tuple(std::tuple<Ts...>&&) -> Tuple<Ts...>;
+
+namespace tuple {
+
+template <typename T, typename F>
+void for_each(T&& tuple, F&& f)
+{
+    EZ_FWD(tuple).for_each(EZ_FWD(f));
+}
+
+template <typename T, typename F1, typename F2, typename... Fs>
+void for_each(T&& tuple, F1&& f1, F2&& f2, Fs&&... fs)
+{
+    ez::tuple::for_each(EZ_FWD(tuple), Overload{EZ_FWD(f1), EZ_FWD(f2), EZ_FWD(fs)...});
+}
+
+template <typename F, typename... Ts>
+decltype(auto) apply(F&& f, const Tuple<Ts...>& tuple)
+{
+    return std::apply(EZ_FWD(f), static_cast<const std::tuple<Ts...>&>(tuple));
+}
+
+template <typename F, typename... Ts>
+decltype(auto) apply(F&& f, Tuple<Ts...>& tuple)
+{
+    return std::apply(EZ_FWD(f), static_cast<std::tuple<Ts...>&>(tuple));
+}
+
+template <typename F, typename... Ts>
+decltype(auto) apply(F&& f, Tuple<Ts...>&& tuple)
+{
+    return std::apply(EZ_FWD(f), static_cast<std::tuple<Ts...>&&>(tuple));
+}
+
+}  // namespace tuple
 
 }  // namespace ez
 

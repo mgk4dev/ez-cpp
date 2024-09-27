@@ -204,7 +204,7 @@ TEST(Async, repeat_delay)
     WorkGuard guard{context};
     TaskPool task_pool{context};
 
-    auto work = [&](uint count) -> Task<> {
+    auto work = [&](unsigned count) -> Task<> {
         while (count--) { co_await delay(context, 1ms, 10); }
         context.stop();
     };

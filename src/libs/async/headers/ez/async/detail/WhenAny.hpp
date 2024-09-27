@@ -78,8 +78,8 @@ public:
 template <typename... Ts>
 struct WhenAnyReturn {
     using ReturnTypes = TypeList<typename Ts::ReturnType...>;
-    using UniqueTypes = decltype(remove_duplicates(ReturnTypes{}));
-    using FrontType = typename decltype(front_type(UniqueTypes{}))::Inner;
+    using UniqueTypes = decltype(meta::remove_duplicates(ReturnTypes{}));
+    using FrontType = typename decltype(meta::front_type(UniqueTypes{}))::Inner;
     using Type = std::conditional_t<UniqueTypes{}.count == 1,
                                     FrontType,
                                     typename UniqueTypes::template ApplyTo<Enum>>;
@@ -181,11 +181,7 @@ public:
         return CompletionNotifier{};
     }
 
-    auto return_value(auto&& value)
-    {
-        Receiver<R>::set_value(EZ_FWD(value));
-        return final_suspend();
-    }
+    void return_value(auto&& value) { Receiver<R>::set_value(EZ_FWD(value)); }
 
     void start(WhenAnyLatch& latch)
     {
@@ -227,7 +223,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-auto make_when_any_continuation_task(trait::Awaitable auto&& awaitable)
+template <trait::Awaitable T>
+auto make_when_any_continuation_task(T&& awaitable)
     -> WhenAnyContinuationTask<typename trait::AwaitableTraits<decltype(awaitable)>::R>
 {
     using R = typename trait::AwaitableTraits<decltype(awaitable)>::R;

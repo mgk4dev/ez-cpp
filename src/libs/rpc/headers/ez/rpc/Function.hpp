@@ -72,7 +72,7 @@ public:
 
             if (!arg_tuple) co_return Fail{Error::internal_error(arg_tuple.error().what())};
 
-            auto result = co_await std::apply(m_impl, std::move(arg_tuple.value()));
+            auto result = co_await tuple::apply(m_impl, std::move(arg_tuple.value()));
 
             RawReply reply = Ok{std::move(serialize(result))};
             co_return Ok{std::move(reply)};
@@ -88,7 +88,7 @@ public:
         auto arg_array = func::serialize_args(args...);
 
         auto result = co_await invoke_remote(name_space(), m_name, std::move(arg_array));
-        if (!result) co_return result.wrapped_error();
+        if (!result) co_return Fail(result.error());
 
         co_return func::get_return_value<R>(std::move(result.value()));
     }

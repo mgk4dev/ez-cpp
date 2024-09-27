@@ -1,4 +1,4 @@
-find_package(Boost COMPONENTS program_options REQUIRED)
+find_package(Boost COMPONENTS filesystem program_options REQUIRED)
 
 add_executable(flow
     extensions.hpp
@@ -10,6 +10,7 @@ target_link_libraries(flow
         ez_flow
         Boost::boost
         Boost::program_options
+        Boost::filesystem
 )
 
 

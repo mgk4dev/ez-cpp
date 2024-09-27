@@ -36,10 +36,10 @@ void Engine::set_logger(Logger logger) { m_impl->logger = std::move(logger); }
 
 Engine::~Engine() = default;
 
-void Engine::eval(std::string code, std::string file_name, uint id)
+void Engine::eval(std::string code, std::string file_name, unsigned int id)
 {
     auto eval_file = [&](async::IoContext& io_context, std::string code, std::string file_name,
-                         uint id) -> async::Task<> {
+                         unsigned int id) -> async::Task<> {
         try {
             auto program_result = flow::parse(code, file_name);
 

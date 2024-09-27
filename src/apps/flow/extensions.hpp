@@ -45,7 +45,7 @@ JsonObject run_campaign(JsonObject campaign)
 
         std::cout << question << std::endl;
 
-        uint index = 1;
+        size_t index = 1;
         for (const auto& option : campaign.at("options").as_array()) {
             std::cout << "(" << index++ << ") " << to_string(option) << std::endl;
         }

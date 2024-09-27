@@ -35,7 +35,7 @@ EvaluationScope::EvaluationScope()
 {
     auto& scope = push(ScopeType::Function);
 
-    for_each(EntityTypeList{}, [&]<typename T>(ez::Type<T>) { scope.add(T::static_type()); });
+    meta::for_each(EntityTypeList{}, [&]<typename T>(ez::Type<T>) { scope.add(T::static_type()); });
 
     scope.add(make_println_function());
     scope.add(make_panic_function());

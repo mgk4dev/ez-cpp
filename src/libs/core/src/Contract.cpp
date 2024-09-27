@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 
+
 namespace ez::contract {
 std::string to_string(const Expression& expression)
 {

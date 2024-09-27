@@ -28,7 +28,7 @@ struct Interpreter {
 
     Interpreter(async::IoContext& ctx) : io_context{ctx} {}
 
-    void set_instance_id(uint);
+    void set_instance_id(unsigned int);
 
     Task<CallArguments> eval_call_arguments(Statement<ast::FunctionCall> statement);
 

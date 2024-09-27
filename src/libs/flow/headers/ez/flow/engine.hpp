@@ -16,7 +16,7 @@ public:
 
     void set_logger(Logger logger);
 
-    void eval(std::string code, std::string file_name, uint id);
+    void eval(std::string code, std::string file_name, unsigned int  id);
 
     void set_action_delegate(ext::ActionRequest delegate);
     void set_campaign_delegate(ext::CampaignRequest delegate);

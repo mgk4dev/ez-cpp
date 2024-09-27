@@ -1,23 +1,19 @@
-message("++++ Root project directory : ${CMAKE_SOURCE_DIR}")
-message("++++ Build directory        : ${CMAKE_CURRENT_BINARY_DIR}")
 
-execute_process(COMMAND
-        conan install
-                -of ${CMAKE_CURRENT_BINARY_DIR}
-                --build missing
-                -s build_type=${CMAKE_BUILD_TYPE}
-                -r conan-center
-                -p msvc2022
-                ${CMAKE_SOURCE_DIR}/conanfile.txt
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        RESULT_VARIABLE conan_cmd_result)
 
-if(NOT conan_cmd_result EQUAL 0)
-        message(FATAL_ERROR "Conan failed: ${conan_cmd_result}")
-endif()
+# execute_process(COMMAND
+#         conan install
+#                 -of ${CMAKE_CURRENT_BINARY_DIR}
+#                 --build missing
+#                 -s build_type=Release
+#                 -r conan-center
+#                 ${CMAKE_SOURCE_DIR}/conanfile.txt
+#         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+#         RESULT_VARIABLE conan_cmd_result)
 
-find_package(GTest REQUIRED)
+# if(NOT conan_cmd_result EQUAL 0)
+#         message(FATAL_ERROR "Conan failed: ${conan_cmd_result}")
+# endif()
 
-enable_testing()
-include(GoogleTest)
+#set(QT_CREATOR_SKIP_CONAN_SETUP ON)
+#set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_BINARY_DIR}/build/generators/conan_toolchain.cmake")
 

@@ -83,7 +83,7 @@ TEST(Parser, real)
 
 TEST(Parser, duration)
 {
-    auto test_duration = [](auto code, uint count, ast::DurationUnit unit) {
+    auto test_duration = [](auto code, unsigned count, ast::DurationUnit unit) {
         auto result = flow::parse_using(grammar::duration, code);
 
         ASSERT_TRUE(result) << result.error_message;
@@ -193,7 +193,7 @@ TEST(Parser, signature)
 
 TEST(Parser, empty_signature)
 {
-    auto test_signature = [](auto code, uint input_cout, bool has_return_type) {
+    auto test_signature = [](auto code, unsigned input_cout, bool has_return_type) {
         auto result = flow::parse_using(grammar::signature, code);
 
         ASSERT_TRUE(result) << result.error_message;
@@ -208,7 +208,6 @@ TEST(Parser, empty_signature)
 
     test_signature("(i1 : I1) ", 1, false);
     test_signature("(i1 : I1, i2 : I2) ", 2, false);
-
     test_signature("() -> O", 0, true);
 }
 

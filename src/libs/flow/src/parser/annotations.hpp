@@ -26,7 +26,7 @@ struct SuccessHandler {
             handler.on_statement_parsed(ast);
         }
         else if constexpr (trait::IsTemplate<T, Enum>) {
-            ast.template match([&](auto& element) { on_success(first, last, element, context); });
+            ast.match([&](auto& element) { on_success(first, last, element, context); });
         }
     }
 };

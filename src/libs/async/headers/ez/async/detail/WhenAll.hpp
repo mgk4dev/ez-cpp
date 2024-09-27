@@ -140,10 +140,9 @@ public:
         return CompletionNotifier{};
     }
 
-    auto return_value(auto&& value)
+    void return_value(auto&& value)
     {
         Receiver<R>::set_value(EZ_FWD(value));
-        return final_suspend();
     }
 
     void start(WhenAllLatch& latch)
@@ -181,7 +180,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-auto make_when_all_continuation_task(trait::Awaitable auto&& awaitable)
+template <trait::Awaitable T>
+auto make_when_all_continuation_task(T&& awaitable)
     -> WhenAllContinuationTask<typename trait::AwaitableTraits<decltype(awaitable)>::R>
 {
     using R = typename trait::AwaitableTraits<decltype(awaitable)>::R;

@@ -30,7 +30,7 @@ Task<Entity> Interpreter::eval(Statement<ast::IdentifierPath> statement)
     co_return result;
 }
 
-void Interpreter::set_instance_id(uint id)
+void Interpreter::set_instance_id(unsigned int id)
 {
     evaluation_scope.current().add("instance_id", Integer{id});
 }

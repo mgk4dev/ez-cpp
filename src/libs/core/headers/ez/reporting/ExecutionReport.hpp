@@ -371,7 +371,7 @@ namespace internal {
 template <typename... Args>
 void apply_args(ExecutionReport& report, Args&&... args)
 {
-    ez::dispatch_args(
+    ez::tuple::for_each(
         Tuple{std::forward<Args>(args)...},
         [&](trait::AnyRef<reporting::Name> auto&& name) { report.set_name(EZ_FWD(name).value()); },
         [&](trait::AnyRef<reporting::Description> auto&& description) {

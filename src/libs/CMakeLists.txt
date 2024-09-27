@@ -1,5 +1,5 @@
 add_subdirectory(0template)
 add_subdirectory(core)
 add_subdirectory(async)
-add_subdirectory(flow)
 add_subdirectory(rpc)
+add_subdirectory(flow)

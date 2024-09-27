@@ -20,7 +20,7 @@ struct Arguments {
     std::filesystem::path program_path;
     bool export_ = false;
     bool eval = false;
-    uint instance_count = 1;
+    size_t instance_count = 1;
 };
 
 Result<Arguments, std::string> parse_arguments(int argc, char** argv)
@@ -52,7 +52,7 @@ Result<Arguments, std::string> parse_arguments(int argc, char** argv)
             (option_name.input_file, po::value<std::string>(), "Input file")
             (option_name.export_, "Export to program to JSON")
             (option_name.eval, "Evaluate the program")
-            (option_name.instance_count, po::value<uint>(), "Instance count")
+            (option_name.instance_count, po::value<size_t>(), "Instance count")
 
         ;
         // clang-format on
@@ -83,7 +83,7 @@ Result<Arguments, std::string> parse_arguments(int argc, char** argv)
     result.export_ = arguments.count(option_name.export_);
 
     if (arguments.count(option_name.instance_count)) {
-        result.instance_count = arguments[option_name.instance_count].as<uint>();
+        result.instance_count = arguments[option_name.instance_count].as<size_t>();
     }
 
     return Ok{std::move(result)};
@@ -156,7 +156,7 @@ int main(int argc, char** argv)
     engine.set_logger(logger);
     flow::ext::setup_engine(engine, io_context, thread_pool);
 
-    for (uint i = 0; i < arguments.instance_count; ++i)
+    for (size_t i = 0; i < arguments.instance_count; ++i)
         engine.eval(file_contents.value(), arguments.program_path.string(), i);
 
     io_context.run();

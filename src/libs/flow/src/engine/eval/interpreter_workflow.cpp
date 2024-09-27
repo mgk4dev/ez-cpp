@@ -387,7 +387,7 @@ Task<Entity> Interpreter::eval(WorkflowInvocation awaitable)
                 awaitable.instanciation.as<Statement<ast::FunctionCall>>().ast().arguments};
         }
 
-        uint index = 0;
+        size_t index = 0;
         for (const ast::Declaration& input : argument_declaration) {
             const Entity* argument = arguments.find(input.name);
             if (!argument) argument = &arguments.at(index).value;

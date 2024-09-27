@@ -51,7 +51,7 @@ struct RemoteServiceBaseImpl : public AbstractRemoteService {
         for (auto& arg : arguments) *request.add_arguments() = arg.value();
 
         auto ok = co_await transport->send(serialize(request));
-        if (!ok) co_return ok.wrapped_error();
+        if (!ok) co_return Fail{ok.error()};
         co_return Ok{std::move(id)};
     }
 

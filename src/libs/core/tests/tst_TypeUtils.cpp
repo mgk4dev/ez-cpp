@@ -4,13 +4,13 @@
 
 using namespace ez;
 
-TEST(TypeList, contains) { static_assert(type_list<int, double>.contains(type<int>)); }
+TEST(TypeList, contains) { static_assert(meta::type_list<int, double>.contains(type<int>)); }
 
 TEST(TypeList, remove_duplicates)
 {
     using Tl = TypeList<int, double, float, int, double, float>;
 
-    auto u = remove_duplicates(Tl{});
+    auto u = meta::remove_duplicates(Tl{});
 
     using Unique = decltype(u);
 

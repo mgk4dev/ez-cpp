@@ -12,19 +12,20 @@ C++ coroutine library
 Interpreter and virtual machine for the experimental flow async programming language.
 ### Build instructions
 #### Requirements
-* A C++23 compliant compiler
-* CMake 3.27 or more recent
-* Conan 1.60 or more recent
+* A C++20 compliant compiler
+* CMake 3.2 or more recent
+* Conan 2.x 
 
 #### Building with CMake
 
 ```
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=(Debug|Release) ..
-cmake build .
+conan install -of . --build missing -s build_type=<Debug> -r conan-center --profile <msvc2022> ../
+cmake .. -DCMAKE_TOOLCHAIN_FILE="build/generators/conan_toolchain.cmake"
+cmake -DCMAKE_BUILD_TYPE=<Debug> ..
+cmake --build . --config <Debug> -j 8
 ```
-
 
 ### Snippets
 

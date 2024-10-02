@@ -5,8 +5,8 @@
 #include <ez/Utils.hpp>
 
 #include <exception>
-#include <type_traits>
 #include <string>
+#include <type_traits>
 
 namespace ez {
 /// ErrorInfo serves as the base class for specific error info types.
@@ -84,16 +84,20 @@ ErrorInfoImpl<ErrorEnum, std::decay_t<ErrorMessageFn>> make_error_info_impl(cons
 }  // namespace internal
 }  // namespace ez
 
-#define EZ_ERROR_INFO(Enum, Name, value_to_message)                           \
-    namespace ez {                                                            \
+#define EZ_ERROR_INFO_INPLACE(Enum, Name, value_to_message)                   \
     template <>                                                               \
-    inline const ErrorInfo* ErrorInfo<Enum>() noexcept                        \
+    inline const ErrorInfo* error_info<Enum>() noexcept                       \
     {                                                                         \
         static const auto error_info =                                        \
             ez::internal::make_error_info_impl<Enum>(Name, value_to_message); \
         return &error_info;                                                   \
-    }                                                                         \
     }
+
+#define EZ_ERROR_INFO(Enum, Name, value_to_message)     \
+    namespace ez {                                      \
+    EZ_ERROR_INFO_INPLACE(Enum, Name, value_to_message) \
+    }
+
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace ez {

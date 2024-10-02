@@ -51,7 +51,7 @@ void check(bool condition, const Expression& expression, Behaviors&&... behavior
 /// @endcode
 ///
 ///
-/// It is possible to chain actions or use custom actions. The actions are chained from left to
+/// It is possible to pipeline actions or use custom actions. The actions are pipelineed from left to
 /// right. Any action that terminate the program or throws will prevent remaining actions from
 /// executing:
 /// @code

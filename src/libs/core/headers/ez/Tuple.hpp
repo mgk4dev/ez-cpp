@@ -132,11 +132,14 @@ decltype(auto) apply(F&& f, Tuple<Ts...>&& tuple)
     return std::apply(EZ_FWD(f), static_cast<std::tuple<Ts...>&&>(tuple));
 }
 
+using std::apply;
+
 }  // namespace tuple
 
 }  // namespace ez
 
 namespace std {
+
 template <typename... Ts>
 struct tuple_size<ez::Tuple<Ts...>> : integral_constant<size_t, sizeof...(Ts)> {
 };
@@ -164,3 +167,10 @@ decltype(auto) get(ez::Tuple<Ts...>&& tuple)
 }
 
 }  // namespace std
+
+namespace ez::tuple {
+using std::get;
+using std::tuple_element;
+using std::tuple_size;
+using std::tuple_size_v;
+}  // namespace ez::tuple

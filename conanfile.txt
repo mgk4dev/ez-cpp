@@ -1,6 +1,7 @@
 [requires]
 boost/1.86.0
 gtest/1.15.0
+qt/6.7.3
 
 [generators]
 CMakeDeps

@@ -10,13 +10,13 @@ TEST(Trait, AnyRef)
 {
     using V = std::vector<int>;
 
-    auto f = [](trait::AnyRef<V> auto&& arg) constexpr { return type<decltype(arg)>; };
+    auto f = [](trait::AnyRef<V> auto&& arg) constexpr { return meta::type<decltype(arg)>; };
 
     V val;
 
-    static_assert(f(val) == type<V&>);
-    static_assert(f(std::as_const(val)) == type<const V&>);
-    static_assert(f(std::move(val)) == type<V&&>);
+    static_assert(f(val) == meta::type<V&>);
+    static_assert(f(std::as_const(val)) == meta::type<const V&>);
+    static_assert(f(std::move(val)) == meta::type<V&&>);
 }
 
 TEST(Traits, Fn)

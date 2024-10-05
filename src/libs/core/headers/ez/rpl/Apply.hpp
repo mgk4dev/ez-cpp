@@ -1,30 +1,29 @@
 #pragma once
 
-#include <ez/rpl/StageBase.hpp>
+#include <ez/rpl/StageFactory.hpp>
 
 #include <ez/Utils.hpp>
 
-#include <functional>
 #include <type_traits>
 
 namespace ez::rpl {
 
-template <typename F>
-struct Apply : StageBase {
-
-    F function;
+template <typename InputType, typename F>
+struct Apply {
+    using OutputType = decltype(std::apply(std::declval<F>(), std::declval<InputType>()));
+    EZ_RPL_STAGE_INFO(ProcessingStyle::Incremental, ProcessingStyle::Incremental)
 
     Apply(auto&& f) : function{EZ_FWD(f)} {}
 
-    void process(auto&& val, auto&&... next)
+    F function;
+
+    void process_incremental(InputType val, auto&& next)
     {
-        auto func = [&](auto&& input) { return std::apply(function, EZ_FWD(val)); };
-
-        using R = std::invoke_result_t<decltype(func), decltype(val)>;
-
-        if constexpr (std::is_same_v<R, void>) { func(EZ_FWD(val)); }
+        if constexpr (std::is_same_v<OutputType, void>) {
+            std::apply(function, static_cast<InputType>(val));
+        }
         else {
-            stage::invoke(func(EZ_FWD(val)), next...);
+            next.process_incremental(std::apply(function, static_cast<InputType>(val)));
         }
     }
 };
@@ -32,7 +31,7 @@ struct Apply : StageBase {
 template <typename F>
 auto apply(F&& f)
 {
-    return stage::make<Apply>(std::forward<F>(f));
+    return make_factory<Apply, F>(std::forward<F>(f));
 }
 
 }  // namespace ez::rpl

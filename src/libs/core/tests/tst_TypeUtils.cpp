@@ -4,7 +4,7 @@
 
 using namespace ez;
 
-TEST(TypeList, contains) { static_assert(meta::type_list<int, double>.contains(type<int>)); }
+TEST(TypeList, contains) { static_assert(meta::type_list<int, double>.contains(meta::type<int>)); }
 
 TEST(TypeList, remove_duplicates)
 {
@@ -14,5 +14,5 @@ TEST(TypeList, remove_duplicates)
 
     using Unique = decltype(u);
 
-    static_assert(type<Unique> == type<TypeList<int, double, float>>);
+    static_assert(meta::type<Unique> == meta::type<TypeList<int, double, float>>);
 }

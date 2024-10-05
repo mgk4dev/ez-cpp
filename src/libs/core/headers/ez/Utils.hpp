@@ -2,6 +2,7 @@
 
 #include <concepts>
 #include <type_traits>
+#include <utility>
 
 #define EZ_FWD(arg) std::forward<decltype(arg)>(arg)
 #define EZ_DECAY_T(arg) std::decay_t<decltype(arg)>
@@ -52,6 +53,15 @@ struct NonCopiable {
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+
+template <size_t I>
+using Index = std::integral_constant<size_t, I>;
+
+template <size_t... Ids>
+using IndexSequence = std::index_sequence<Ids...>;
+
+template <typename... Ts>
+using IndexSequenceFor = std::make_index_sequence<sizeof...(Ts)>;
 
 template <typename T, typename U>
 concept Constexpr = requires

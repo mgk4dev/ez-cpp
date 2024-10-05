@@ -1,7 +1,8 @@
 #pragma once
 
+#include <ez/Utils.hpp>
+
 #include <concepts>
-#include <utility>
 
 namespace ez {
 
@@ -25,9 +26,6 @@ struct Type {
     }
 };
 
-template <typename T>
-constexpr Type<T> type;
-
 template <typename... Ts>
 struct TypeList {
     static constexpr std::size_t count = sizeof...(Ts);
@@ -35,22 +33,29 @@ struct TypeList {
     template <template <typename...> typename T>
     using ApplyTo = T<Ts...>;
 
-    using AddPtr = TypeList<Ts*...>;
-
     template <typename T>
-    consteval bool contains(Type<T>) const
+    static consteval bool contains(Type<T>)
     {
         return (std::same_as<T, Ts> || ...);
     }
 
-    template <typename... Us>
-    consteval auto operator+(TypeList<Us...>) const
+    template <size_t I>
+    static consteval auto at(Index<I>)
     {
-        return TypeList<Ts..., Us...>{};
+        return Type<std::tuple_element_t<I, std::tuple<Ts...>>>{};
     }
 };
 
+template <typename... Ts, typename... Us>
+consteval auto operator+(TypeList<Ts...>, TypeList<Us...>) -> TypeList<Ts..., Us...>
+{
+    return {};
+}
+
 namespace meta {
+
+template <typename T>
+constexpr Type<T> type;
 
 template <typename... Ts>
 constexpr TypeList<Ts...> type_list;

@@ -10,27 +10,25 @@ TEST(Rpl, example)
 {
     std::vector input{1, 2, 3, 4};
 
+    // auto f = [](int val) { return val > 2; };
+    // auto t = [](int val) { return  val * val; };
 
-    auto f  = [](int val) { return val > 2; };
-    auto t = [](int val) { return Tuple{val, val * val * 1.};};
-    auto a = [](int left, double right) { std::cout << "Otuput : " << left << " " << right << std::endl;  };
-
-    // clang-format off
-    rpl::run(
-        input,
-        rpl::filter(f),
-        rpl::transform(t),
-        rpl::apply(a)
-    );
-    // clang-format on
+    // // clang-format off
+    // auto result = rpl::run(
+    //     input,
+    //     rpl::filter(f),
+    //     rpl::to_vector()
+    // );
+    // // clang-format on
 
 
+    auto filter = rpl::filter([](int val) { return val > 2; });
+    auto stage = filter.make(meta::type<int&>);
 
-    for (auto&& val : input) {
-        if (f(val)) {
-            auto v2 = t(val);
-            std::apply(a, v2);
-        }
-    }
+    using InputType = decltype(input);
+
+
+    rpl::Chain<InputType, EZ_DECAY_T(filter)> chain{filter};
+
 
 }

@@ -15,12 +15,9 @@ decltype(auto) run(Range&& range, StageFactories&&... factories)
     else {
         using InputType = decltype(std::forward<Range>(range));
 
-        Chain<InputType, std::decay_t<StageFactories>...> chain{
-            std::forward<StageFactories>(factories)...};
+        Chain<InputType, StageFactories...> chain{std::forward<StageFactories>(factories)...};
 
-        return 2121;
-
-        //return chain.get(Index<0>()).process_all(std::forward<Range>(range));
+        return range;
     }
 }
 

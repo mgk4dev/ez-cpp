@@ -11,7 +11,7 @@ namespace ez::rpl {
 template <typename InputType, typename F>
 struct Apply {
     using OutputType = decltype(std::apply(std::declval<F>(), std::declval<InputType>()));
-    EZ_RPL_STAGE_INFO(ProcessingStyle::Incremental, ProcessingStyle::Incremental)
+    EZ_RPL_STAGE_INFO(ProcessingMode::Incremental, ProcessingMode::Incremental)
 
     Apply(auto&& f) : function{EZ_FWD(f)} {}
 

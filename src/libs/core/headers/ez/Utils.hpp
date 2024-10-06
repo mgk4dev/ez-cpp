@@ -6,12 +6,11 @@
 
 #define EZ_FWD(arg) std::forward<decltype(arg)>(arg)
 #define EZ_DECAY_T(arg) std::decay_t<decltype(arg)>
+#define EZ_REMOVE_CVR_T(arg) std::remove_cvref_t<decltype(arg)>
 
 namespace ez {
-struct Inplace {
-};
-struct Unit {
-};
+struct Inplace {};
+struct Unit {};
 
 constexpr Inplace in_place{};
 
@@ -39,7 +38,7 @@ inline constexpr typename std::underlying_type_t<Enum> as_int(Enum val) noexcept
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename... Ts>
-struct DebugType;
+struct DebugTypes;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -54,6 +53,8 @@ struct NonCopiable {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+using std::size_t;
+
 template <size_t I>
 using Index = std::integral_constant<size_t, I>;
 
@@ -64,11 +65,7 @@ template <typename... Ts>
 using IndexSequenceFor = std::make_index_sequence<sizeof...(Ts)>;
 
 template <typename T, typename U>
-concept Constexpr = requires
-{
-    typename T::IsCompileTime;
-}
-and std::convertible_to<T, U>;
+concept Constexpr = requires { typename T::IsCompileTime; } and std::convertible_to<T, U>;
 
 template <auto value_>
 struct CompileTime {
@@ -88,11 +85,12 @@ constexpr bool prefer_pass_by_value =
     sizeof(T) <= 2 * sizeof(void*) && std::is_trivially_copy_constructible_v<T>;
 
 template <typename T>
-    requires std::is_class_v<T> || std::is_union_v<T> || std::is_array_v<T> ||
-    std::is_function_v<T> constexpr bool prefer_pass_by_value<T> = false;
+    requires std::is_class_v<T> || std::is_union_v<T> || std::is_array_v<T> || std::is_function_v<T>
+constexpr bool prefer_pass_by_value<T> = false;
 
 template <typename T>
-requires(!std::is_void_v<T>) using in = std::conditional_t<prefer_pass_by_value<T>, T, T const&>;
+    requires(!std::is_void_v<T>)
+using in = std::conditional_t<prefer_pass_by_value<T>, T, T const&>;
 
 }  // namespace arg
 

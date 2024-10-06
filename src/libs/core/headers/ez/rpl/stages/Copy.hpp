@@ -17,7 +17,7 @@ struct CollectionTemplate {
 
 template <typename InputType, typename CollectionTemplateParam, typename Appender>
 struct ToCollection {
-    EZ_RPL_STAGE_INFO(ProcessingStyle::Incremental, ProcessingStyle::All)
+    EZ_RPL_STAGE_INFO(ProcessingMode::Incremental, ProcessingMode::Batch)
 
     using Collection = typename CollectionTemplateParam::template Type<std::decay_t<InputType>>;
     using OutputType = Collection&&;
@@ -36,7 +36,7 @@ struct ToCollection {
         appender(result, static_cast<InputType>(input));
     }
 
-    decltype(auto) end(auto&& next) { return next.process_complete(std::move(result)); }
+    decltype(auto) end(auto&& next) { return next.process_batch(std::move(result)); }
 };
 
 template <template <typename...> typename Collection,

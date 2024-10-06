@@ -2,8 +2,10 @@
 
 #include <ez/rpl/Run.hpp>
 
-#include <ez/rpl/Apply.hpp>
-#include <ez/rpl/Copy.hpp>
-#include <ez/rpl/Filter.hpp>
-#include <ez/rpl/ForEach.hpp>
-#include <ez/rpl/Transform.hpp>
+#include <ez/rpl/stages/Apply.hpp>
+#include <ez/rpl/stages/Copy.hpp>
+#include <ez/rpl/stages/Filter.hpp>
+#include <ez/rpl/stages/ForEach.hpp>
+#include <ez/rpl/stages/Iota.hpp>
+#include <ez/rpl/stages/Sort.hpp>
+#include <ez/rpl/stages/Transform.hpp>

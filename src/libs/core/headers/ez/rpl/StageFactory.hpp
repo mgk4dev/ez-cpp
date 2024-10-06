@@ -6,22 +6,17 @@
 
 namespace ez::rpl {
 
-template <typename ParamsTuple,
-          template <typename...>
-          typename StageTemplate,
-          typename... StageParameters>
+template <template <typename...> typename StageTemplate, typename... StageParameters>
 struct StageFactory {
     template <typename T>
     using Stage = StageTemplate<T, StageParameters...>;
 
-    EZ_RPL_STAGE_INFO(Stage<int>::input_processing_style, Stage<int>::output_processing_style)
+    std::tuple<StageParameters...> params_tuple;
 
-    ParamsTuple params_tuple;
+    explicit StageFactory(auto&&... args) : params_tuple(EZ_FWD(args)...) {}
 
-    template <typename... Args>
-    explicit StageFactory(Args&&... args) : params_tuple(std::forward<Args>(args)...)
-    {
-    }
+    StageFactory(const StageFactory&) = default;
+    StageFactory(StageFactory&&) = default;
 
     template <typename InputType>
     auto make(Type<InputType>) const
@@ -31,13 +26,10 @@ struct StageFactory {
     }
 };
 
-template <template <typename...> typename StageTemplate,
-          typename... StageParameters,
-          typename... Ts>
-auto make_factory(Ts&&... ts)
+template <template <typename...> typename StageTemplate, typename... ParameterTypes>
+auto make_factory(auto&&... ts)
 {
-    return StageFactory<std::tuple<std::decay_t<Ts>...>, StageTemplate, StageParameters...>(
-        std::forward<Ts>(ts)...);
+    return StageFactory<StageTemplate, std::remove_cv_t<ParameterTypes>...>(EZ_FWD(ts)...);
 }
 
 }  // namespace ez::rpl

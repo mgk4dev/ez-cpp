@@ -46,6 +46,8 @@ struct TypeList {
     }
 };
 
+#define EZ_TYPE_AT(type_list, index) decltype(type_list.at(ez::Index<index>{}))::Inner
+
 template <typename... Ts, typename... Us>
 consteval auto operator+(TypeList<Ts...>, TypeList<Us...>) -> TypeList<Ts..., Us...>
 {

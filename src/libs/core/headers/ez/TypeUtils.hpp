@@ -44,6 +44,12 @@ struct TypeList {
     {
         return Type<std::tuple_element_t<I, std::tuple<Ts...>>>{};
     }
+
+    template <typename... Us>
+    consteval bool operator==(TypeList<Us...>) const
+    {
+        return std::is_same_v<TypeList<Ts...>, TypeList<Us...>>;
+    }
 };
 
 #define EZ_TYPE_AT(type_list, index) decltype(type_list.at(ez::Index<index>{}))::Inner
@@ -93,5 +99,6 @@ consteval auto front_type(TypeList<T, Ts...>)
 {
     return Type<T>{};
 }
+
 }  // namespace meta
 }  // namespace ez

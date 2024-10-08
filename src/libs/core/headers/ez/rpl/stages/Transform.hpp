@@ -9,7 +9,7 @@ namespace ez::rpl {
 
 template <typename InputType, typename T>
 struct Transform {
-    using OutputType = std::invoke_result_t<T&, InputType>&&;
+    using OutputType = std::add_rvalue_reference_t<std::invoke_result_t<T&, InputType>>;
 
     EZ_RPL_STAGE_INFO(ProcessingMode::Incremental, ProcessingMode::Incremental)
 

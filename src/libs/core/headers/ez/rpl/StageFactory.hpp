@@ -13,13 +13,20 @@ struct StageFactory {
 
     std::tuple<StageParameters...> params_tuple;
 
-    explicit StageFactory(auto&&... args) : params_tuple(EZ_FWD(args)...) {}
+    explicit StageFactory(Inplace, auto&&... args) : params_tuple(EZ_FWD(args)...) {}
 
     StageFactory(const StageFactory&) = default;
     StageFactory(StageFactory&&) = default;
 
     template <typename InputType>
-    auto make(Type<InputType>) const
+    auto make(Type<InputType>) &
+    {
+        return std::apply([](auto&&... args) { return Stage<InputType>{EZ_FWD(args)...}; },
+                          params_tuple);
+    }
+
+    template <typename InputType>
+    auto make(Type<InputType>) &&
     {
         return std::apply([](auto&&... args) { return Stage<InputType>{EZ_FWD(args)...}; },
                           std::move(params_tuple));
@@ -27,9 +34,10 @@ struct StageFactory {
 };
 
 template <template <typename...> typename StageTemplate, typename... ParameterTypes>
-auto make_factory(auto&&... ts)
+auto make_factory(auto&&... args)
 {
-    return StageFactory<StageTemplate, std::remove_cv_t<ParameterTypes>...>(EZ_FWD(ts)...);
+    return StageFactory<StageTemplate, std::remove_cvref_t<ParameterTypes>...>(in_place,
+                                                                               EZ_FWD(args)...);
 }
 
 }  // namespace ez::rpl

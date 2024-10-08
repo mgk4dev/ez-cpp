@@ -17,14 +17,16 @@ struct Filter {
 
     void process_incremental(InputType val, auto&& next)
     {
-        if (predicate(std::as_const(val))) { next.process_incremental(val); }
+        if (predicate(std::as_const(val))) {
+            next.process_incremental(static_cast<InputType>(val));
+        }
     }
 };
 
 template <typename P>
 auto filter(P&& predicate)
 {
-    return make_factory<Filter, std::remove_cv_t<P>>(std::forward<P>(predicate));
+    return make_factory<Filter, P>(std::forward<P>(predicate));
 }
 
 }  // namespace ez::rpl

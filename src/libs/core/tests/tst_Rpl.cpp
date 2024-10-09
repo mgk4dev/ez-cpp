@@ -59,8 +59,6 @@ TEST(Rpl, chain_traits)
     }
 
     {
-        using InputType = int&;
-
         using Traits = rpl::ChainTraits<rpl::ProcessingMode::Incremental, int&, decltype(filter),
                                         decltype(to_vector)>;
 
@@ -72,93 +70,103 @@ TEST(Rpl, chain_traits)
     }
 }
 
-TEST(Rpl, chain_batch)
+TEST(Rpl, chain_stages)
 {
-    using InputType = std::vector<int>&;
-
     auto filter = rpl::filter([](int val) { return val > 2; });
     auto to_vector = rpl::to_vector();
 
-    using ChainType =
-        rpl::ChainStages<rpl::ProcessingMode::Incremental, InputType, IndexSequenceFor<void,
-        void>,
-                         decltype(filter), decltype(to_vector)>;
+    using ChainStagesType =
+        rpl::ChainStages<rpl::ProcessingMode::Incremental, int&, IndexSequenceFor<void, void>,
+                         EZ_REMOVE_CVR_T(filter), EZ_REMOVE_CVR_T(to_vector)>;
 
-    // using Inputs = ChainType::InputTypeList;
-
-    ChainType chain{in_place, filter, to_vector};
-    // unused(chain);
+    ChainStagesType chain{in_place, filter, to_vector};
+    unused(chain);
 }
 
-// TEST(Rpl, chain_incremental)
-// {
-//     std::vector input{1, 2, 3, 4};
+TEST(Rpl, chain_incremental)
+{
+    auto filter = rpl::filter([](int val) { return val > 2; });
+    auto to_vector = rpl::to_vector();
 
-//     using InputType = std::vector<int&>;
+    using Chain =
+        rpl::Chain<rpl::ProcessingMode::Incremental, int&, decltype(filter), decltype(to_vector)>;
 
-//     auto filter = rpl::filter([](int val) { return val > 2; });
-//     auto to_vector = rpl::to_vector();
+    Chain chain{in_place, filter, to_vector};
+    unused(chain);
+}
 
-//     using ChainType = rpl::Chain<rpl::ProcessingMode::Incremental, InputType, decltype(filter),
-//                                  decltype(to_vector)>;
-//     ChainType chain{in_place, filter, to_vector};
-//     // unused(chain);
-// }
+TEST(Rpl, chain_batch)
+{
+    auto filter = rpl::filter([](int val) { return val > 2; });
+    auto to_vector = rpl::to_vector();
 
-// TEST(Rpl, make_chain)
-// {
-//     std::vector input{1, 2, 3, 4};
+    using Chain = rpl::Chain<rpl::ProcessingMode::Batch, std::vector<int>&, decltype(filter),
+                             decltype(to_vector)>;
 
-//     auto chain = rpl::make_chain<std::vector<int>&>(rpl::filter([](int val) { return val > 2; }),
-//                                                     rpl::to_vector());
+    Chain chain{in_place, filter, to_vector};
+    unused(chain);
+}
 
-//     using Chain = EZ_REMOVE_CVR_T(chain);
-//     using OutputType = typename Chain::OutputType;
+TEST(Rpl, make_chain)
+{
+    std::vector input{1, 2, 3, 4};
 
-//     constexpr auto input_types = Chain::InputTypeList{};
-//     constexpr auto output_type = meta::type<Chain::OutputType>;
+    auto chain = rpl::make_chain<std::vector<int>&>(rpl::filter([](int val) { return val > 2; }),
+                                                    rpl::to_vector());
 
-//     static_assert(input_types.at(Index<0>{}) == meta::type<std::vector<int>&>);
-//     static_assert(input_types.at(Index<1>{}) == meta::type<int&>);
-//     static_assert(input_types.at(Index<2>{}) == meta::type<int&>);
-//     static_assert(output_type == meta::type<std::vector<int>&&>);
-// }
+    using Chain = EZ_REMOVE_CVR_T(chain);
+    using OutputType = typename Chain::OutputType;
 
-// TEST(Rpl, simple_run)
-// {
-//     std::vector input{4, 3, 2, 1, 0, -1, -2};
+    constexpr auto input_types = Chain::InputTypeList{};
+    constexpr auto output_type = meta::type<OutputType>;
 
-//     // clang-format off
-//     auto result = rpl::run(
-//         input,
-//         rpl::filter([](int val) { return val > 2; }),
-//         rpl::transform([](int val) { return val * val; }),
-//         rpl::to_vector(),
-//         rpl::sort()
-//     );
-//     // clang-format on
+    static_assert(input_types.at(Index<0>{}) == meta::type<int&>);
+    static_assert(input_types.at(Index<1>{}) == meta::type<int&>);
+    static_assert(output_type == meta::type<std::vector<int>&&>);
+}
 
-//     ASSERT_EQ(result, (std::vector{9, 16}));
-// }
+TEST(Rpl, simple_run)
+{
+    std::vector input{4, 3, 2, 1, 0, -1, -2};
 
-// TEST(Rpl, compose)
-// {
-//     std::vector input{4, 3, 2, 1, 0, -1, -2};
+    // clang-format off
+    auto result = rpl::run(
+        input,
+        rpl::filter([](int val) { return val > 2; }),
+        rpl::transform([](int val) { return val * val; }),
+        rpl::to_vector(),
+        rpl::sort()
+    );
+    // clang-format on
 
-//     auto filter_transform = rpl::compose(rpl::filter([](int val) { return val > 2; }),
-//                                          rpl::transform([](int val) { return val * val; }));
+    ASSERT_EQ(result, (std::vector{9, 16}));
+}
 
-//     auto stage = filter_transform.make(meta::type<std::vector<int>&>);
+TEST(Rpl, compose)
+{
+    std::vector input{4, 3, 2, 1, 0, -1, -2};
 
-//     unused(filter_transform);
-//     // // clang-format off
-//     // auto result = rpl::run(
-//     //     input,
-//     //     filter_transform,
-//     //     rpl::to_vector(),
-//     //     rpl::sort()
-//     //     );
-//     // // clang-format on
+    auto filter_transform = rpl::compose(rpl::filter([](int val) { return val > 2; }),
+                                         rpl::transform([](int val) { return val * val; }));
 
-//     // ASSERT_EQ(result, (std::vector{9, 16}));
-// }
+    static_assert(filter_transform.input_processing_mode<int&> == rpl::ProcessingMode::Incremental);
+    static_assert(filter_transform.output_processing_mode<int&> == rpl::ProcessingMode::Incremental);
+
+     auto chain =
+         rpl::make_chain<std::vector<int>&>(filter_transform, rpl::to_vector(), rpl::sort());
+
+    // using I = typename decltype(chain)::InputTypeList;
+
+    // DebugTypes<I>();
+
+    // // clang-format off
+    //  auto result = rpl::run(
+    //     input,
+    //     filter_transform,
+    //     rpl::to_vector(),
+    //     rpl::sort()
+    // );
+    // // clang-format on
+
+    // ASSERT_EQ(result, (std::vector{9, 16}));
+}

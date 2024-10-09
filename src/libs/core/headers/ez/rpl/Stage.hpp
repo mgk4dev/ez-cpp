@@ -23,6 +23,12 @@ public:
                   "OutputType must be a reference.");
 
     explicit Stage(StageFactory& factory) : m_stage(factory.make(meta::type<InputType>)) {}
+    explicit Stage(StageFactory&& factory) : m_stage(std::move(factory).make(meta::type<InputType>))
+    {
+    }
+
+    Stage(const Stage&) = default;
+    Stage(Stage&&) = default;
 
     Sequence& sequence() { return static_cast<Sequence&>(*this); }
     const Sequence& sequence() const { return static_cast<const Sequence&>(*this); }
@@ -75,10 +81,10 @@ public:
         }
     }
 
-    // Only accept InputType with exactly matching reference type.
-    template <typename T,
-              typename = std::enable_if_t<input_processing_mode == ProcessingMode::Batch>>
-    decltype(auto) process_batch(T&&) = delete;
+    // // Only accept InputType with exactly matching reference type.
+    // template <typename T,
+    //           typename = std::enable_if_t<input_processing_mode == ProcessingMode::Batch>>
+    // decltype(auto) process_batch(T&&) = delete;
 
     decltype(auto) process_batch(InputType t)
     {
@@ -95,8 +101,8 @@ public:
     }
 
     template <typename Container,
-              typename = void,
-              typename = std::enable_if_t<input_processing_mode == ProcessingMode::Incremental>>
+              typename = std::enable_if_t<input_processing_mode == ProcessingMode::Incremental
+                                          && !std::is_same_v<Container, InputType>>>
     decltype(auto) process_batch(Container&& container)
     {
         constexpr bool has_process_incremental =

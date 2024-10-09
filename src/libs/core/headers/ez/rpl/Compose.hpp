@@ -7,33 +7,29 @@ namespace ez::rpl {
 
 template <typename InputType, typename... StageFactories>
 struct Compose {
-    // using FirstStageFactory = EZ_TYPE_AT(meta::type_list<StageFactories...>, 0);
-    // using LastStageFactory = EZ_TYPE_AT(meta::type_list<StageFactories...>,
-    //                                     sizeof...(StageFactories) - 1);
+    using FirstStageFactory = EZ_TYPE_AT(meta::type_list<StageFactories...>, 0);
+    using LastStageFactory = EZ_TYPE_AT(meta::type_list<StageFactories...>,
+                                        sizeof...(StageFactories) - 1);
 
-    // using FirstStageImpl = decltype(std::declval<FirstStageFactory>().make(meta::type<InputType>));
+    using FirstStageImpl = decltype(std::declval<FirstStageFactory>().make(meta::type<InputType>));
+    static constexpr ProcessingMode input_processing_mode = FirstStageImpl::input_processing_mode;
 
-    // static constexpr ProcessingMode input_processing_mode = FirstStageImpl::input_processing_mode;
-    // static constexpr ProcessingMode output_processing_mode = ProcessingMode::Incremental;
+    using ChainType = Chain<input_processing_mode, InputType, StageFactories...>;
 
-    // using ChainType = Chain<    //                         FirstStageImpl::input_processing_mode,
-    //                         InputType,
-    //                         StageFactories...>;
+    using InputTypeList = ChainType::InputTypeList;
 
-    // using ChainInputTypeList = ChainType::InputTypeList;
+    static constexpr auto last_input_type =
+        InputTypeList{}.at(Index<sizeof...(StageFactories) - 1>{});
 
-    // static constexpr auto last_input_type =
-    //     ChainInputTypeList{}.at(Index<sizeof...(StageFactories) - 1>{});
+    using OutputType = ChainType::OutputType;
 
-    // using OutputType = ChainType::OutputType;
+    using LastStageImpl = decltype(std::declval<LastStageFactory>().make(last_input_type));
 
-    // using LastStageImpl = decltype(std::declval<LastStageFactory>().make(last_input_type));
-
-    using ChainType = Chain<ProcessingMode::Incremental, InputType, StageFactories...>;
+    static constexpr ProcessingMode output_processing_mode = LastStageImpl::output_processing_mode;
 
     ChainType chain;
 
-    Compose(auto&&... factories): chain{in_place, EZ_FWD(factories)...} {}
+    Compose(auto&&... factories) : chain{in_place, EZ_FWD(factories)...} {}
 
     // template <typename Next,
     //           typename = std::enable_if_t<input_processing_mode == ProcessingMode::Incremental>>

@@ -13,6 +13,12 @@ struct StageFactory {
 
     std::tuple<StageParameters...> params_tuple;
 
+    template <typename T>
+    static constexpr auto input_processing_mode = Stage<T>::input_processing_mode;
+
+    template <typename T>
+    static constexpr auto output_processing_mode = Stage<T>::output_processing_mode;
+
     explicit StageFactory(Inplace, auto&&... args) : params_tuple(EZ_FWD(args)...) {}
 
     StageFactory(const StageFactory&) = default;

@@ -34,8 +34,6 @@ constexpr auto get_chain_input_types_impl()
     constexpr ProcessingMode stage_input_processing_mode = Stage::input_processing_mode;
     constexpr ProcessingMode stage_ouput_processing_mode = Stage::output_processing_mode;
 
-
-
     if constexpr (input_mode == ProcessingMode::Batch &&
                   stage_input_processing_mode == ProcessingMode::Incremental) {
         using ValueType =
@@ -50,9 +48,7 @@ constexpr auto get_chain_input_types_impl()
                                           StageFactories...>();
     }
     else {
-
-        using RealStage = StageFactory::template Stage<InputType>;
-        using OutputType = RealStage::OutputType;
+        using OutputType = Stage::OutputType;
 
         return meta::type_list<InputType> +
                get_chain_input_types_impl<stage_ouput_processing_mode, OutputType,
@@ -63,7 +59,8 @@ constexpr auto get_chain_input_types_impl()
 template <ProcessingMode input_mode, typename InputType, typename... StageFactories>
 constexpr auto get_chain_input_types()
 {
-    return  get_chain_input_types_impl<input_mode, InputType, std::remove_cv_t<StageFactories>...>();
+    return get_chain_input_types_impl<input_mode, InputType,
+                                      std::remove_cvref_t<StageFactories>...>();
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -106,9 +103,14 @@ struct ChainStages<input_mode, InputType, IndexSequence<indices...>, StageFactor
                          typename EZ_TYPE_AT(FactoriesTypeList{}, index)>;
 
     struct StageSequence : public StageT<indices, StageSequence>... {
+        using StageT<indices, StageSequence>::StageT...;
         using StageT<indices, StageSequence>::get...;
 
-        StageSequence(auto&&... factories) : StageT<indices, StageSequence>(factories)... {}
+        StageSequence(auto&&... factories)
+            : StageT<indices, StageSequence>(
+                  std::get<indices>(std::forward_as_tuple(EZ_FWD(factories)...)))...
+        {
+        }
 
         ChainTerminator terminator;
 
@@ -135,10 +137,14 @@ struct ChainStages<input_mode, InputType, IndexSequence<indices...>, StageFactor
 };
 
 template <ProcessingMode input_mode, typename InputType, typename... StageFactories>
-struct Chain
-    : ChainStages<input_mode, InputType, IndexSequenceFor<StageFactories...>, std::remove_cvref_t<StageFactories>...> {
-    using ChainStagesType =
-        ChainStages<input_mode, InputType, IndexSequenceFor<StageFactories...>, std::remove_cvref_t<StageFactories>...>;
+struct Chain : ChainStages<input_mode,
+                           InputType,
+                           IndexSequenceFor<StageFactories...>,
+                           std::remove_cvref_t<StageFactories>...> {
+    using ChainStagesType = ChainStages<input_mode,
+                                        InputType,
+                                        IndexSequenceFor<StageFactories...>,
+                                        std::remove_cvref_t<StageFactories>...>;
 
     using ChainStagesType::InputTypeList;
     using ChainStagesType::OutputType;

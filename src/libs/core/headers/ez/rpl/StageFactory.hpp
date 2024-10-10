@@ -6,18 +6,19 @@
 
 namespace ez::rpl {
 
-template <template <typename...> typename StageTemplate, typename... StageParameters>
+template <ProcessingMode in_processing_mode,
+          ProcessingMode out_processing_mode,
+          template <typename...>
+          typename StageTemplate,
+          typename... StageParameters>
 struct StageFactory {
     template <typename T>
     using Stage = StageTemplate<T, StageParameters...>;
 
+    static constexpr ProcessingMode input_processing_mode = in_processing_mode;
+    static constexpr ProcessingMode output_processing_mode = out_processing_mode;
+
     std::tuple<StageParameters...> params_tuple;
-
-    template <typename T>
-    static constexpr auto input_processing_mode = Stage<T>::input_processing_mode;
-
-    template <typename T>
-    static constexpr auto output_processing_mode = Stage<T>::output_processing_mode;
 
     explicit StageFactory(Inplace, auto&&... args) : params_tuple(EZ_FWD(args)...) {}
 
@@ -39,11 +40,15 @@ struct StageFactory {
     }
 };
 
-template <template <typename...> typename StageTemplate, typename... ParameterTypes>
+template <ProcessingMode in_processing_mode,
+          ProcessingMode out_processing_mode,
+          template <typename...>
+          typename StageTemplate,
+          typename... ParameterTypes>
 auto make_factory(auto&&... args)
 {
-    return StageFactory<StageTemplate, std::remove_cvref_t<ParameterTypes>...>(in_place,
-                                                                               EZ_FWD(args)...);
+    return StageFactory<in_processing_mode, out_processing_mode, StageTemplate,
+                        std::remove_cvref_t<ParameterTypes>...>(in_place, EZ_FWD(args)...);
 }
 
 }  // namespace ez::rpl

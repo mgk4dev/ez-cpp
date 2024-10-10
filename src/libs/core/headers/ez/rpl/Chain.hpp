@@ -9,7 +9,13 @@ namespace ez::rpl {
 
 struct ChainTerminator {
     template <typename T>
-    T process_batch(T&& t)
+    T&& process_batch(T&& t)
+    {
+        return std::forward<T>(t);
+    }
+
+    template <typename T>
+    T&& process_incremental(T&& t)
     {
         return std::forward<T>(t);
     }
@@ -29,27 +35,23 @@ template <ProcessingMode input_mode,
           typename... StageFactories>
 constexpr auto get_chain_input_types_impl()
 {
-    using Stage = StageFactory::template Stage<InputType>;
-
-    constexpr ProcessingMode stage_input_processing_mode = Stage::input_processing_mode;
-    constexpr ProcessingMode stage_ouput_processing_mode = Stage::output_processing_mode;
+    constexpr ProcessingMode stage_input_processing_mode = StageFactory::input_processing_mode;
+    constexpr ProcessingMode stage_ouput_processing_mode = StageFactory::output_processing_mode;
 
     if constexpr (input_mode == ProcessingMode::Batch &&
                   stage_input_processing_mode == ProcessingMode::Incremental) {
         using ValueType =
             decltype(*std::begin(std::declval<std::add_lvalue_reference_t<InputType>>()));
 
-        using RealStage = StageFactory::template Stage<ValueType>;
-
-        using OutputType = RealStage::OutputType;
-
+        using Stage = StageFactory::template Stage<ValueType>;
+        using OutputType = Stage::OutputType;
         return meta::type_list<ValueType> +
                get_chain_input_types_impl<stage_ouput_processing_mode, OutputType,
                                           StageFactories...>();
     }
     else {
+        using Stage = StageFactory::template Stage<InputType>;
         using OutputType = Stage::OutputType;
-
         return meta::type_list<InputType> +
                get_chain_input_types_impl<stage_ouput_processing_mode, OutputType,
                                           StageFactories...>();
@@ -89,6 +91,8 @@ template <ProcessingMode input_mode,
           typename... StageFactories,
           size_t... indices>
 struct ChainStages<input_mode, InputType, IndexSequence<indices...>, StageFactories...> {
+    static constexpr size_t stage_count = sizeof...(StageFactories);
+
     using Traits = ChainTraits<input_mode, InputType, StageFactories...>;
 
     using InputTypeList = Traits::InputTypeList;
@@ -133,7 +137,8 @@ struct ChainStages<input_mode, InputType, IndexSequence<indices...>, StageFactor
     StageSequence stages;
     ChainStages(Inplace, auto&&... factories) : stages{EZ_FWD(factories)...} {}
 
-    decltype(auto) begin() { return stages.get(Index<0>{}); }
+    decltype(auto) first() { return stages.get(Index<0>{}); }
+    decltype(auto) last() { return stages.get(Index<stage_count - 1>{}); }
 };
 
 template <ProcessingMode input_mode, typename InputType, typename... StageFactories>

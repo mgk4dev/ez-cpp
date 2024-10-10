@@ -9,7 +9,6 @@ namespace ez::rpl {
 template <typename InputType, typename Predicate>
 struct Filter {
     using OutputType = InputType;
-    EZ_RPL_STAGE_INFO(ProcessingMode::Incremental, ProcessingMode::Incremental)
 
     Predicate predicate;
 
@@ -26,7 +25,8 @@ struct Filter {
 template <typename P>
 auto filter(P&& predicate)
 {
-    return make_factory<Filter, P>(std::forward<P>(predicate));
+    return make_factory<ProcessingMode::Incremental, ProcessingMode::Incremental, Filter, P>(
+        std::forward<P>(predicate));
 }
 
 }  // namespace ez::rpl

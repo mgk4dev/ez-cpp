@@ -11,8 +11,6 @@ template <typename InputType, typename T>
 struct Transform {
     using OutputType = std::add_rvalue_reference_t<std::invoke_result_t<T&, InputType>>;
 
-    EZ_RPL_STAGE_INFO(ProcessingMode::Incremental, ProcessingMode::Incremental)
-
     T transform;
 
     Transform(auto&& t) : transform{EZ_FWD(t)} {}
@@ -26,7 +24,8 @@ struct Transform {
 template <typename T>
 auto transform(T&& t)
 {
-    return make_factory<Transform, T>(std::forward<T>(t));
+    return make_factory<ProcessingMode::Incremental, ProcessingMode::Incremental, Transform, T>(
+        std::forward<T>(t));
 }
 
 }  // namespace ez::rpl

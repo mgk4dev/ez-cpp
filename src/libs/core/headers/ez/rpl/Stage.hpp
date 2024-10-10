@@ -12,8 +12,6 @@ public:
     using StageImpl = StageFactory::template Stage<InputType>;
     using OutputType = typename StageImpl::OutputType;
 
-    EZ_RPL_STAGE_INFO(StageImpl::input_processing_mode, StageImpl::input_processing_mode)
-
 private:
     StageImpl m_stage;
 
@@ -50,7 +48,7 @@ public:
 
     constexpr decltype(auto) end()
     {
-        static_assert(input_processing_mode == ProcessingMode::Incremental,
+        static_assert(StageFactory::input_processing_mode == ProcessingMode::Incremental,
                       "End called on non incremental processing stage.");
         if constexpr (requires { m_stage.end(next()); }) {
             static_assert(!std::is_void_v<decltype(m_stage.end(next()))>,
@@ -67,15 +65,17 @@ public:
     void process_incremental(T&& t) = delete;
     void process_incremental(InputType t)
     {
-        constexpr bool has_process_incremental =
-            requires { m_stage.process_incremental(static_cast<InputType>(t), next()); };
+        constexpr bool has_process_incremental = requires
+        {
+            m_stage.process_incremental(static_cast<InputType>(t), next());
+        };
 
-        static_assert(input_processing_mode == ProcessingMode::Incremental,
+        static_assert(StageFactory::input_processing_mode == ProcessingMode::Incremental,
                       "process_incremental called on stage that is not incremental.");
-        static_assert(
-            input_processing_mode == ProcessingMode::Incremental || has_process_incremental,
-            "Stage with incremental processing mode does not implement "
-            "process_incremental.");
+        static_assert(StageFactory::input_processing_mode == ProcessingMode::Incremental ||
+                          has_process_incremental,
+                      "Stage with incremental processing mode does not implement "
+                      "process_incremental.");
         if constexpr (has_process_incremental) {
             m_stage.process_incremental(static_cast<InputType>(t), next());
         }
@@ -88,8 +88,10 @@ public:
 
     decltype(auto) process_batch(InputType t)
     {
-        constexpr bool has_process_batch =
-            requires { m_stage.process_batch(static_cast<InputType>(t), next()); };
+        constexpr bool has_process_batch = requires
+        {
+            m_stage.process_batch(static_cast<InputType>(t), next());
+        };
 
         static_assert(has_process_batch,
                       "Stage with batch processing mode does not implement process_batch.");
@@ -101,12 +103,15 @@ public:
     }
 
     template <typename Container,
-              typename = std::enable_if_t<input_processing_mode == ProcessingMode::Incremental
-                                          && !std::is_same_v<Container, InputType>>>
+              typename = std::enable_if_t<StageFactory::input_processing_mode ==
+                                              ProcessingMode::Incremental &&
+                                          !std::is_same_v<Container, InputType>>>
     decltype(auto) process_batch(Container&& container)
     {
-        constexpr bool has_process_incremental =
-            requires { m_stage.process_incremental(std::declval<InputType>(), next()); };
+        constexpr bool has_process_incremental = requires
+        {
+            m_stage.process_incremental(std::declval<InputType>(), next());
+        };
 
         static_assert(
             has_process_incremental,

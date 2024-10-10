@@ -10,7 +10,6 @@ namespace ez::rpl {
 
 template <typename InputType>
 struct ToVector {
-    EZ_RPL_STAGE_INFO(ProcessingMode::Incremental, ProcessingMode::Batch)
     using Vector = std::vector<std::remove_cvref_t<InputType>>;
     using OutputType = Vector&&;
 
@@ -24,6 +23,9 @@ struct ToVector {
     decltype(auto) end(auto&& next) { return next.process_batch(std::move(result)); }
 };
 
-inline auto to_vector() { return make_factory<ToVector>(); }
+inline auto to_vector()
+{
+    return make_factory<ProcessingMode::Incremental, ProcessingMode::Batch, ToVector>();
+}
 
 }  // namespace ez::rpl

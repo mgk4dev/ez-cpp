@@ -11,7 +11,6 @@ namespace ez::rpl {
 template <typename InputType, typename F>
 struct Apply {
     using OutputType = decltype(std::apply(std::declval<F>(), std::declval<InputType>()));
-    EZ_RPL_STAGE_INFO(ProcessingMode::Incremental, ProcessingMode::Incremental)
 
     Apply(auto&& f) : function{EZ_FWD(f)} {}
 
@@ -31,7 +30,8 @@ struct Apply {
 template <typename F>
 auto apply(F&& f)
 {
-    return make_factory<Apply, F>(std::forward<F>(f));
+    return make_factory<ProcessingMode::Incremental, ProcessingMode::Incremental, Apply, F>(
+        std::forward<F>(f));
 }
 
 }  // namespace ez::rpl

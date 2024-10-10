@@ -142,31 +142,57 @@ TEST(Rpl, simple_run)
     ASSERT_EQ(result, (std::vector{9, 16}));
 }
 
+template <typename... Ts>
+void debug_type_list(TypeList<Ts...> tl)
+{
+    DebugTypes<EZ_TYPE_AT(tl, 0), EZ_TYPE_AT(tl, 1)>();
+}
+TEST(Rpl, compose_incremental_input)
+{
+    auto f = rpl::filter([](int val) { return val > 2; });
+    auto t = rpl::transform([](int val) { return val * val; });
+
+    using C = rpl::Compose<int&, EZ_REMOVE_CVR_T(f), EZ_REMOVE_CVR_T(t)>;
+
+    static_assert(C::input_processing_mode == rpl::ProcessingMode::Incremental);
+    static_assert(C::output_processing_mode == rpl::ProcessingMode::Incremental);
+
+    C cmp{f, t};
+
+    int val;
+
+    rpl::ChainTerminator terminator;
+
+    static_assert(requires { cmp.process_incremental(val, terminator); });
+}
+
+TEST(Rpl, compose_batch_input)
+{
+    auto s = rpl::sort();
+    auto t = rpl::transform([](int val) { return val * val; });
+
+    using C = rpl::Compose<std::vector<int>&, EZ_REMOVE_CVR_T(s), EZ_REMOVE_CVR_T(t)>;
+
+    using I = C::InputTypeList;
+
+    static_assert(C::input_processing_mode == rpl::ProcessingMode::Batch);
+    static_assert(C::output_processing_mode == rpl::ProcessingMode::Incremental);
+
+    C cmp{s, t};
+
+    std::vector<int> val;
+
+    rpl::ChainTerminator terminator;
+
+    static_assert(requires { cmp.process_batch(val, terminator); });
+}
+
 TEST(Rpl, compose)
 {
     std::vector input{4, 3, 2, 1, 0, -1, -2};
 
-    auto filter_transform = rpl::compose(rpl::filter([](int val) { return val > 2; }),
-                                         rpl::transform([](int val) { return val * val; }));
+    auto pipeline = rpl::compose(rpl::filter([](int val) { return val > 2; }), rpl::to_vector());
+    auto result = rpl::run(input, pipeline);
 
-    static_assert(filter_transform.input_processing_mode<int&> == rpl::ProcessingMode::Incremental);
-    static_assert(filter_transform.output_processing_mode<int&> == rpl::ProcessingMode::Incremental);
-
-     auto chain =
-         rpl::make_chain<std::vector<int>&>(filter_transform, rpl::to_vector(), rpl::sort());
-
-    // using I = typename decltype(chain)::InputTypeList;
-
-    // DebugTypes<I>();
-
-    // // clang-format off
-    //  auto result = rpl::run(
-    //     input,
-    //     filter_transform,
-    //     rpl::to_vector(),
-    //     rpl::sort()
-    // );
-    // // clang-format on
-
-    // ASSERT_EQ(result, (std::vector{9, 16}));
+    ASSERT_EQ(result, (std::vector{4, 3}));
 }

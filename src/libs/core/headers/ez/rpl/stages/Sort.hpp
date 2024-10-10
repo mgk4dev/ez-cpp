@@ -9,7 +9,6 @@ namespace ez::rpl {
 
 template <typename InputType, typename Less>
 struct Sort {
-    EZ_RPL_STAGE_INFO(ProcessingMode::Batch, ProcessingMode::Batch)
     using OutputType = InputType;
 
     Less less;
@@ -24,7 +23,8 @@ struct Sort {
 template <typename Less = std::less<>>
 auto sort(Less&& less = {})
 {
-    return make_factory<Sort, Less>(std::forward<Less>(less));
+    return make_factory<ProcessingMode::Batch, ProcessingMode::Batch, Sort, Less>(
+        std::forward<Less>(less));
 }
 
 }  // namespace ez::rpl

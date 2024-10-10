@@ -7,52 +7,55 @@ namespace ez::rpl {
 
 template <typename InputType, typename... StageFactories>
 struct Compose {
-    using FirstStageFactory = EZ_TYPE_AT(meta::type_list<StageFactories...>, 0);
-    using LastStageFactory = EZ_TYPE_AT(meta::type_list<StageFactories...>,
-                                        sizeof...(StageFactories) - 1);
+    static constexpr size_t stage_count = sizeof...(StageFactories);
 
-    using FirstStageImpl = decltype(std::declval<FirstStageFactory>().make(meta::type<InputType>));
-    static constexpr ProcessingMode input_processing_mode = FirstStageImpl::input_processing_mode;
+    using FirstStageFactory = EZ_TYPE_AT(meta::type_list<StageFactories...>, 0);
+    using LastStageFactory = EZ_TYPE_AT(meta::type_list<StageFactories...>, stage_count - 1);
+
+    static constexpr ProcessingMode input_processing_mode =
+        FirstStageFactory::input_processing_mode;
+    static constexpr ProcessingMode output_processing_mode =
+        LastStageFactory::output_processing_mode;
 
     using ChainType = Chain<input_processing_mode, InputType, StageFactories...>;
-
-    using InputTypeList = ChainType::InputTypeList;
-
-    static constexpr auto last_input_type =
-        InputTypeList{}.at(Index<sizeof...(StageFactories) - 1>{});
-
     using OutputType = ChainType::OutputType;
-
-    using LastStageImpl = decltype(std::declval<LastStageFactory>().make(last_input_type));
-
-    static constexpr ProcessingMode output_processing_mode = LastStageImpl::output_processing_mode;
+    using InputTypeList = ChainType::InputTypeList;
 
     ChainType chain;
 
     Compose(auto&&... factories) : chain{in_place, EZ_FWD(factories)...} {}
 
-    // template <typename Next,
-    //           typename = std::enable_if_t<input_processing_mode == ProcessingMode::Incremental>>
-    // void process_incremental(InputType val, Next&& next)
-    // {
-    //     next.process_incremental(chain.begin().process_incremental(static_cast<InputType>(val)));
-    // }
+    void process_incremental(InputType val, auto&& )
+    {
+        chain.first().process_incremental(static_cast<InputType>(val));
+    }
 
-    // template <typename Next,
-    //           typename = std::enable_if_t<input_processing_mode == ProcessingMode::Batch>>
-    // void process_batch(InputType val, Next&& next)
-    // {
-    //     next.process_bach(chain.begin().process_batch(static_cast<InputType>(val)));
-    // }
+    void process_batch(InputType val, auto&& next)
+    {
+        next.process_bach(chain.front().process_batch(static_cast<InputType>(val)));
+    }
+
+    decltype(auto) end(auto&& next) { return next.process_batch(chain.last().end()); }
 };
 
 template <typename... StageFactories>
 auto compose(StageFactories&&... factories)
 {
-    static_assert(sizeof...(factories) > 0, "Compose requires at least one stage");
+    static constexpr size_t stage_count = sizeof...(StageFactories);
 
-    if constexpr (sizeof...(factories) > 0) {
-        return make_factory<Compose, StageFactories...>(std::forward<StageFactories>(factories)...);
+    static_assert(stage_count > 0, "Compose requires at least one stage");
+
+    if constexpr (stage_count > 0) {
+        using FirstStageFactory = EZ_TYPE_AT(meta::type_list<StageFactories...>, 0);
+        using LastStageFactory = EZ_TYPE_AT(meta::type_list<StageFactories...>, stage_count - 1);
+
+        static constexpr ProcessingMode input_processing_mode =
+            std::remove_cvref_t<FirstStageFactory>::input_processing_mode;
+        static constexpr ProcessingMode output_processing_mode =
+            std::remove_cvref_t<LastStageFactory>::output_processing_mode;
+
+        return make_factory<input_processing_mode, output_processing_mode, Compose,
+                            StageFactories...>(std::forward<StageFactories>(factories)...);
     }
 }
 

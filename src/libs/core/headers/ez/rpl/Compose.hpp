@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ez/rpl/Chain.hpp>
+#include <ez/rpl/Pipeline.hpp>
 #include <ez/rpl/StageFactory.hpp>
 
 namespace ez::rpl {
@@ -17,25 +17,25 @@ struct Compose {
     static constexpr ProcessingMode output_processing_mode =
         LastStageFactory::output_processing_mode;
 
-    using ChainType = Chain<input_processing_mode, InputType, StageFactories...>;
-    using OutputType = ChainType::OutputType;
-    using InputTypeList = ChainType::InputTypeList;
+    using PipelineType = Pipeline<input_processing_mode, InputType, StageFactories...>;
+    using OutputType = PipelineType::OutputType;
+    using InputTypeList = PipelineType::InputTypeList;
 
-    ChainType chain;
+    PipelineType pipeline;
 
-    Compose(auto&&... factories) : chain{in_place, EZ_FWD(factories)...} {}
+    Compose(auto&&... factories) : pipeline{in_place, EZ_FWD(factories)...} {}
 
     void process_incremental(InputType val, auto&& )
     {
-        chain.first().process_incremental(static_cast<InputType>(val));
+        pipeline.first().process_incremental(static_cast<InputType>(val));
     }
 
     void process_batch(InputType val, auto&& next)
     {
-        next.process_bach(chain.first().process_batch(static_cast<InputType>(val)));
+        next.process_bach(pipeline.first().process_batch(static_cast<InputType>(val)));
     }
 
-    decltype(auto) flush_to(auto&& next) { return next.process_batch(chain.last().flush()); }
+    decltype(auto) flush_to(auto&& next) { return next.process_batch(pipeline.last().flush()); }
 };
 
 template <typename... StageFactories>

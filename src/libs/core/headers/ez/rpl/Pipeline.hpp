@@ -7,7 +7,7 @@
 
 namespace ez::rpl {
 
-struct ChainTerminator {
+struct PipelineTerminator {
     template <typename T>
     T process_batch(T&& t)
     {
@@ -18,7 +18,7 @@ struct ChainTerminator {
 ///////////////////////////////////////////////////////////////////////
 
 template <ProcessingMode, typename InputType>
-constexpr auto get_chain_input_types_impl()
+constexpr auto get_pipeline_input_types_impl()
 {
     return meta::type_list<>;
 }
@@ -27,7 +27,7 @@ template <ProcessingMode input_mode,
           typename InputType,
           typename StageFactory,
           typename... StageFactories>
-constexpr auto get_chain_input_types_impl()
+constexpr auto get_pipeline_input_types_impl()
 {
     constexpr ProcessingMode stage_input_processing_mode = StageFactory::input_processing_mode;
     constexpr ProcessingMode stage_ouput_processing_mode = StageFactory::output_processing_mode;
@@ -46,33 +46,33 @@ constexpr auto get_chain_input_types_impl()
         using Stage = StageFactory::template Stage<T>;
         using OutputType = Stage::OutputType;
         return meta::type_list<T> +
-               get_chain_input_types_impl<stage_ouput_processing_mode, OutputType,
+               get_pipeline_input_types_impl<stage_ouput_processing_mode, OutputType,
                                           StageFactories...>();
     }
     else {
         using Stage = StageFactory::template Stage<InputType>;
         using OutputType = Stage::OutputType;
         return meta::type_list<InputType> +
-               get_chain_input_types_impl<stage_ouput_processing_mode, OutputType,
+               get_pipeline_input_types_impl<stage_ouput_processing_mode, OutputType,
                                           StageFactories...>();
     }
 }
 
 template <ProcessingMode input_mode, typename InputType, typename... StageFactories>
-constexpr auto get_chain_input_types()
+constexpr auto get_pipeline_input_types()
 {
-    return get_chain_input_types_impl<input_mode, InputType,
+    return get_pipeline_input_types_impl<input_mode, InputType,
                                       std::remove_cvref_t<StageFactories>...>();
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 template <ProcessingMode input_mode, typename InputType, typename... StageFactories>
-struct ChainTraits {
+struct PipelineTraits {
     static constexpr size_t stage_count = sizeof...(StageFactories);
     using StageFactoryTypeList = TypeList<StageFactories...>;
     using InputTypeList =
-        decltype(get_chain_input_types<input_mode, InputType, StageFactories...>());
+        decltype(get_pipeline_input_types<input_mode, InputType, StageFactories...>());
 
     using __LastStageFactoryType = EZ_TYPE_AT(StageFactoryTypeList{}, stage_count - 1);
     using __LastStageInputType = EZ_TYPE_AT(InputTypeList{}, stage_count - 1);
@@ -84,16 +84,16 @@ struct ChainTraits {
 ///////////////////////////////////////////////////////////////////////
 
 template <ProcessingMode input_mode, typename...>
-struct ChainStages;
+struct PipelineStages;
 
 template <ProcessingMode input_mode,
           typename InputType,
           typename... StageFactories,
           size_t... indices>
-struct ChainStages<input_mode, InputType, IndexSequence<indices...>, StageFactories...> {
+struct PipelineStages<input_mode, InputType, IndexSequence<indices...>, StageFactories...> {
     static constexpr size_t stage_count = sizeof...(StageFactories);
 
-    using Traits = ChainTraits<input_mode, InputType, StageFactories...>;
+    using Traits = PipelineTraits<input_mode, InputType, StageFactories...>;
 
     using InputTypeList = Traits::InputTypeList;
     using OutputType = typename Traits::OutputType;
@@ -116,7 +116,7 @@ struct ChainStages<input_mode, InputType, IndexSequence<indices...>, StageFactor
         {
         }
 
-        ChainTerminator terminator;
+        PipelineTerminator terminator;
 
         template <size_t index>
         decltype(auto) stage_at(Index<index> id)
@@ -135,35 +135,35 @@ struct ChainStages<input_mode, InputType, IndexSequence<indices...>, StageFactor
     };
 
     StageSequence stages;
-    ChainStages(Inplace, auto&&... factories) : stages{EZ_FWD(factories)...} {}
+    PipelineStages(Inplace, auto&&... factories) : stages{EZ_FWD(factories)...} {}
 
     decltype(auto) first() { return stages.get(Index<0>{}); }
     decltype(auto) last() { return stages.get(Index<stage_count - 1>{}); }
 };
 
 template <ProcessingMode input_mode, typename InputType, typename... StageFactories>
-struct Chain : ChainStages<input_mode,
+struct Pipeline : PipelineStages<input_mode,
                            InputType,
                            IndexSequenceFor<StageFactories...>,
                            std::remove_cvref_t<StageFactories>...> {
-    using ChainStagesType = ChainStages<input_mode,
+    using PipelineStagesType = PipelineStages<input_mode,
                                         InputType,
                                         IndexSequenceFor<StageFactories...>,
                                         std::remove_cvref_t<StageFactories>...>;
 
-    using ChainStagesType::InputTypeList;
-    using ChainStagesType::OutputType;
+    using PipelineStagesType::InputTypeList;
+    using PipelineStagesType::OutputType;
 
-    Chain(Inplace, auto&&... factories) : ChainStagesType{in_place, EZ_FWD(factories)...} {}
+    Pipeline(Inplace, auto&&... factories) : PipelineStagesType{in_place, EZ_FWD(factories)...} {}
 
-    Chain(const Chain&) = default;
-    Chain(Chain&&) = default;
+    Pipeline(const Pipeline&) = default;
+    Pipeline(Pipeline&&) = default;
 };
 
 template <typename InputType, typename... StageFactories>
-auto make_chain(StageFactories&&... factories)
+auto make_pipeline(StageFactories&&... factories)
 {
-    return Chain<ProcessingMode::Batch, InputType, StageFactories...>{
+    return Pipeline<ProcessingMode::Batch, InputType, StageFactories...>{
         in_place, std::forward<StageFactories>(factories)...};
 }
 

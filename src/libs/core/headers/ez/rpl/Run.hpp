@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ez/rpl/Chain.hpp>
+#include <ez/rpl/Pipeline.hpp>
 
 namespace ez::rpl {
 
@@ -12,8 +12,8 @@ auto run(Range&& range, StageFactories&&... factories)
     }
     else {
         using InputType = decltype(std::forward<Range>(range));
-        auto chain = rpl::make_chain<InputType>(std::forward<StageFactories>(factories)...);
-        return chain.first().process_batch(std::forward<Range>(range));
+        auto pipeline = rpl::make_pipeline<InputType>(std::forward<StageFactories>(factories)...);
+        return pipeline.first().process_batch(std::forward<Range>(range));
     }
 }
 

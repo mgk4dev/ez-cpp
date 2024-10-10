@@ -17,7 +17,7 @@ TEST(Rpl, stage_type)
     unused(stage);
 }
 
-TEST(Rpl, get_chain_input_types)
+TEST(Rpl, get_pipeline_input_types)
 {
     auto filter = rpl::filter([](int val) { return val > 2; });
     auto to_vector = rpl::to_vector();
@@ -25,20 +25,20 @@ TEST(Rpl, get_chain_input_types)
     using Vector = std::vector<int>;
 
     {
-        auto type_list = rpl::get_chain_input_types<rpl::ProcessingMode::Batch, Vector&,
+        auto type_list = rpl::get_pipeline_input_types<rpl::ProcessingMode::Batch, Vector&,
                                                     decltype(filter), decltype(to_vector)>();
         static_assert(type_list == meta::type_list<int&, int&>);
     }
 
     {
-        auto type_list = rpl::get_chain_input_types<rpl::ProcessingMode::Incremental, int&,
+        auto type_list = rpl::get_pipeline_input_types<rpl::ProcessingMode::Incremental, int&,
                                                     decltype(filter), decltype(to_vector)>();
 
         static_assert(type_list == meta::type_list<int&, int&>);
     }
 }
 
-TEST(Rpl, get_chain_input_types_view)
+TEST(Rpl, get_pipeline_input_types_view)
 {
     auto filter = rpl::filter([](int val) { return val > 2; });
     auto to_vector = rpl::to_vector();
@@ -46,14 +46,14 @@ TEST(Rpl, get_chain_input_types_view)
     using Input = std::ranges::iota_view<int>;
 
     {
-        auto type_list = rpl::get_chain_input_types<rpl::ProcessingMode::Batch, Input&&,
+        auto type_list = rpl::get_pipeline_input_types<rpl::ProcessingMode::Batch, Input&&,
                                                     decltype(filter), decltype(to_vector)>();
 
         static_assert(type_list == meta::type_list<int&&, int&&>);
     }
 }
 
-TEST(Rpl, chain_traits)
+TEST(Rpl, pipeline_traits)
 {
     auto filter = rpl::filter([](int val) { return val > 2; });
     auto to_vector = rpl::to_vector();
@@ -61,7 +61,7 @@ TEST(Rpl, chain_traits)
     using Vector = std::vector<int>;
 
     {
-        using Traits = rpl::ChainTraits<rpl::ProcessingMode::Batch, Vector&, decltype(filter),
+        using Traits = rpl::PipelineTraits<rpl::ProcessingMode::Batch, Vector&, decltype(filter),
                                         decltype(to_vector)>;
 
         constexpr auto input_type_list = Traits::InputTypeList{};
@@ -72,7 +72,7 @@ TEST(Rpl, chain_traits)
     }
 
     {
-        using Traits = rpl::ChainTraits<rpl::ProcessingMode::Incremental, int&, decltype(filter),
+        using Traits = rpl::PipelineTraits<rpl::ProcessingMode::Incremental, int&, decltype(filter),
                                         decltype(to_vector)>;
 
         constexpr auto input_type_list = Traits::InputTypeList{};
@@ -83,54 +83,54 @@ TEST(Rpl, chain_traits)
     }
 }
 
-TEST(Rpl, chain_stages)
+TEST(Rpl, pipeline_stages)
 {
     auto filter = rpl::filter([](int val) { return val > 2; });
     auto to_vector = rpl::to_vector();
 
-    using ChainStagesType =
-        rpl::ChainStages<rpl::ProcessingMode::Incremental, int&, IndexSequenceFor<void, void>,
+    using PipelineStages =
+        rpl::PipelineStages<rpl::ProcessingMode::Incremental, int&, IndexSequenceFor<void, void>,
                          EZ_REMOVE_CVR_T(filter), EZ_REMOVE_CVR_T(to_vector)>;
 
-    ChainStagesType chain{in_place, filter, to_vector};
-    unused(chain);
+    PipelineStages pipeline{in_place, filter, to_vector};
+    unused(pipeline);
 }
 
-TEST(Rpl, chain_incremental)
+TEST(Rpl, pipeline_incremental)
 {
     auto filter = rpl::filter([](int val) { return val > 2; });
     auto to_vector = rpl::to_vector();
 
-    using Chain =
-        rpl::Chain<rpl::ProcessingMode::Incremental, int&, decltype(filter), decltype(to_vector)>;
+    using Pipeline =
+        rpl::Pipeline<rpl::ProcessingMode::Incremental, int&, decltype(filter), decltype(to_vector)>;
 
-    Chain chain{in_place, filter, to_vector};
-    unused(chain);
+    Pipeline pipeline{in_place, filter, to_vector};
+    unused(pipeline);
 }
 
-TEST(Rpl, chain_batch)
+TEST(Rpl, pipeline_batch)
 {
     auto filter = rpl::filter([](int val) { return val > 2; });
     auto to_vector = rpl::to_vector();
 
-    using Chain = rpl::Chain<rpl::ProcessingMode::Batch, std::vector<int>&, decltype(filter),
+    using Pipeline = rpl::Pipeline<rpl::ProcessingMode::Batch, std::vector<int>&, decltype(filter),
                              decltype(to_vector)>;
 
-    Chain chain{in_place, filter, to_vector};
-    unused(chain);
+    Pipeline pipeline{in_place, filter, to_vector};
+    unused(pipeline);
 }
 
-TEST(Rpl, make_chain)
+TEST(Rpl, make_pipeline)
 {
     std::vector input{1, 2, 3, 4};
 
-    auto chain = rpl::make_chain<std::vector<int>&>(rpl::filter([](int val) { return val > 2; }),
+    auto pipeline = rpl::make_pipeline<std::vector<int>&>(rpl::filter([](int val) { return val > 2; }),
                                                     rpl::to_vector());
 
-    using Chain = EZ_REMOVE_CVR_T(chain);
-    using OutputType = typename Chain::OutputType;
+    using Pipeline = EZ_REMOVE_CVR_T(pipeline);
+    using OutputType = typename Pipeline::OutputType;
 
-    constexpr auto input_types = Chain::InputTypeList{};
+    constexpr auto input_types = Pipeline::InputTypeList{};
     constexpr auto output_type = meta::type<OutputType>;
 
     static_assert(input_types.at(Index<0>{}) == meta::type<int&>);
@@ -169,7 +169,7 @@ TEST(Rpl, compose_incremental_input)
 
     int val;
 
-    rpl::ChainTerminator terminator;
+    rpl::PipelineTerminator terminator;
 
     static_assert(requires { cmp.process_incremental(val, terminator); });
 }
@@ -188,7 +188,7 @@ TEST(Rpl, compose_batch_input)
 
     std::vector<int> val;
 
-    rpl::ChainTerminator terminator;
+    rpl::PipelineTerminator terminator;
 
     static_assert(requires { cmp.process_batch(val, terminator); });
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ez/rpl/Chain.hpp>
+#include <ez/rpl/Pipeline.hpp>
 #include <ez/rpl/StageFactory.hpp>
 
 namespace ez::rpl {
@@ -33,22 +33,22 @@ struct Parallel {
         FirstStageFactory::output_processing_mode;
 
     template <typename Factory>
-    using ChainType = Chain<input_processing_mode, InputType, Factory>;
+    using PipelineType = Pipeline<input_processing_mode, InputType, Factory>;
 
-    using ChainTuple = Tuple<ChainType<StageFactories>...>;
-    using OutputType = Tuple<typename ChainType<StageFactories>::OutputType...>&&;
+    using PipelineTuple = Tuple<PipelineType<StageFactories>...>;
+    using OutputType = Tuple<typename PipelineType<StageFactories>::OutputType...>&&;
 
-    ChainTuple chains;
+    PipelineTuple pipelines;
 
     Parallel(auto&&... factories)
-        : chains{ChainType<StageFactories>{in_place, EZ_FWD(factories)}...}
+        : pipelines{PipelineType<StageFactories>{in_place, EZ_FWD(factories)}...}
     {
     }
 
     void process_incremental(InputType val, auto&&)
     {
-        tuple::for_each(chains, [&](auto& chain) {
-            chain.first().process_incremental(static_cast<InputType>(val));
+        tuple::for_each(pipelines, [&](auto& pipeline) {
+            pipeline.first().process_incremental(static_cast<InputType>(val));
         });
     }
 
@@ -56,7 +56,7 @@ struct Parallel {
     void process_batch_impl(InputType val, auto&& next, IndexSequence<indices...>)
     {
         next.process_bach(Tuple{
-            chains[EZ_CONSTEXP(indices)].first().process_batch(static_cast<InputType>(val))...});
+            pipelines[EZ_CONSTEXP(indices)].first().process_batch(static_cast<InputType>(val))...});
     }
 
     void process_batch(InputType val, auto&& next)
@@ -68,7 +68,7 @@ struct Parallel {
     template <size_t... indices>
     decltype(auto) flush_to_impl(auto&& next, IndexSequence<indices...>)
     {
-        return next.process_batch(Tuple{chains[EZ_CONSTEXP(indices)].first().flush()...});
+        return next.process_batch(Tuple{pipelines[EZ_CONSTEXP(indices)].first().flush()...});
     }
 
     decltype(auto) flush_to(auto&& next)

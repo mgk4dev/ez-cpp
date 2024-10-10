@@ -334,3 +334,16 @@ TEST(Rpl, get)
 
     ASSERT_EQ(result, (std::vector<size_t>{0, 1}));
 }
+
+TEST(Rpl, skip_duplicates)
+{
+    // clang-format off
+    auto result = rpl::run(
+        std::vector{1,1,1,1,2,2,2,3,4,4},
+        rpl::skip_duplicates(),
+        rpl::to_vector()
+        );
+    // clang-format on
+
+    ASSERT_EQ(result, (std::vector{1, 2, 3}));
+}

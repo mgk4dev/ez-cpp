@@ -278,3 +278,59 @@ TEST(Rpl, enumerate)
 
     ASSERT_EQ(result, (std::vector<size_t>{0, 1}));
 }
+
+TEST(Rpl, to_map)
+{
+    // clang-format off
+    auto result = rpl::run(
+        rpl::iota(1, 3),
+        rpl::enumerate(),
+        rpl::to_map()
+    );
+    // clang-format on
+
+    ASSERT_EQ(result, (std::map<size_t, int>{{0, 1}, {1, 2}}));
+}
+
+TEST(Rpl, to_unordered_map)
+{
+    // clang-format off
+    auto result = rpl::run(
+        rpl::iota(1, 3),
+        rpl::enumerate(),
+        rpl::to_unordered_map()
+        );
+    // clang-format on
+
+    ASSERT_EQ(result, (std::unordered_map<size_t, int>{{0, 1}, {1, 2}}));
+}
+
+TEST(Rpl, reorder)
+{
+    // clang-format off
+    auto result = rpl::run(
+        rpl::iota(1, 3),
+        rpl::enumerate(),
+        rpl::reorder<1,0>(),
+        rpl::apply([](int&&, size_t index){ return index;}),
+        rpl::to_vector()
+        );
+    // clang-format on
+
+    ASSERT_EQ(result, (std::vector<size_t>{0, 1}));
+}
+
+TEST(Rpl, get)
+{
+    // clang-format off
+    auto result = rpl::run(
+        rpl::iota(1, 3),
+        rpl::enumerate(),
+        rpl::reorder<1,0>(),
+        rpl::get<1>(),
+        rpl::to_vector()
+        );
+    // clang-format on
+
+    ASSERT_EQ(result, (std::vector<size_t>{0, 1}));
+}

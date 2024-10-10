@@ -22,11 +22,15 @@ struct Filter {
     }
 };
 
-template <typename P>
-auto filter(P&& predicate)
+struct DefaultFilterPredicate {
+    constexpr bool operator()(auto&& val) { return bool(std::as_const(val)); }
+};
+
+template <typename Predicate = DefaultFilterPredicate>
+auto filter(Predicate&& predicate = {})
 {
-    return make_factory<ProcessingMode::Incremental, ProcessingMode::Incremental, Filter, P>(
-        std::forward<P>(predicate));
+    return make_factory<ProcessingMode::Incremental, ProcessingMode::Incremental, Filter,
+                        Predicate>(std::forward<Predicate>(predicate));
 }
 
 }  // namespace ez::rpl

@@ -2,6 +2,7 @@
 
 #include <ez/rpl/All.hpp>
 
+#include <ez/Option.hpp>
 #include <ez/Tuple.hpp>
 
 #include <format>
@@ -226,7 +227,9 @@ TEST(Rpl, iota_pipeline)
     // clang-format off
     auto result = rpl::run(
         rpl::iota(1),
-        rpl::filter([](int val) { return val % 2 == 0; }),
+        rpl::transform([](int val) -> Option<int> { return (val % 2 == 0) ? Option<int>{val} : none; }),
+        rpl::filter(),
+        rpl::deref(),
         rpl::transform([](int val) { return val * val; }),
         rpl::take(3),
         rpl::to_vector()
@@ -234,4 +237,44 @@ TEST(Rpl, iota_pipeline)
     // clang-format on
 
     ASSERT_EQ(result, (std::vector{2 * 2, 4 * 4, 6 * 6}));
+}
+
+TEST(Rpl, min_max_count)
+{
+    // clang-format off
+    auto result = rpl::run(
+        rpl::iota(1, 10),
+        rpl::parallel(rpl::min(), rpl::max(), rpl::count())
+        );
+    // clang-format on
+
+    ASSERT_EQ(result, (Tuple{1, 9, 9}));
+}
+
+TEST(Rpl, apply)
+{
+    // clang-format off
+    auto result = rpl::run(
+        rpl::iota(1, 3),
+        rpl::transform([](auto val ){return Tuple {val, val + 1, val+2};}),
+        rpl::apply([](int v1, int v2, int v3){ return v1 * v2 * v3;}),
+        rpl::to_vector()
+        );
+    // clang-format on
+
+    ASSERT_EQ(result, (std::vector{6, 24}));
+}
+
+TEST(Rpl, enumerate)
+{
+    // clang-format off
+    auto result = rpl::run(
+        rpl::iota(1, 3),
+        rpl::enumerate(),
+        rpl::apply([](size_t index, auto&&){ return index;}),
+        rpl::to_vector()
+        );
+    // clang-format on
+
+    ASSERT_EQ(result, (std::vector<size_t>{0, 1}));
 }

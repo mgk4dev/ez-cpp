@@ -19,7 +19,7 @@ struct Take {
         ++count;
     }
 
-    bool done() const { return count == max; }
+    bool done() const { return count >= max; }
 };
 
 inline auto take(size_t count)

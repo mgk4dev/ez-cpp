@@ -10,12 +10,6 @@
 
 using namespace ez;
 
-template <typename... Ts>
-void debug_type_list(TypeList<Ts...> tl)
-{
-    DebugTypes<EZ_TYPE_AT(tl, 0), EZ_TYPE_AT(tl, 1)>();
-}
-
 TEST(Rpl, stage_type)
 {
     auto filter = rpl::filter([](int val) { return val > 2; });
@@ -50,8 +44,6 @@ TEST(Rpl, get_chain_input_types_view)
     auto to_vector = rpl::to_vector();
 
     using Input = std::ranges::iota_view<int>;
-
-    using ValueType = decltype(*std::begin(std::declval<Input&&>()));
 
     {
         auto type_list = rpl::get_chain_input_types<rpl::ProcessingMode::Batch, Input&&,
@@ -188,8 +180,6 @@ TEST(Rpl, compose_batch_input)
     auto t = rpl::transform([](int val) { return val * val; });
 
     using C = rpl::Compose<std::vector<int>&, EZ_REMOVE_CVR_T(s), EZ_REMOVE_CVR_T(t)>;
-
-    using I = C::InputTypeList;
 
     static_assert(C::input_processing_mode == rpl::ProcessingMode::Batch);
     static_assert(C::output_processing_mode == rpl::ProcessingMode::Incremental);
@@ -342,8 +332,20 @@ TEST(Rpl, skip_duplicates)
         std::vector{1,1,1,1,2,2,2,3,4,4},
         rpl::skip_duplicates(),
         rpl::to_vector()
-        );
+    );
     // clang-format on
 
     ASSERT_EQ(result, (std::vector{1, 2, 3}));
+}
+
+TEST(Rpl, remove_duplicates)
+{
+    // clang-format off
+    auto result = rpl::run(
+        std::vector{1, 1, 1, 1, 2, 2, 2, 3, 4, 4},
+        rpl::remove_duplicates()
+    );
+    // clang-format on
+
+    ASSERT_EQ(result, (std::vector{1, 2, 3, 4}));
 }

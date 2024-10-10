@@ -1,30 +1,18 @@
 #pragma once
 
-#include <ez/rpl/StageFactory.hpp>
+#include <ez/rpl/stages/Transform.hpp>
 
 #include <algorithm>
-#include <functional>
 
 namespace ez::rpl {
-
-template <typename InputType, typename Less>
-struct Sort {
-    using OutputType = InputType;
-
-    Less less;
-
-    decltype(auto) process_batch(InputType input, auto&& next)
-    {
-        std::sort(std::begin(input), std::end(input), less);
-        return next.process_batch(static_cast<InputType>(input));
-    }
-};
 
 template <typename Less = std::less<>>
 auto sort(Less&& less = {})
 {
-    return make_factory<ProcessingMode::Batch, ProcessingMode::Batch, Sort, Less>(
-        std::forward<Less>(less));
+    return transform_batch([less = std::forward<Less>(less)](auto&& range) -> decltype(auto) {
+        std::sort(std::begin(range), std::end(range), less);
+        return EZ_FWD(range);
+    });
 }
 
 }  // namespace ez::rpl

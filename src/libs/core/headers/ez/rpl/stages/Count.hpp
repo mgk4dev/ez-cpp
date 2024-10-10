@@ -10,7 +10,7 @@ struct Count {
 
     size_t count = 0;
 
-    decltype(auto) process_incremental(InputType, auto&& next) { ++count; }
+    decltype(auto) process_incremental(InputType, auto&&) { ++count; }
 
     decltype(auto) flush_to(auto&& next) { return next.process_batch(count); }
 };

@@ -13,6 +13,7 @@
 #include <ez/rpl/stages/Get.hpp>
 #include <ez/rpl/stages/Iota.hpp>
 #include <ez/rpl/stages/MinMax.hpp>
+#include <ez/rpl/stages/RemoveDuplicates.hpp>
 #include <ez/rpl/stages/Reorder.hpp>
 #include <ez/rpl/stages/Sort.hpp>
 #include <ez/rpl/stages/Take.hpp>

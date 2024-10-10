@@ -196,3 +196,12 @@ TEST(Rpl, compose)
 
     ASSERT_EQ(result, (std::vector{4, 3}));
 }
+
+TEST(Rpl, parallel)
+{
+    std::vector input{1, 2};
+
+    auto pipeline = rpl::parallel(rpl::to_vector(), rpl::to_vector());
+    auto result = rpl::run(input, pipeline);
+    ASSERT_EQ(result, Tuple(std::vector{1, 2}, std::vector{1, 2}));
+}

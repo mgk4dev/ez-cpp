@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ez/rpl/Compose.hpp>
+#include <ez/rpl/Parallel.hpp>
 #include <ez/rpl/Run.hpp>
 
 #include <ez/rpl/stages/Apply.hpp>

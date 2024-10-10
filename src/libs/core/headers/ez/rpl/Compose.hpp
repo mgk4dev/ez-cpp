@@ -32,7 +32,7 @@ struct Compose {
 
     void process_batch(InputType val, auto&& next)
     {
-        next.process_bach(chain.front().process_batch(static_cast<InputType>(val)));
+        next.process_bach(chain.first().process_batch(static_cast<InputType>(val)));
     }
 
     decltype(auto) end(auto&& next) { return next.process_batch(chain.last().end()); }

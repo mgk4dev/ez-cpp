@@ -5,8 +5,15 @@
 #include <ez/Tuple.hpp>
 
 #include <format>
+#include <ranges>
 
 using namespace ez;
+
+template <typename... Ts>
+void debug_type_list(TypeList<Ts...> tl)
+{
+    DebugTypes<EZ_TYPE_AT(tl, 0), EZ_TYPE_AT(tl, 1)>();
+}
 
 TEST(Rpl, stage_type)
 {
@@ -25,10 +32,6 @@ TEST(Rpl, get_chain_input_types)
     {
         auto type_list = rpl::get_chain_input_types<rpl::ProcessingMode::Batch, Vector&,
                                                     decltype(filter), decltype(to_vector)>();
-
-        std::cout << typeid(type_list.at(Index<0>())).name() << std::endl;
-        std::cout << typeid(type_list.at(Index<1>())).name() << std::endl;
-
         static_assert(type_list == meta::type_list<int&, int&>);
     }
 
@@ -37,6 +40,23 @@ TEST(Rpl, get_chain_input_types)
                                                     decltype(filter), decltype(to_vector)>();
 
         static_assert(type_list == meta::type_list<int&, int&>);
+    }
+}
+
+TEST(Rpl, get_chain_input_types_view)
+{
+    auto filter = rpl::filter([](int val) { return val > 2; });
+    auto to_vector = rpl::to_vector();
+
+    using Input = std::ranges::iota_view<int>;
+
+    using ValueType = decltype(*std::begin(std::declval<Input&&>()));
+
+    {
+        auto type_list = rpl::get_chain_input_types<rpl::ProcessingMode::Batch, Input&&,
+                                                    decltype(filter), decltype(to_vector)>();
+
+        static_assert(type_list == meta::type_list<int&&, int&&>);
     }
 }
 
@@ -142,11 +162,6 @@ TEST(Rpl, simple_run)
     ASSERT_EQ(result, (std::vector{9, 16}));
 }
 
-template <typename... Ts>
-void debug_type_list(TypeList<Ts...> tl)
-{
-    DebugTypes<EZ_TYPE_AT(tl, 0), EZ_TYPE_AT(tl, 1)>();
-}
 TEST(Rpl, compose_incremental_input)
 {
     auto f = rpl::filter([](int val) { return val > 2; });
@@ -204,4 +219,19 @@ TEST(Rpl, parallel)
     auto pipeline = rpl::parallel(rpl::to_vector(), rpl::to_vector());
     auto result = rpl::run(input, pipeline);
     ASSERT_EQ(result, Tuple(std::vector{1, 2}, std::vector{1, 2}));
+}
+
+TEST(Rpl, iota_pipeline)
+{
+    // clang-format off
+    auto result = rpl::run(
+        rpl::iota(1),
+        rpl::filter([](int val) { return val % 2 == 0; }),
+        rpl::transform([](int val) { return val * val; }),
+        rpl::take(3),
+        rpl::to_vector()
+    );
+    // clang-format on
+
+    ASSERT_EQ(result, (std::vector{2 * 2, 4 * 4, 6 * 6}));
 }

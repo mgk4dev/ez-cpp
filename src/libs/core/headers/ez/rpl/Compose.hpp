@@ -35,7 +35,7 @@ struct Compose {
         next.process_bach(chain.first().process_batch(static_cast<InputType>(val)));
     }
 
-    decltype(auto) end(auto&& next) { return next.process_batch(chain.last().end()); }
+    decltype(auto) flush_to(auto&& next) { return next.process_batch(chain.last().flush()); }
 };
 
 template <typename... StageFactories>

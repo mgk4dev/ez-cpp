@@ -45,7 +45,7 @@ template <ProcessingMode in_processing_mode,
           template <typename...>
           typename StageTemplate,
           typename... ParameterTypes>
-auto make_factory(auto&&... args)
+auto make_factory(ParameterTypes&&... args)
 {
     return StageFactory<in_processing_mode, out_processing_mode, StageTemplate,
                         std::remove_cvref_t<ParameterTypes>...>(in_place, EZ_FWD(args)...);

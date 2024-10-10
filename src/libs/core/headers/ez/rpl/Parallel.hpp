@@ -66,14 +66,14 @@ struct Parallel {
     }
 
     template <size_t... indices>
-    decltype(auto) end_impl(auto&& next, IndexSequence<indices...>)
+    decltype(auto) flush_to_impl(auto&& next, IndexSequence<indices...>)
     {
-        return next.process_batch(Tuple{chains[EZ_CONSTEXP(indices)].first().end()...});
+        return next.process_batch(Tuple{chains[EZ_CONSTEXP(indices)].first().flush()...});
     }
 
-    decltype(auto) end(auto&& next)
+    decltype(auto) flush_to(auto&& next)
     {
-        return end_impl(EZ_FWD(next), IndexSequenceFor<StageFactories...>{});
+        return flush_to_impl(EZ_FWD(next), IndexSequenceFor<StageFactories...>{});
     }
 };
 

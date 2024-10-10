@@ -20,7 +20,7 @@ struct ToVector {
         result.push_back(static_cast<InputType>(input));
     }
 
-    decltype(auto) end(auto&& next) { return next.process_batch(std::move(result)); }
+    decltype(auto) flush_to(auto&& next) { return next.process_batch(std::move(result)); }
 };
 
 inline auto to_vector()

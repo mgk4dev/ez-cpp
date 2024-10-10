@@ -46,17 +46,17 @@ public:
 
     constexpr bool any_done() const { return sequence().any_done(Index<Id>{}); }
 
-    constexpr decltype(auto) end()
+    constexpr decltype(auto) flush()
     {
         static_assert(StageFactory::input_processing_mode == ProcessingMode::Incremental,
-                      "End called on non incremental processing stage.");
-        if constexpr (requires { m_stage.end(next()); }) {
-            static_assert(!std::is_void_v<decltype(m_stage.end(next()))>,
-                          "End must not return void.");
-            return m_stage.end(next());
+                      "flush called on non incremental processing stage.");
+        if constexpr (requires { m_stage.flush_to(next()); }) {
+            static_assert(!std::is_void_v<decltype(m_stage.flush_to(next()))>,
+                          "flush must not return void.");
+            return m_stage.flush_to(next());
         }
         else {
-            return next().end();
+            return next().flush();
         }
     }
 
@@ -121,7 +121,7 @@ public:
             if (any_done()) break;
             m_stage.process_incremental(static_cast<InputType>(input), next());
         }
-        return end();
+        return flush();
     }
 };
 

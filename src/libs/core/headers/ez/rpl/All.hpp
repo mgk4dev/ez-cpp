@@ -10,4 +10,5 @@
 #include <ez/rpl/stages/ForEach.hpp>
 #include <ez/rpl/stages/Iota.hpp>
 #include <ez/rpl/stages/Sort.hpp>
+#include <ez/rpl/stages/Take.hpp>
 #include <ez/rpl/stages/Transform.hpp>

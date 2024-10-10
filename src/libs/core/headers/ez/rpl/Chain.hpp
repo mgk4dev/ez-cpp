@@ -9,13 +9,7 @@ namespace ez::rpl {
 
 struct ChainTerminator {
     template <typename T>
-    T&& process_batch(T&& t)
-    {
-        return std::forward<T>(t);
-    }
-
-    template <typename T>
-    T&& process_incremental(T&& t)
+    T process_batch(T&& t)
     {
         return std::forward<T>(t);
     }
@@ -41,11 +35,17 @@ constexpr auto get_chain_input_types_impl()
     if constexpr (input_mode == ProcessingMode::Batch &&
                   stage_input_processing_mode == ProcessingMode::Incremental) {
         using ValueType =
-            decltype(*std::begin(std::declval<std::add_lvalue_reference_t<InputType>>()));
+            decltype(*std::begin(std::declval<InputType>()));
 
-        using Stage = StageFactory::template Stage<ValueType>;
+
+        using T = std::conditional_t<std::is_reference_v<ValueType>,
+                                     ValueType,
+                                     std::add_rvalue_reference_t<ValueType>
+            >;
+
+        using Stage = StageFactory::template Stage<T>;
         using OutputType = Stage::OutputType;
-        return meta::type_list<ValueType> +
+        return meta::type_list<T> +
                get_chain_input_types_impl<stage_ouput_processing_mode, OutputType,
                                           StageFactories...>();
     }

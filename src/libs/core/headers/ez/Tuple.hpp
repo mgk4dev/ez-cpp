@@ -134,6 +134,12 @@ decltype(auto) apply(F&& f, Tuple<Ts...>&& tuple)
 
 using std::apply;
 
+template <size_t index>
+decltype(auto) arg_at(auto&&... args)
+{
+    return std::get<index>(std::forward_as_tuple(EZ_FWD(args)...));
+}
+
 }  // namespace tuple
 
 }  // namespace ez

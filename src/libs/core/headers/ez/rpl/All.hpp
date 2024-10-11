@@ -4,6 +4,7 @@
 #include <ez/rpl/Parallel.hpp>
 #include <ez/rpl/Run.hpp>
 
+#include <ez/rpl/stages/Accumulate.hpp>
 #include <ez/rpl/stages/Apply.hpp>
 #include <ez/rpl/stages/Copy.hpp>
 #include <ez/rpl/stages/Count.hpp>

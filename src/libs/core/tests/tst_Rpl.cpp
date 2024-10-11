@@ -352,3 +352,15 @@ TEST(Rpl, for_each)
 
     ASSERT_EQ(result, (std::vector{2, 4, 6}));
 }
+
+TEST(Rpl, accumulate)
+{
+    // clang-format off
+    auto result = rpl::run(
+        rpl::iota(1,4),
+        rpl::accumulate<int>()
+        );
+    // clang-format on
+
+    ASSERT_EQ(result, 1 + 2 + 3);
+}

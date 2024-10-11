@@ -13,6 +13,9 @@ struct PipelineTerminator {
     {
         return std::forward<T>(t);
     }
+
+    void process_incremental(Unit&&, auto&&...) {}
+    Unit flush() { return {}; }
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -34,27 +37,22 @@ constexpr auto get_pipeline_input_types_impl()
 
     if constexpr (input_mode == ProcessingMode::Batch &&
                   stage_input_processing_mode == ProcessingMode::Incremental) {
-        using ValueType =
-            decltype(*std::begin(std::declval<InputType>()));
+        using ValueType = decltype(*std::begin(std::declval<InputType>()));
 
-
-        using T = std::conditional_t<std::is_reference_v<ValueType>,
-                                     ValueType,
-                                     std::add_rvalue_reference_t<ValueType>
-            >;
+        using T = std::conditional_t<std::is_reference_v<ValueType>, ValueType,
+                                     std::add_rvalue_reference_t<ValueType> >;
 
         using Stage = StageFactory::template Stage<T>;
         using OutputType = Stage::OutputType;
-        return meta::type_list<T> +
-               get_pipeline_input_types_impl<stage_ouput_processing_mode, OutputType,
-                                          StageFactories...>();
+        return meta::type_list<T> + get_pipeline_input_types_impl<stage_ouput_processing_mode,
+                                                                  OutputType, StageFactories...>();
     }
     else {
         using Stage = StageFactory::template Stage<InputType>;
         using OutputType = Stage::OutputType;
         return meta::type_list<InputType> +
                get_pipeline_input_types_impl<stage_ouput_processing_mode, OutputType,
-                                          StageFactories...>();
+                                             StageFactories...>();
     }
 }
 
@@ -62,7 +60,7 @@ template <ProcessingMode input_mode, typename InputType, typename... StageFactor
 constexpr auto get_pipeline_input_types()
 {
     return get_pipeline_input_types_impl<input_mode, InputType,
-                                      std::remove_cvref_t<StageFactories>...>();
+                                         std::remove_cvref_t<StageFactories>...>();
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -143,13 +141,13 @@ struct PipelineStages<input_mode, InputType, IndexSequence<indices...>, StageFac
 
 template <ProcessingMode input_mode, typename InputType, typename... StageFactories>
 struct Pipeline : PipelineStages<input_mode,
-                           InputType,
-                           IndexSequenceFor<StageFactories...>,
-                           std::remove_cvref_t<StageFactories>...> {
+                                 InputType,
+                                 IndexSequenceFor<StageFactories...>,
+                                 std::remove_cvref_t<StageFactories>...> {
     using PipelineStagesType = PipelineStages<input_mode,
-                                        InputType,
-                                        IndexSequenceFor<StageFactories...>,
-                                        std::remove_cvref_t<StageFactories>...>;
+                                              InputType,
+                                              IndexSequenceFor<StageFactories...>,
+                                              std::remove_cvref_t<StageFactories>...>;
 
     using PipelineStagesType::InputTypeList;
     using PipelineStagesType::OutputType;

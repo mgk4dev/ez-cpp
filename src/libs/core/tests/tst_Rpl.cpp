@@ -346,8 +346,7 @@ TEST(Rpl, for_each)
         rpl::iota(1),
         rpl::transform([](auto&& val) {return val * 2;}),
         rpl::take(3),
-        rpl::for_each([&](auto&& val) {result.push_back(val);}),
-        rpl::end()
+        rpl::for_each([&](auto&& val) {result.push_back(val);})
     );
     // clang-format on
 

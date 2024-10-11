@@ -8,7 +8,6 @@
 #include <ez/rpl/stages/Copy.hpp>
 #include <ez/rpl/stages/Count.hpp>
 #include <ez/rpl/stages/Deref.hpp>
-#include <ez/rpl/stages/End.hpp>
 #include <ez/rpl/stages/Enumerate.hpp>
 #include <ez/rpl/stages/Filter.hpp>
 #include <ez/rpl/stages/ForEach.hpp>

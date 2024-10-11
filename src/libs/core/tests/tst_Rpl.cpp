@@ -364,3 +364,45 @@ TEST(Rpl, accumulate)
 
     ASSERT_EQ(result, 1 + 2 + 3);
 }
+
+TEST(Rpl, filter_args_ez_tuple)
+{
+    // clang-format off
+    auto result = rpl::run(
+        rpl::iota(1,4),
+        rpl::transform([](int val ) {return Tuple{val, val};}),
+        rpl::filter([](int left, int right) {return left == right;}),
+        rpl::count()
+        );
+    // clang-format on
+
+    ASSERT_EQ(result, 3);
+}
+
+TEST(Rpl, filter_args_std_tuple)
+{
+    // clang-format off
+    auto result = rpl::run(
+        rpl::iota(1,4),
+        rpl::transform([](int val ) {return std::tuple{val, val};}),
+        rpl::filter([](int left, int right) {return left == right;}),
+        rpl::count()
+        );
+    // clang-format on
+
+    ASSERT_EQ(result, 3);
+}
+
+TEST(Rpl, filter_args_std_pair)
+{
+    // clang-format off
+    auto result = rpl::run(
+        rpl::iota(1,4),
+        rpl::transform([](int val ) {return std::pair{val, val};}),
+        rpl::filter([](int left, int right) {return left == right;}),
+        rpl::count()
+        );
+    // clang-format on
+
+    ASSERT_EQ(result, 3);
+}

@@ -139,11 +139,14 @@ using std::apply;
 }  // namespace ez
 
 namespace std {
+
 template <typename... Ts>
-struct tuple_size<ez::Tuple<Ts...>> : integral_constant<size_t, sizeof...(Ts)> {};
+struct tuple_size<ez::Tuple<Ts...>> : integral_constant<size_t, sizeof...(Ts)> {
+};
 
 template <size_t I, typename... Ts>
-struct tuple_element<I, ez::Tuple<Ts...>> : public tuple_element<I, std::tuple<Ts...>> {};
+struct tuple_element<I, ez::Tuple<Ts...>> : public tuple_element<I, std::tuple<Ts...>> {
+};
 
 template <size_t I, typename... Ts>
 decltype(auto) get(const ez::Tuple<Ts...>& tuple)
@@ -164,3 +167,10 @@ decltype(auto) get(ez::Tuple<Ts...>&& tuple)
 }
 
 }  // namespace std
+
+namespace ez::tuple {
+using std::get;
+using std::tuple_element;
+using std::tuple_size;
+using std::tuple_size_v;
+}  // namespace ez::tuple

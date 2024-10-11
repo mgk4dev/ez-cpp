@@ -1,10 +1,9 @@
 #pragma once
 
 #include <ez/rpl/StageFactory.hpp>
+#include <ez/rpl/internal/Functional.hpp>
 
 #include <ez/Option.hpp>
-#include <ez/Traits.hpp>
-#include <ez/Tuple.hpp>
 
 namespace ez::rpl {
 
@@ -18,7 +17,7 @@ struct Filter {
 
     void process_incremental(InputType val, auto&& next)
     {
-        if (predicate(std::as_const(val))) {
+        if (internal::apply_fn(predicate, std::as_const(val))) {
             next.process_incremental(static_cast<InputType>(val));
         }
     }

@@ -2,6 +2,8 @@
 
 #include <ez/rpl/stages/Transform.hpp>
 
+#include <ez/Tuple.hpp>
+
 namespace ez::rpl {
 
 inline auto enumerate()

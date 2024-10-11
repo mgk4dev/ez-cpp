@@ -172,6 +172,21 @@ ASSERT_EQ(tuple[constexpr_<0>], 10);
 ASSERT_EQ(tuple[constexpr_<1>], "toto");
 ```
 
+#### Rpl
+Algorighm composition library
+```C++
+auto result = rpl::run(
+    rpl::iota(1),
+    rpl::transform([](int val) -> Option<int> { return (val % 2 == 0) ? Option<int>{val} : none; }),
+    rpl::filter(),
+    rpl::deref(),
+    rpl::transform([](int val) { return val * val; }),
+    rpl::take(3),
+    rpl::to_vector()
+);
+ASSERT_EQ(result, (std::vector{2 * 2, 4 * 4, 6 * 6}));
+```
+
 #### Async schedule on thread pool
 ```C++
 ThreadPool thread_pool1{1};

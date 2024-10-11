@@ -26,13 +26,13 @@ TEST(Rpl, get_pipeline_input_types)
 
     {
         auto type_list = rpl::get_pipeline_input_types<rpl::ProcessingMode::Batch, Vector&,
-                                                    decltype(filter), decltype(to_vector)>();
+                                                       decltype(filter), decltype(to_vector)>();
         static_assert(type_list == meta::type_list<int&, int&>);
     }
 
     {
         auto type_list = rpl::get_pipeline_input_types<rpl::ProcessingMode::Incremental, int&,
-                                                    decltype(filter), decltype(to_vector)>();
+                                                       decltype(filter), decltype(to_vector)>();
 
         static_assert(type_list == meta::type_list<int&, int&>);
     }
@@ -47,7 +47,7 @@ TEST(Rpl, get_pipeline_input_types_view)
 
     {
         auto type_list = rpl::get_pipeline_input_types<rpl::ProcessingMode::Batch, Input&&,
-                                                    decltype(filter), decltype(to_vector)>();
+                                                       decltype(filter), decltype(to_vector)>();
 
         static_assert(type_list == meta::type_list<int&&, int&&>);
     }
@@ -62,7 +62,7 @@ TEST(Rpl, pipeline_traits)
 
     {
         using Traits = rpl::PipelineTraits<rpl::ProcessingMode::Batch, Vector&, decltype(filter),
-                                        decltype(to_vector)>;
+                                           decltype(to_vector)>;
 
         constexpr auto input_type_list = Traits::InputTypeList{};
         constexpr auto output_type = meta::type<Traits::OutputType>;
@@ -73,7 +73,7 @@ TEST(Rpl, pipeline_traits)
 
     {
         using Traits = rpl::PipelineTraits<rpl::ProcessingMode::Incremental, int&, decltype(filter),
-                                        decltype(to_vector)>;
+                                           decltype(to_vector)>;
 
         constexpr auto input_type_list = Traits::InputTypeList{};
         constexpr auto output_type = meta::type<Traits::OutputType>;
@@ -90,7 +90,7 @@ TEST(Rpl, pipeline_stages)
 
     using PipelineStages =
         rpl::PipelineStages<rpl::ProcessingMode::Incremental, int&, IndexSequenceFor<void, void>,
-                         EZ_REMOVE_CVR_T(filter), EZ_REMOVE_CVR_T(to_vector)>;
+                            EZ_REMOVE_CVR_T(filter), EZ_REMOVE_CVR_T(to_vector)>;
 
     PipelineStages pipeline{in_place, filter, to_vector};
     unused(pipeline);
@@ -101,8 +101,8 @@ TEST(Rpl, pipeline_incremental)
     auto filter = rpl::filter([](int val) { return val > 2; });
     auto to_vector = rpl::to_vector();
 
-    using Pipeline =
-        rpl::Pipeline<rpl::ProcessingMode::Incremental, int&, decltype(filter), decltype(to_vector)>;
+    using Pipeline = rpl::Pipeline<rpl::ProcessingMode::Incremental, int&, decltype(filter),
+                                   decltype(to_vector)>;
 
     Pipeline pipeline{in_place, filter, to_vector};
     unused(pipeline);
@@ -114,7 +114,7 @@ TEST(Rpl, pipeline_batch)
     auto to_vector = rpl::to_vector();
 
     using Pipeline = rpl::Pipeline<rpl::ProcessingMode::Batch, std::vector<int>&, decltype(filter),
-                             decltype(to_vector)>;
+                                   decltype(to_vector)>;
 
     Pipeline pipeline{in_place, filter, to_vector};
     unused(pipeline);
@@ -124,8 +124,8 @@ TEST(Rpl, make_pipeline)
 {
     std::vector input{1, 2, 3, 4};
 
-    auto pipeline = rpl::make_pipeline<std::vector<int>&>(rpl::filter([](int val) { return val > 2; }),
-                                                    rpl::to_vector());
+    auto pipeline = rpl::make_pipeline<std::vector<int>&>(
+        rpl::filter([](int val) { return val > 2; }), rpl::to_vector());
 
     using Pipeline = EZ_REMOVE_CVR_T(pipeline);
     using OutputType = typename Pipeline::OutputType;
@@ -338,14 +338,18 @@ TEST(Rpl, skip_duplicates)
     ASSERT_EQ(result, (std::vector{1, 2, 3}));
 }
 
-TEST(Rpl, remove_duplicates)
+TEST(Rpl, for_each)
 {
+    std::vector<int> result;
     // clang-format off
-    auto result = rpl::run(
-        std::vector{1, 1, 1, 1, 2, 2, 2, 3, 4, 4},
-        rpl::remove_duplicates()
+    rpl::run(
+        rpl::iota(1),
+        rpl::transform([](auto&& val) {return val * 2;}),
+        rpl::take(3),
+        rpl::for_each([&](auto&& val) {result.push_back(val);}),
+        rpl::end()
     );
     // clang-format on
 
-    ASSERT_EQ(result, (std::vector{1, 2, 3, 4}));
+    ASSERT_EQ(result, (std::vector{2, 4, 6}));
 }

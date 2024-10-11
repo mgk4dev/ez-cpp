@@ -9,7 +9,11 @@ namespace ez::rpl {
 
 template <typename InputType, typename T>
 struct Transform {
-    using OutputType = std::add_rvalue_reference_t<std::invoke_result_t<T&, InputType>>;
+    using InvokeResult = std::invoke_result_t<T&, InputType>;
+
+    using OutputType = std::conditional_t<std::is_void_v<InvokeResult>,
+                                          Unit&&,
+                                          std::add_rvalue_reference_t<InvokeResult>>;
 
     T transform;
 
@@ -17,7 +21,13 @@ struct Transform {
 
     void process_incremental(InputType input, auto&& next)
     {
-        next.process_incremental(std::invoke(transform, static_cast<InputType>(input)));
+        if constexpr (std::is_void_v<InvokeResult>) {
+            std::invoke(transform, static_cast<InputType>(input));
+            next.process_incremental(Unit{});
+        }
+        else {
+            next.process_incremental(std::invoke(transform, static_cast<InputType>(input)));
+        }
     }
 };
 

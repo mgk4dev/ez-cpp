@@ -3,6 +3,8 @@
 #include <ez/rpl/StageFactory.hpp>
 
 #include <ez/Option.hpp>
+#include <ez/Traits.hpp>
+#include <ez/Tuple.hpp>
 
 namespace ez::rpl {
 

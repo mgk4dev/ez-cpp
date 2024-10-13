@@ -5,8 +5,7 @@
 #include <optional>
 
 namespace ez {
-struct None {
-};
+struct None {};
 
 inline constexpr None none{};
 
@@ -31,5 +30,8 @@ public:
         return EZ_FWD(val);
     }
 };
+
+template <typename T>
+Option(T) -> Option<T>;
 
 }  // namespace ez

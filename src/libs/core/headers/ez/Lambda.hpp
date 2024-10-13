@@ -57,18 +57,15 @@ concept Lambda = std::is_placeholder_v<std::remove_cvref_t<T>> > 0 ||
 #define EZ_POSTFIX_LAMBDA(op, Fn) \
     auto operator op(Lambda auto&& a, int) { return std::bind(Fn(), EZ_FWD(a)); }
 
-#define EZ_BINARY_LAMBDA(op, Fn)                                                                  \
-    auto operator op(Lambda auto&& a, Lambda auto&& b)                                            \
-    {                                                                                             \
-        return std::bind(Fn(), EZ_FWD(a), EZ_FWD(b));                                             \
-    }                                                                                             \
-    auto operator op(Lambda auto&& a, auto&& b) { return std::bind(Fn(), EZ_FWD(a), EZ_FWD(b)); } \
-    auto operator op(auto&& a, Lambda auto&& b) { return std::bind(Fn(), EZ_FWD(a), EZ_FWD(b)); }
+#define EZ_BINARY_LAMBDA(op, Fn)                                        \
+    template <typename T, typename U>                                   \
+        requires Lambda<T> || Lambda<U>                                 \
+    auto operator op(T&& a, U&& b)                                      \
+    {                                                                   \
+        return std::bind(Fn(), std::forward<T>(a), std::forward<U>(b)); \
+    }
 
 // ----------------------------------------------------------------------------
-
-EZ_LAMBDA_BINARY_FN(<<, left_shift)
-EZ_LAMBDA_BINARY_FN(>>, right_shift)
 
 EZ_LAMBDA_UNARY_FN(+, UnaryPlus)
 EZ_LAMBDA_UNARY_FN(*, Deref)
@@ -90,7 +87,7 @@ EZ_LAMBDA_BINARY_FN(^=, BitXorEq)
 EZ_LAMBDA_BINARY_FN(<<=, LeftShiftEq)
 EZ_LAMBDA_BINARY_FN(>>=, RightShiftEq)
 
-// standard
+// --------------------------------------------------------
 
 EZ_BINARY_LAMBDA(+, std::plus<>)
 EZ_BINARY_LAMBDA(-, std::minus<>)
@@ -115,8 +112,6 @@ EZ_BINARY_LAMBDA(|, std::bit_or<>)
 EZ_BINARY_LAMBDA(^, std::bit_xor<>)
 EZ_UNARY_LAMBDA(~, std::bit_not<>)
 
-// additional
-
 EZ_UNARY_LAMBDA(+, UnaryPlus)
 EZ_UNARY_LAMBDA(*, Deref)
 
@@ -125,8 +120,6 @@ EZ_UNARY_LAMBDA(--, Decrement)
 
 EZ_POSTFIX_LAMBDA(++, PostfixIncrement)
 EZ_POSTFIX_LAMBDA(--, PostfixDecrement)
-
-// compound assignment
 
 EZ_BINARY_LAMBDA(+=, PlusEq)
 EZ_BINARY_LAMBDA(-=, MinusEq)
@@ -142,7 +135,6 @@ EZ_BINARY_LAMBDA(>>=, RightShiftEq)
 }  // namespace ez::lambda
 
 namespace std {
-template <int I>
-struct is_placeholder<ez::lambda::Arg<I>> : integral_constant<int, I> {
-};
+template <size_t I>
+struct is_placeholder<ez::lambda::Arg<I>> : integral_constant<int, I> {};
 }  // namespace std

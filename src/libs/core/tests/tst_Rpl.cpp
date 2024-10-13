@@ -2,6 +2,7 @@
 
 #include <ez/rpl/All.hpp>
 
+#include <ez/Lambda.hpp>
 #include <ez/Option.hpp>
 #include <ez/Tuple.hpp>
 
@@ -12,14 +13,17 @@ using namespace ez;
 
 TEST(Rpl, stage_type)
 {
-    auto filter = rpl::filter([](int val) { return val > 2; });
+    using namespace ez::lambda::args;
+    auto filter = rpl::filter(arg1 > 2);
     auto stage = filter.make(meta::type<int&>);
     unused(stage);
 }
 
 TEST(Rpl, get_pipeline_input_types)
 {
-    auto filter = rpl::filter([](int val) { return val > 2; });
+    using namespace ez::lambda::args;
+
+    auto filter = rpl::filter(arg1 > 2);
     auto to_vector = rpl::to_vector();
 
     using Vector = std::vector<int>;
@@ -40,7 +44,9 @@ TEST(Rpl, get_pipeline_input_types)
 
 TEST(Rpl, get_pipeline_input_types_view)
 {
-    auto filter = rpl::filter([](int val) { return val > 2; });
+    using namespace ez::lambda::args;
+
+    auto filter = rpl::filter(arg1 > 25);
     auto to_vector = rpl::to_vector();
 
     using Input = std::ranges::iota_view<int>;
@@ -55,7 +61,9 @@ TEST(Rpl, get_pipeline_input_types_view)
 
 TEST(Rpl, pipeline_traits)
 {
-    auto filter = rpl::filter([](int val) { return val > 2; });
+    using namespace ez::lambda::args;
+
+    auto filter = rpl::filter(arg1 > 2);
     auto to_vector = rpl::to_vector();
 
     using Vector = std::vector<int>;
@@ -85,7 +93,9 @@ TEST(Rpl, pipeline_traits)
 
 TEST(Rpl, pipeline_stages)
 {
-    auto filter = rpl::filter([](int val) { return val > 2; });
+    using namespace ez::lambda::args;
+
+    auto filter = rpl::filter(arg1 > 2);
     auto to_vector = rpl::to_vector();
 
     using PipelineStages =
@@ -98,7 +108,9 @@ TEST(Rpl, pipeline_stages)
 
 TEST(Rpl, pipeline_incremental)
 {
-    auto filter = rpl::filter([](int val) { return val > 2; });
+    using namespace ez::lambda::args;
+
+    auto filter = rpl::filter(arg1 > 2);
     auto to_vector = rpl::to_vector();
 
     using Pipeline = rpl::Pipeline<rpl::ProcessingMode::Incremental, int&, decltype(filter),
@@ -110,7 +122,9 @@ TEST(Rpl, pipeline_incremental)
 
 TEST(Rpl, pipeline_batch)
 {
-    auto filter = rpl::filter([](int val) { return val > 2; });
+    using namespace ez::lambda::args;
+
+    auto filter = rpl::filter(arg1 > 10);
     auto to_vector = rpl::to_vector();
 
     using Pipeline = rpl::Pipeline<rpl::ProcessingMode::Batch, std::vector<int>&, decltype(filter),
@@ -140,13 +154,15 @@ TEST(Rpl, make_pipeline)
 
 TEST(Rpl, simple_run)
 {
+    using namespace ez::lambda::args;
+
     std::vector input{4, 3, 2, 1, 0, -1, -2};
 
     // clang-format off
     auto result = rpl::run(
         input,
-        rpl::filter([](int val) { return val > 2; }),
-        rpl::transform([](int val) { return val * val; }),
+        rpl::filter(arg1 > 2),
+        rpl::transform(arg1 * arg1),
         rpl::to_vector(),
         rpl::sort()
     );
@@ -157,8 +173,10 @@ TEST(Rpl, simple_run)
 
 TEST(Rpl, compose_incremental_input)
 {
-    auto f = rpl::filter([](int val) { return val > 2; });
-    auto t = rpl::transform([](int val) { return val * val; });
+    using namespace ez::lambda::args;
+
+    auto f = rpl::filter(arg1 > 2);
+    auto t = rpl::transform(arg1 * arg1);
 
     using C = rpl::Compose<int&, EZ_REMOVE_CVR_T(f), EZ_REMOVE_CVR_T(t)>;
 
@@ -176,8 +194,10 @@ TEST(Rpl, compose_incremental_input)
 
 TEST(Rpl, compose_batch_input)
 {
+    using namespace ez::lambda::args;
+
     auto s = rpl::sort();
-    auto t = rpl::transform([](int val) { return val * val; });
+    auto t = rpl::transform(arg1 * arg1);
 
     using C = rpl::Compose<std::vector<int>&, EZ_REMOVE_CVR_T(s), EZ_REMOVE_CVR_T(t)>;
 
@@ -195,9 +215,11 @@ TEST(Rpl, compose_batch_input)
 
 TEST(Rpl, compose)
 {
+    using namespace ez::lambda::args;
+
     std::vector input{4, 3, 2, 1, 0, -1, -2};
 
-    auto pipeline = rpl::compose(rpl::filter([](int val) { return val > 2; }), rpl::to_vector());
+    auto pipeline = rpl::compose(rpl::filter(arg1 > 2), rpl::to_vector());
     auto result = rpl::run(input, pipeline);
 
     ASSERT_EQ(result, (std::vector{4, 3}));
@@ -214,13 +236,15 @@ TEST(Rpl, parallel)
 
 TEST(Rpl, iota_pipeline)
 {
+    using namespace ez::lambda::args;
+
     // clang-format off
     auto result = rpl::run(
         rpl::iota(1),
         rpl::transform([](int val) -> Option<int> { return (val % 2 == 0) ? Option<int>{val} : none; }),
         rpl::filter(),
         rpl::deref(),
-        rpl::transform([](int val) { return val * val; }),
+        rpl::transform( arg1 * arg1),
         rpl::take(3),
         rpl::to_vector()
     );
@@ -243,11 +267,13 @@ TEST(Rpl, min_max_count)
 
 TEST(Rpl, apply)
 {
+    using namespace ez::lambda::args;
+
     // clang-format off
     auto result = rpl::run(
         rpl::iota(1, 3),
         rpl::transform([](auto val ){return Tuple {val, val + 1, val+2};}),
-        rpl::apply([](int v1, int v2, int v3){ return v1 * v2 * v3;}),
+        rpl::apply(arg1 * arg2 * arg3),
         rpl::to_vector()
         );
     // clang-format on
@@ -261,7 +287,7 @@ TEST(Rpl, enumerate)
     auto result = rpl::run(
         rpl::iota(1, 3),
         rpl::enumerate(),
-        rpl::apply([](size_t index, auto&&){ return index;}),
+        rpl::get<0>(),
         rpl::to_vector()
         );
     // clang-format on
@@ -302,7 +328,7 @@ TEST(Rpl, reorder)
         rpl::iota(1, 3),
         rpl::enumerate(),
         rpl::reorder<1,0>(),
-        rpl::apply([](int&&, size_t index){ return index;}),
+        rpl::get<1>(),
         rpl::to_vector()
         );
     // clang-format on
@@ -340,11 +366,13 @@ TEST(Rpl, skip_duplicates)
 
 TEST(Rpl, for_each)
 {
+    using namespace ez::lambda::args;
+
     std::vector<int> result;
     // clang-format off
     rpl::run(
         rpl::iota(1),
-        rpl::transform([](auto&& val) {return val * 2;}),
+        rpl::transform(arg1 * 2),
         rpl::take(3),
         rpl::for_each([&](auto&& val) {result.push_back(val);})
     );
@@ -367,11 +395,13 @@ TEST(Rpl, accumulate)
 
 TEST(Rpl, filter_args_ez_tuple)
 {
+    using namespace ez::lambda::args;
+
     // clang-format off
     auto result = rpl::run(
         rpl::iota(1,4),
         rpl::transform([](int val ) {return Tuple{val, val};}),
-        rpl::filter([](int left, int right) {return left == right;}),
+        rpl::filter(arg1 == arg2),
         rpl::count()
         );
     // clang-format on
@@ -381,11 +411,13 @@ TEST(Rpl, filter_args_ez_tuple)
 
 TEST(Rpl, filter_args_std_tuple)
 {
+    using namespace ez::lambda::args;
+
     // clang-format off
     auto result = rpl::run(
         rpl::iota(1,4),
         rpl::transform([](int val ) {return std::tuple{val, val};}),
-        rpl::filter([](int left, int right) {return left == right;}),
+        rpl::filter(arg1 == arg2),
         rpl::count()
         );
     // clang-format on
@@ -395,11 +427,13 @@ TEST(Rpl, filter_args_std_tuple)
 
 TEST(Rpl, filter_args_std_pair)
 {
+    using namespace ez::lambda::args;
+
     // clang-format off
     auto result = rpl::run(
         rpl::iota(1,4),
         rpl::transform([](int val ) {return std::pair{val, val};}),
-        rpl::filter([](int left, int right) {return left == right;}),
+        rpl::filter(arg1 == arg2),
         rpl::count()
         );
     // clang-format on

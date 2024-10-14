@@ -2,77 +2,67 @@
 
 #include <ez/Tuple.hpp>
 
-#include <boost/callable_traits/args.hpp>
-
 #include <functional>
 
 namespace ez::rpl::internal {
 
-template <typename... Args>
-struct PlaceholderCount {
-    static const size_t value = 0;
-};
-template <typename T, typename... Args>
-struct PlaceholderCount<T, Args...> {
-    static const size_t value = PlaceholderCount<Args...>::value + !!std::is_placeholder<T>::value;
+template <typename T>
+struct IsTupleLike : std::false_type {
 };
 
-template <typename T, typename... Args>
-struct BindArity;
-
-template <typename T, typename... Args>
-struct BindArity<T(Args...)> {
-    static const size_t value = PlaceholderCount<Args...>::value;
+template <typename... Ts>
+struct IsTupleLike<std::tuple<Ts...>> : std::true_type {
 };
 
-template <template <typename, typename...> class X, typename T, typename... Args>
-struct BindArity<X<T, Args...>> {
-    static const size_t value = BindArity<T, Args...>::value;
+template <typename... Ts>
+struct IsTupleLike<Tuple<Ts...>> : std::true_type {
 };
 
-template <typename F, typename Arg>
-    requires(!std::is_bind_expression_v<std::decay_t<F>>)
-decltype(auto) apply_fn(F&& f, Arg&& arg)
+template <typename T1, typename T2>
+struct IsTupleLike<std::pair<T1, T2>> : std::true_type {
+};
+
+template <typename T>
+consteval bool is_tuple_like()
 {
-    using ConcreteArg = std::remove_cvref_t<Arg>;
-    using ConcreteF = std::remove_cvref_t<F>;
+    return IsTupleLike<T>::value;
+}
 
-    constexpr bool is_tuple = requires { tuple::get<0>(arg); };
+template <typename F, typename TupleLike, size_t... indices>
+constexpr bool can_flatten_args(IndexSequence<indices...>)
+{
+    return requires { std::declval<F>()(tuple::get<indices>(std::declval<TupleLike>())...); };
+}
 
-    if constexpr (is_tuple) {
-        using Args = boost::callable_traits::args_t<ConcreteF>;
-        constexpr size_t arity = tuple::tuple_size_v<Args>;
-        constexpr size_t tuple_size = tuple::tuple_size_v<ConcreteArg>;
-        if constexpr (arity == tuple_size) { return tuple::apply(EZ_FWD(f), EZ_FWD(arg)); }
-        else {
-            return EZ_FWD(f)(EZ_FWD(arg));
-        }
-    }
-    else {
-        return EZ_FWD(f)(EZ_FWD(arg));
-    }
+template <typename F, typename TupleLike>
+constexpr bool can_flatten_args()
+{
+    return can_flatten_args<F, TupleLike>(
+        std::make_index_sequence<tuple::tuple_size_v<std::remove_cvref_t<TupleLike>>>());
 }
 
 template <typename F, typename Arg>
-    requires(std::is_bind_expression_v<std::decay_t<F>>)
-decltype(auto) apply_fn(F&& f, Arg&& arg)
+decltype(auto) invoke_f_tuple(F&& f, Arg&& arg) requires(can_flatten_args<F, Arg>())
 {
-    using ConcreteArg = std::remove_cvref_t<Arg>;
-    using ConcreteF = std::remove_cvref_t<F>;
+    return tuple::apply(EZ_FWD(f), EZ_FWD(arg));
+}
 
-    constexpr bool is_tuple = requires { tuple::get<0>(arg); };
+template <typename F, typename Arg>
+decltype(auto) invoke_f_tuple(F&& f, Arg&& arg) requires(!can_flatten_args<F, Arg>())
+{
+    return std::invoke(EZ_FWD(f), EZ_FWD(arg));
+}
 
-    if constexpr (is_tuple) {
-        constexpr size_t arity = BindArity<ConcreteF>::value;
-        constexpr size_t tuple_size = tuple::tuple_size_v<ConcreteArg>;
-        if constexpr (arity == tuple_size) { return tuple::apply(EZ_FWD(f), EZ_FWD(arg)); }
-        else {
-            return EZ_FWD(f)(EZ_FWD(arg));
-        }
-    }
-    else {
-        return EZ_FWD(f)(EZ_FWD(arg));
-    }
+template <typename F, typename Arg>
+decltype(auto) apply_fn(F&& f, Arg&& arg) requires(is_tuple_like<std::remove_cvref_t<Arg>>())
+{
+    return invoke_f_tuple(EZ_FWD(f), EZ_FWD(arg));
+}
+
+template <typename F, typename Arg>
+decltype(auto) apply_fn(F&& f, Arg&& arg) requires(!is_tuple_like<std::remove_cvref_t<Arg>>())
+{
+    return std::invoke(EZ_FWD(f), EZ_FWD(arg));
 }
 
 }  // namespace ez::rpl::internal

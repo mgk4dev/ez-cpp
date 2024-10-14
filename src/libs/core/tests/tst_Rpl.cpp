@@ -11,6 +11,51 @@
 
 using namespace ez;
 
+TEST(Rpl, functional)
+{
+    using namespace ez::lambda::args;
+
+    auto tuple = std::tuple(1, 2);
+    auto tuple2 = Tuple(1, 2);
+    auto pair = std::pair(1, 2);
+
+    using T = EZ_REMOVE_CVR_T(tuple);
+    using T2 = EZ_REMOVE_CVR_T(tuple2);
+    using P = EZ_REMOVE_CVR_T(pair);
+
+    static_assert(rpl::internal::is_tuple_like<P>());
+    static_assert(rpl::internal::is_tuple_like<T>());
+    static_assert(rpl::internal::is_tuple_like<T2>());
+
+    {
+        auto func = [](int arg1, int arg2) { return (arg1 + arg2) > 0; };
+        auto gfunc = [](auto arg1, auto arg2) { return (arg1 + arg2) > 0; };
+        auto lmbd = arg1 == arg2;
+
+        static_assert(rpl::internal::can_flatten_args<decltype(func), decltype(pair)>());
+        static_assert(rpl::internal::can_flatten_args<decltype(func), decltype(tuple)>());
+        static_assert(rpl::internal::can_flatten_args<decltype(func), decltype(tuple2)>());
+
+        static_assert(rpl::internal::can_flatten_args<decltype(gfunc), decltype(pair)>());
+        static_assert(rpl::internal::can_flatten_args<decltype(gfunc), decltype(tuple)>());
+        static_assert(rpl::internal::can_flatten_args<decltype(gfunc), decltype(tuple2)>());
+
+        static_assert(rpl::internal::can_flatten_args<decltype(lmbd), decltype(pair)>());
+        static_assert(rpl::internal::can_flatten_args<decltype(lmbd), decltype(tuple)>());
+        static_assert(rpl::internal::can_flatten_args<decltype(lmbd), decltype(tuple2)>());
+    }
+
+    {
+        auto f1 = [](std::pair<int, int>& arg) { return arg; };
+        auto f2 = [](std::tuple<int, int>& arg) { return arg; };
+        auto f3 = [](Tuple<int, int>& arg) { return arg; };
+
+        static_assert(!rpl::internal::can_flatten_args<decltype(f1), decltype(pair)>());
+        static_assert(!rpl::internal::can_flatten_args<decltype(f2), decltype(tuple)>());
+        static_assert(!rpl::internal::can_flatten_args<decltype(f3), decltype(tuple2)>());
+    }
+}
+
 TEST(Rpl, stage_type)
 {
     using namespace ez::lambda::args;
@@ -241,11 +286,8 @@ TEST(Rpl, iota_pipeline)
     // clang-format off
     auto result = rpl::run(
         rpl::iota(1),
-        rpl::transform([](int val) -> Option<int> { return (val % 2 == 0) ? Option<int>{val} : none; }),
-        rpl::filter(),
-        rpl::deref(),
-        rpl::transform( arg1 * arg1),
-        rpl::take(3),
+        rpl::transform([](int val) -> Option<int> { return (val % 2 == 0) ? Option<int>{val} :
+        none; }), rpl::filter(), rpl::deref(), rpl::transform( arg1 * arg1), rpl::take(3),
         rpl::to_vector()
     );
     // clang-format on

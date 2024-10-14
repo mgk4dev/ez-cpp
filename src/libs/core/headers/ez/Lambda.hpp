@@ -34,6 +34,8 @@ concept Lambda = std::is_placeholder_v<std::remove_cvref_t<T>> > 0 ||
 
 // ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
+
 #define EZ_LAMBDA_UNARY_FN(op, Fn)                                             \
     struct Fn {                                                                \
         decltype(auto) operator()(auto&& val) const { return op EZ_FWD(val); } \
@@ -59,8 +61,7 @@ concept Lambda = std::is_placeholder_v<std::remove_cvref_t<T>> > 0 ||
 
 #define EZ_BINARY_LAMBDA(op, Fn)                                        \
     template <typename T, typename U>                                   \
-        requires Lambda<T> || Lambda<U>                                 \
-    auto operator op(T&& a, U&& b)                                      \
+        requires Lambda<T> || Lambda<U> auto operator op(T&& a, U&& b)  \
     {                                                                   \
         return std::bind(Fn(), std::forward<T>(a), std::forward<U>(b)); \
     }
@@ -136,5 +137,6 @@ EZ_BINARY_LAMBDA(>>=, RightShiftEq)
 
 namespace std {
 template <size_t I>
-struct is_placeholder<ez::lambda::Arg<I>> : integral_constant<int, I> {};
+struct is_placeholder<ez::lambda::Arg<I>> : integral_constant<int, I> {
+};
 }  // namespace std

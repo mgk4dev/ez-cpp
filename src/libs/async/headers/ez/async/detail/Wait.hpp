@@ -55,7 +55,7 @@ public:
     {
         struct CompletionNotifier {
             auto await_ready() const noexcept { return false; }
-            auto await_suspend(Coroutine<SyncWaitPromise<R>> coroutine) const noexcept
+            auto await_suspend(CoHandle<SyncWaitPromise<R>> coroutine) const noexcept
             {
                 coroutine.promise().m_event->set();
             }
@@ -77,7 +77,7 @@ public:
     using Promise = SyncWaitPromise<R>;
     using promise_type = Promise;
 
-    SyncWaitTask(Coroutine<Promise> coroutine) : m_coroutine{coroutine} {}
+    SyncWaitTask(CoHandle<Promise> coroutine) : m_coroutine{coroutine} {}
 
     SyncWaitTask(SyncWaitTask&& another) : m_coroutine{std::move(another.m_coroutine)} {}
 
@@ -92,7 +92,7 @@ public:
     }
 
 private:
-    Resource<Coroutine<Promise>, CoroutineDeleter> m_coroutine;
+    Resource<CoHandle<Promise>, CoroutineDeleter> m_coroutine;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

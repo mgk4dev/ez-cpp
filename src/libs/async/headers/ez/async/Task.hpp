@@ -15,11 +15,11 @@ template <typename T, async::AwaitReturnMode return_mode>
 struct StoreCallerAwaiter {
     using Promise = TaskPromise<T>;
 
-    Coroutine<Promise> corountine;
+    CoHandle<Promise> corountine;
 
     bool await_ready() noexcept { return corountine.promise().has_value(); }
 
-    Coroutine<> await_suspend(Coroutine<> caller) noexcept
+    CoHandle<> await_suspend(CoHandle<> caller) noexcept
     {
         corountine.promise().set_continuation(caller);
         return corountine;
@@ -43,7 +43,7 @@ struct StoreCallerAwaiter {
 
 struct TaskFinalAwaiter {
     bool await_ready() noexcept { return false; }
-    Coroutine<> await_suspend(auto current) noexcept { return current.promise().continuation; }
+    CoHandle<> await_suspend(auto current) noexcept { return current.promise().continuation; }
     void await_resume() noexcept {}
 };
 
@@ -51,9 +51,9 @@ struct TaskFinalAwaiter {
 
 template <typename T>
 struct TaskPromise : public Receiver<T> {
-    Coroutine<> continuation = std::noop_coroutine();
+    CoHandle<> continuation = std::noop_coroutine();
 
-    void set_continuation(Coroutine<> cont) { continuation = cont; }
+    void set_continuation(CoHandle<> cont) { continuation = cont; }
     auto get_return_object() noexcept { return make_coroutine(*this); }
 
     std::suspend_always initial_suspend() noexcept { return {}; }
@@ -66,7 +66,7 @@ public:
     using Promise = async::TaskPromise<T>;
     using promise_type = Promise;
 
-    Task(Coroutine<Promise> handle) noexcept : m_coroutine{handle} {}
+    Task(CoHandle<Promise> handle) noexcept : m_coroutine{handle} {}
     Task(const Task&) = delete;
     Task& operator=(const Task& another) = delete;
 
@@ -96,9 +96,9 @@ public:
     bool done() const { return m_coroutine.done(); }
     void resume() { m_coroutine.resume(); }
     void* address() const { return m_coroutine.address(); }
-    Coroutine<> handle() const { return m_coroutine; }
+    CoHandle<> handle() const { return m_coroutine; }
 
 private:
-    Coroutine<Promise> m_coroutine = nullptr;
+    CoHandle<Promise> m_coroutine = nullptr;
 };
 }  // namespace ez::async

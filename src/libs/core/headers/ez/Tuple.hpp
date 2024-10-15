@@ -9,33 +9,6 @@ namespace ez {
 template <typename... Ts>
 class Tuple;
 
-namespace internal {
-template <size_t... indices>
-auto transform_impl(auto&& f, auto&& tuple, std::index_sequence<indices...>)
-{
-    return std::make_tuple(f(EZ_FWD(tuple)[EZ_CONSTEXP(indices)])...);
-};
-
-template <typename... Ts>
-auto transform_tuple(const Tuple<Ts...>& tuple, auto&& f)
-{
-    return Tuple{transform_impl(f, tuple, std::make_index_sequence<sizeof...(Ts)>{})};
-}
-
-template <typename... Ts>
-auto transform_tuple(Tuple<Ts...>& tuple, auto&& f)
-{
-    return Tuple{transform_impl(f, tuple, std::make_index_sequence<sizeof...(Ts)>{})};
-}
-
-template <typename... Ts>
-auto transform_tuple(Tuple<Ts...>&& tuple, auto&& f)
-{
-    return Tuple{transform_impl(f, std::move(tuple), std::make_index_sequence<sizeof...(Ts)>{})};
-}
-
-}  // namespace internal
-
 /// Extension of std::tuple with simpler access API.
 /// Usage:
 /// @code
@@ -82,10 +55,6 @@ public:
     {
         for_constexpr<0, sizeof...(Ts)>([&](auto index) { f(this->operator[](index)); });
     }
-
-    auto transformed(auto&& f) & { return internal::transform_tuple(*this, EZ_FWD(f)); }
-    auto transformed(auto&& f) const& { return internal::transform_tuple(*this, EZ_FWD(f)); }
-    auto transformed(auto&& f) && { return internal::transform_tuple(std::move(*this), EZ_FWD(f)); }
 };
 
 template <class... Ts>
@@ -138,6 +107,33 @@ template <size_t index>
 decltype(auto) arg_at(auto&&... args)
 {
     return std::get<index>(std::forward_as_tuple(EZ_FWD(args)...));
+}
+
+namespace internal {
+template <size_t... indices>
+auto transform_impl(auto&& f, auto&& tuple, std::index_sequence<indices...>)
+{
+    return std::make_tuple(f(EZ_FWD(tuple)[EZ_CONSTEXP(indices)])...);
+};
+
+}  // namespace internal
+
+template <typename... Ts>
+auto transform(const Tuple<Ts...>& tuple, auto&& f)
+{
+    return Tuple{internal::transform_impl(f, tuple, std::make_index_sequence<sizeof...(Ts)>{})};
+}
+
+template <typename... Ts>
+auto transform(Tuple<Ts...>& tuple, auto&& f)
+{
+    return Tuple{internal::transform_impl(f, tuple, std::make_index_sequence<sizeof...(Ts)>{})};
+}
+
+template <typename... Ts>
+auto transform(Tuple<Ts...>&& tuple, auto&& f)
+{
+    return Tuple{internal::transform_impl(f, std::move(tuple), std::make_index_sequence<sizeof...(Ts)>{})};
 }
 
 }  // namespace tuple

@@ -33,7 +33,7 @@ public:
 
     bool is_ready() const noexcept { return m_continuation && m_continuation.done(); }
 
-    void set_continuation(Coroutine<> awaiting_coroutine) noexcept
+    void set_continuation(CoHandle<> awaiting_coroutine) noexcept
     {
         m_continuation = awaiting_coroutine;
         m_count.fetch_sub(1, std::memory_order::acq_rel);
@@ -46,7 +46,7 @@ public:
 
 private:
     std::atomic_uint32_t m_count;
-    Coroutine<> m_continuation;
+    CoHandle<> m_continuation;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ public:
     constexpr WhenAllAwaiter(Tuple<>) noexcept {}
 
     constexpr bool await_ready() const noexcept { return true; }
-    void await_suspend(Coroutine<>) noexcept {}
+    void await_suspend(CoHandle<>) noexcept {}
     Tuple<> await_resume() const noexcept { return {}; }
 };
 
@@ -84,23 +84,23 @@ public:
 
     bool await_ready() const noexcept { return m_latch.is_ready(); }
 
-    bool await_suspend(Coroutine<> awaiting_coroutine) noexcept
+    bool await_suspend(CoHandle<> awaiting_coroutine) noexcept
     {
         return start_tasks(awaiting_coroutine);
     }
 
     auto await_resume() & noexcept
     {
-        return m_tasks.transformed([](auto&& task) { return EZ_FWD(task).get(); });
+        return tuple::transform(m_tasks, [](auto&& task) { return EZ_FWD(task).get(); });
     }
 
     auto await_resume() && noexcept
     {
-        return std::move(m_tasks).transformed([](auto&& task) { return EZ_FWD(task).get(); });
+        return tuple::transform(std::move(m_tasks), [](auto&& task) { return EZ_FWD(task).get(); });
     }
 
 private:
-    bool start_tasks(Coroutine<> awaiting_coroutine)
+    bool start_tasks(CoHandle<> awaiting_coroutine)
     {
         m_latch.set_continuation(awaiting_coroutine);
         m_tasks.for_each([&](auto& task) { task.start(m_latch); });
@@ -109,7 +109,7 @@ private:
 
 private:
     Tuple<Tasks...> m_tasks;
-    WhenAllLatch m_latch;
+    WhenAllLatch m_latch {0};
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -130,7 +130,7 @@ public:
     {
         struct CompletionNotifier {
             bool await_ready() const noexcept { return false; }
-            void await_suspend(Coroutine<Self> coroutine) noexcept
+            void await_suspend(CoHandle<Self> coroutine) noexcept
             {
                 coroutine.promise().m_latch->notify_awaitable_completed();
             }
@@ -140,10 +140,7 @@ public:
         return CompletionNotifier{};
     }
 
-    void return_value(auto&& value)
-    {
-        Receiver<R>::set_value(EZ_FWD(value));
-    }
+    void return_value(auto&& value) { Receiver<R>::set_value(EZ_FWD(value)); }
 
     void start(WhenAllLatch& latch)
     {
@@ -163,7 +160,7 @@ public:
     using Promise = WhenAllContinuationPromise<R>;
     using promise_type = Promise;
 
-    WhenAllContinuationTask(Coroutine<Promise> coroutine) : m_coroutine{coroutine} {}
+    WhenAllContinuationTask(CoHandle<Promise> coroutine) : m_coroutine{coroutine} {}
     WhenAllContinuationTask(WhenAllContinuationTask&& another)
         : m_coroutine{std::move(another.m_coroutine)}
     {
@@ -175,7 +172,7 @@ public:
     decltype(auto) get() && { return std::move(m_coroutine.get().promise()).get(); }
 
 private:
-    Resource<Coroutine<Promise>, CoroutineDeleter> m_coroutine;
+    Resource<CoHandle<Promise>, CoroutineDeleter> m_coroutine;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

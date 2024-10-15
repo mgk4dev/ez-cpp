@@ -27,9 +27,9 @@ TEST(Tupe, for_each)
 
 TEST(Tupe, transformed)
 {
-    Tuple tuple{1, 2, 3};
+    Tuple t{1, 2, 3};
 
-    auto strings = tuple.transformed([](auto val) { return std::to_string(val); });
+    auto strings = tuple::transform(t, [](auto val) { return std::to_string(val); });
 
     static_assert(
         std::is_same_v<EZ_DECAY_T(strings), Tuple<std::string, std::string, std::string>>);

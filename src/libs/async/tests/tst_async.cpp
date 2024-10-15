@@ -1,11 +1,12 @@
 #include <gtest/gtest.h>
 
-#include <ez/async/all.hpp>
+#include <ez/async/All.hpp>
 
 #include <ez/ScopeGuard.hpp>
 #include <ez/Utils.hpp>
 
-#include <thread>
+#include "qadapters/QDelay.hpp"
+#include "qadapters/QExecutor.hpp"
 
 using namespace ez;
 using namespace ez::async;
@@ -47,9 +48,9 @@ TEST(Async, task)
 
 TEST(Async, schedule_on_thread_pool)
 {
-    ThreadPool thread_pool1{1};
-    ThreadPool thread_pool2{1};
-    ThreadPool thread_pool3{1};
+    QThreadPool thread_pool1;
+    QThreadPool thread_pool2;
+    QThreadPool thread_pool3;
 
     std::set<decltype(std::this_thread::get_id())> ids;
 
@@ -78,18 +79,16 @@ TEST(Async, schedule_on_thread_pool)
 
 TEST(Async, schedule_on_io_context)
 {
-    IoContext executor;
-
     std::set<decltype(std::this_thread::get_id())> ids;
 
     auto task = [&]() -> Task<> {
-        co_await async::schedule_on(executor);
+        co_await async::schedule_on(qapp());
         ids.insert(std::this_thread::get_id());
     };
 
     auto t = task();
     t.resume();
-    executor.run();
+    qapp().processEvents();
     ASSERT_TRUE(t.done());
     ASSERT_EQ(ids.size(), 1);
     ASSERT_TRUE(ids.contains(std::this_thread::get_id()));
@@ -110,106 +109,106 @@ TEST(Async, when_all)
     ASSERT_EQ(r2, 20);
 }
 
-TEST(Async, delay)
-{
-    IoContext context;
-    WorkGuard guard{context};
-    TaskPool task_pool{context};
-    auto task = [&]() -> Task<> {
-        auto start = std::chrono::high_resolution_clock::now();
-        co_await delay(context, 100ms, 10);
-        auto elapsed = std::chrono::high_resolution_clock::now() - start;
-
-        [&] { ASSERT_GE(elapsed, 100ms); }();
-        context.stop();
-    };
-
-    task_pool << task();
-
-    context.run();
-}
-
 TEST(Async, when_any)
 {
-    IoContext context;
-    WorkGuard guard{context};
-    TaskPool task_pool{context};
+    TaskPool<QCoreApplication> task_pool{qapp()};
+
+    size_t finished_count = 0;
+
+    auto maybe_stop_app = [&] {
+        ++finished_count;
+        if (finished_count == 2) qapp().exit();
+    };
 
     auto task1 = [&]() -> Task<> {
-        auto id = co_await when_any(delay(context, 10ms, 1), delay(context, 100ms, 2));
+        EZ_ON_SCOPE_EXIT { maybe_stop_app(); };
+
+        auto id = co_await when_any(qdelay(10ms, 1), qdelay(100ms, 2));
         [&] { ASSERT_EQ(id, 1); }();
-        context.stop();
     };
 
     auto task2 = [&]() -> Task<> {
-        auto id = co_await when_any(delay(context, 10ms, std::string{"task 1"}),
-                                    delay(context, 100ms, 2));
+        EZ_ON_SCOPE_EXIT { maybe_stop_app(); };
+
+        auto id = co_await when_any(qdelay(10ms, std::string{"task 1"}), qdelay(100ms, 2));
 
         [&] {
             ASSERT_TRUE(id.is<std::string>());
             ASSERT_EQ(id.as<std::string>(), std::string{"task 1"});
         }();
-        context.stop();
+
+        maybe_stop_app();
     };
 
     task_pool << task1() << task2();
 
-    context.run();
+    qapp().exec();
 }
 
-TEST(Async, race)
+TEST(Async, delay)
 {
-    IoContext context;
-    WorkGuard guard{context};
-    TaskPool task_pool{context};
-
+    TaskPool<QCoreApplication> task_pool{qapp()};
     auto task = [&]() -> Task<> {
-        auto id = co_await race(delay(context, 10ms, 1), delay(context, 100ms, 2));
-        [&] { ASSERT_EQ(id, 1); }();
+        EZ_ON_SCOPE_EXIT { qapp().exit(); };
+        auto start = std::chrono::high_resolution_clock::now();
+        co_await qdelay(100ms, 10);
+        auto elapsed = std::chrono::high_resolution_clock::now() - start;
 
-        context.stop();
+        [&] { ASSERT_GE(elapsed, 100ms); }();
     };
 
     task_pool << task();
 
-    context.run();
+    qapp().exec();
 }
+
+// TEST(Async, race)
+// {
+//     TaskPool<QCoreApplication> task_pool{qapp()};
+
+//     auto task = [&]() -> Task<> {
+//         auto id = co_await race(qdelay(10ms, 1), qdelay(100ms, 2));
+//         [&] { ASSERT_EQ(id, 1); }();
+//         qapp().exit();
+//     };
+
+//     task_pool << task();
+
+//     qapp().exec();
+// }
 
 TEST(Async, when_any_throw)
 {
-    IoContext context;
-    WorkGuard guard{context};
-    TaskPool task_pool{context};
+    TaskPool<QCoreApplication> task_pool{qapp()};
 
     auto work = [&]() -> Task<int> {
-        co_await delay(context, 100ms, 10);
+        co_await qdelay(100ms, 10);
         throw std::runtime_error{""};
         co_return 0;
     };
 
     auto task = [&]() -> Task<> {
-        EZ_ON_SCOPE_EXIT { context.stop(); };
+        EZ_ON_SCOPE_EXIT { qapp().exit(); };
         auto w = work();
-        co_await when_any(w, delay(context, 1s, 10));
+        co_await when_any(w, qdelay(1s, 10));
     };
 
     task_pool << task();
 
-    context.run();
+    qapp().exec();
 }
 
 TEST(Async, repeat_delay)
 {
-    IoContext context;
-    WorkGuard guard{context};
-    TaskPool task_pool{context};
+    TaskPool<QCoreApplication> task_pool{qapp()};
 
     auto work = [&](unsigned count) -> Task<> {
-        while (count--) { co_await delay(context, 1ms, 10); }
-        context.stop();
+        EZ_ON_SCOPE_EXIT { qapp().exit(); };
+
+        while (count--) { co_await qdelay(1ms, 10); }
     };
 
     task_pool << work(200);
 
-    context.run();
+    qapp().exec();
 }

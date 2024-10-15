@@ -8,48 +8,48 @@
 #include <ez/Tuple.hpp>
 #include <ez/TypeUtils.hpp>
 #include <ez/Utils.hpp>
+#include <ez/Shared.hpp>
+
 
 #include <atomic>
 
 namespace ez::async::detail {
-class WhenAnyLatch : NonCopiable {
+class WhenAnyLatch {
 public:
     WhenAnyLatch() {}
+    WhenAnyLatch(const WhenAnyLatch&)=default;
 
     WhenAnyLatch(WhenAnyLatch&& other)
-        : m_finished_count(other.m_finished_count.load(std::memory_order::acquire))
     {
+        std::swap(m_finished_count, other.m_finished_count);
         std::swap(m_continuation, other.m_continuation);
     }
 
     WhenAnyLatch& operator=(WhenAnyLatch&& other)
     {
-        if (std::addressof(other) != this) {
-            m_finished_count.store(other.m_finished_count.load(std::memory_order::acquire),
-                                   std::memory_order::relaxed);
-            std::swap(m_continuation, other.m_continuation);
-        }
-
+        std::swap(m_finished_count, other.m_finished_count);
+        std::swap(m_continuation, other.m_continuation);
         return *this;
     }
 
-    bool is_ready() const noexcept { return m_finished_count.load() > 0; }
+    WhenAnyLatch& operator=(const WhenAnyLatch& other)=default;
 
-    void set_continuation(Coroutine<> awaiting_coroutine) noexcept
+    bool is_ready() const noexcept { return m_finished_count->load() > 0; }
+
+    void set_continuation(CoHandle<> awaiting_coroutine) noexcept
     {
         m_continuation = awaiting_coroutine;
     }
 
     void notify_awaitable_completed() noexcept
     {
-        auto old_count = m_finished_count.fetch_add(1, std::memory_order::acquire);
-
+        auto old_count = m_finished_count->fetch_add(1, std::memory_order::acquire);
         if (old_count == 0) { m_continuation.resume(); }
     }
 
 private:
-    std::atomic_uint32_t m_finished_count{0};
-    Coroutine<> m_continuation;
+    Shared<std::atomic_uint32_t> m_finished_count{in_place, 0};
+    CoHandle<> m_continuation;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ public:
     constexpr WhenAnyAwaiter(Tuple<>) noexcept {}
 
     constexpr bool await_ready() const noexcept { return true; }
-    void await_suspend(Coroutine<>) noexcept {}
+    void await_suspend(CoHandle<>) noexcept {}
     Tuple<> await_resume() const noexcept { return {}; }
 };
 
@@ -99,7 +99,7 @@ public:
 
     bool await_ready() const noexcept { return m_latch.is_ready(); }
 
-    bool await_suspend(Coroutine<> awaiting_coroutine) noexcept
+    bool await_suspend(CoHandle<> awaiting_coroutine) noexcept
     {
         return start_tasks(awaiting_coroutine);
     }
@@ -141,7 +141,7 @@ public:
     }
 
 private:
-    bool start_tasks(Coroutine<> awaiting_coroutine)
+    bool start_tasks(CoHandle<> awaiting_coroutine)
     {
         m_latch.set_continuation(awaiting_coroutine);
         m_tasks.for_each([&](auto& task) { task.start(m_latch); });
@@ -171,9 +171,9 @@ public:
     {
         struct CompletionNotifier {
             bool await_ready() const noexcept { return false; }
-            void await_suspend(Coroutine<Self> coroutine) noexcept
+            void await_suspend(CoHandle<Self> coroutine) noexcept
             {
-                coroutine.promise().m_latch->notify_awaitable_completed();
+                coroutine.promise().m_latch.notify_awaitable_completed();
             }
             void await_resume() const noexcept {}
         };
@@ -183,14 +183,14 @@ public:
 
     void return_value(auto&& value) { Receiver<R>::set_value(EZ_FWD(value)); }
 
-    void start(WhenAnyLatch& latch)
+    void start(WhenAnyLatch latch)
     {
-        m_latch = &latch;
+        m_latch = latch;
         make_coroutine(*this).resume();
     }
 
 private:
-    WhenAnyLatch* m_latch = nullptr;
+    WhenAnyLatch m_latch;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -202,7 +202,7 @@ public:
     using promise_type = Promise;
     using ReturnType = R;
 
-    WhenAnyContinuationTask(Coroutine<Promise> coroutine) : m_coroutine{coroutine} {}
+    WhenAnyContinuationTask(CoHandle<Promise> coroutine) : m_coroutine{coroutine} {}
     WhenAnyContinuationTask(WhenAnyContinuationTask&& another)
         : m_coroutine{std::move(another.m_coroutine)}
     {
@@ -218,7 +218,7 @@ public:
     void* address() const { return m_coroutine.get().address(); }
 
 private:
-    Resource<Coroutine<Promise>, CoroutineDeleter> m_coroutine;
+    Resource<CoHandle<Promise>, CoroutineDeleter> m_coroutine;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ez/async/Executor.hpp>
+
 #include <ez/async/Task.hpp>
 
 namespace ez::async {
@@ -9,9 +10,9 @@ struct ScheduleAwaiter {
     E* executor;
 
     constexpr bool await_ready() const noexcept { return false; }
-    void await_suspend(Coroutine<> coroutine) const
+    void await_suspend(CoHandle<> coroutine) const
     {
-        async::post(*executor, [coroutine] { coroutine.resume(); });
+        Executor<E>::post(*executor, [coroutine] { coroutine.resume(); });
     }
     constexpr void await_resume() const noexcept {}
 };

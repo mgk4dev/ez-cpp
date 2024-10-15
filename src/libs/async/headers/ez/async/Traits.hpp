@@ -10,7 +10,7 @@ namespace ez::trait {
 template <typename T>
 concept Awaiter = requires(T awaitable) {
     { awaitable.await_ready() } -> Is<bool>;
-    { awaitable.await_suspend(std::declval<async::Coroutine<>>()) } -> OneOf<async::Coroutine<>, void, bool>;
+    { awaitable.await_suspend(std::declval<async::CoHandle<>>()) } -> OneOf<async::CoHandle<>, void, bool>;
     { awaitable.await_resume()};
 };
 

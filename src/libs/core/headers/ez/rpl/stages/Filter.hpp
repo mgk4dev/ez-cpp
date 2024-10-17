@@ -34,16 +34,25 @@ struct SkipDuplicates {
                        Option<std::remove_cvref_t<InputType>>>
         reference;
 
+    void set_reference(auto&& value)
+    {
+        if constexpr (std::is_lvalue_reference_v<InputType>) { reference = &value; }
+        else {
+            reference.emplace(value);
+        }
+    }
+
     void process_incremental(InputType input, auto&& next)
     {
-        const bool has_value(reference);
-        const bool is_equal = has_value && equals(input, *reference);
-        if (!is_equal) {
-            if (has_value) { next.process_incremental(*std::move(reference)); }
-            if constexpr (std::is_lvalue_reference_v<InputType>) { reference = &input; }
-            else {
-                reference.emplace(static_cast<InputType>(input));
+        if (reference) {
+            if (!equals(input, *reference)) {
+                set_reference(input);
+                next.process_incremental(static_cast<InputType>(input));
             }
+        }
+        else {
+            set_reference(input);
+            next.process_incremental(static_cast<InputType>(input));
         }
     }
 };

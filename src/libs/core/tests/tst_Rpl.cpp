@@ -403,7 +403,19 @@ TEST(Rpl, skip_duplicates)
     );
     // clang-format on
 
-    ASSERT_EQ(result, (std::vector{1, 2, 3}));
+    ASSERT_EQ(result, (std::vector{1, 2, 3, 4}));
+}
+
+TEST(Rpl, remove_duplicates)
+{
+    // clang-format off
+    auto result = rpl::run(
+        std::vector{1,1,1,1,2,2,2,3,4,4},
+        rpl::remove_duplicates()
+        );
+    // clang-format on
+
+    ASSERT_EQ(result, (std::vector{1, 2, 3, 4}));
 }
 
 TEST(Rpl, for_each)

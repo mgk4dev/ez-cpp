@@ -3,6 +3,7 @@
 #include <ez/rpc/Transport.hpp>
 
 #include <ez/async/Executor.hpp>
+#include <ez/async/TaskPool.hpp>
 
 #include <ez/Box.hpp>
 #include <ez/Tuple.hpp>
@@ -28,13 +29,13 @@ class AbstractService {
 public:
     using Message = transport::Server::Message;
 
-    Ref<async::IoContext> context;
+    Ref<IoContext> context;
     Box<transport::Server> transport;
     boost::asio::steady_timer poll_timer;
-    async::TaskPool task_pool;
+    async::TaskPool<IoContext> task_pool;
     ServiceOptions options;
 
-    AbstractService(async::IoContext& ctx, Box<transport::Server> server)
+    AbstractService(IoContext& ctx, Box<transport::Server> server)
         : context{ctx}, transport{std::move(server)}, poll_timer{ctx}, task_pool{ctx}
     {
     }
@@ -59,7 +60,7 @@ public:
 template <typename... Schemas>
 class Service {
 public:
-    Service(async::IoContext& context, Box<transport::Server> server)
+    Service(IoContext& context, Box<transport::Server> server)
         : m_impl{in_place, context, std::move(server)}
     {
     }

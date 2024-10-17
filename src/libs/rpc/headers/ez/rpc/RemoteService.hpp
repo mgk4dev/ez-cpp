@@ -14,10 +14,11 @@
 namespace ez::rpc {
 class AbstractFunction;
 
+
 class AbstractRemoteService {
 public:
     virtual ~AbstractRemoteService() = default;
-    virtual async::IoContext& context() = 0;
+    virtual IoContext& context() = 0;
     virtual AsyncResult<RequestId> invoke(std::string_view name_space,
                                           std::string_view fn_name,
                                           std::vector<ByteArray> arguments,
@@ -34,7 +35,7 @@ struct RemoteServiceOptions {
 
 class RemoteServiceBase {
 public:
-    RemoteServiceBase(async::IoContext& context, Box<transport::Client> client);
+    RemoteServiceBase(IoContext& context, Box<transport::Client> client);
 
     ~RemoteServiceBase();
 
@@ -53,7 +54,7 @@ protected:
 template <typename... Schemas>
 class RemoteService : public RemoteServiceBase {
 public:
-    RemoteService(async::IoContext& context, Box<transport::Client> client)
+    RemoteService(IoContext& context, Box<transport::Client> client)
         : RemoteServiceBase{context, std::move(client)}
     {
         m_schemas->for_each([&]<typename T>(T& schema) {

@@ -8,6 +8,8 @@
 #include "qadapters/QDelay.hpp"
 #include "qadapters/QExecutor.hpp"
 
+#include <thread>
+
 using namespace ez;
 using namespace ez::async;
 

@@ -17,9 +17,9 @@ struct WaitForResponse {
 
     void start(auto&) {}
 
-    bool is_ready() const { return false; }
+    bool done() const { return false; }
 
-    void on_done(auto continuation)
+    void start(auto continuation)
     {
         client.set_response_callback(request_id, [continuation]() mutable { continuation(); });
     }
@@ -37,7 +37,7 @@ AsyncResult<RawReply> AbstractFunction::invoke_remote(std::string_view name_spac
     auto id = co_await m_client->invoke(name_space, function_name, std::move(args), &reply);
     if (!id) co_return Fail{id.error()};
 
-    co_await async::ContextFreeOperation<WaitForResponse>{*m_client, id.value()};
+    co_await async::Operation<WaitForResponse>{*m_client, id.value()};
     co_return Ok{std::move(reply)};
 }
 

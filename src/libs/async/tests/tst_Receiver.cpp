@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <ez/async/all.hpp>
+#include <ez/async/All.hpp>
 
 using namespace ez;
 using namespace ez::async;

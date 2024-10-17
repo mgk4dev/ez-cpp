@@ -11,7 +11,6 @@
 
 #include <format>
 #include <future>
-#include <queue>
 
 using namespace ez;
 
@@ -176,11 +175,13 @@ auto make_task(RemoteService& remote_service) -> async::Task<>
     std::cout << "Ping response is '" << pong.value().data << "'" << std::endl;
 }
 
+using WorkGuard = boost::asio::executor_work_guard<rpc::IoContext::executor_type>;
+
 TEST(Rpc, test)
 {
     Transport transport;
 
-    async::IoContext service_context, client_context;
+    rpc::IoContext service_context, client_context;
 
     Service service{service_context, transport.make_server()};
     service.implementation<SchemaV1>().get_foo = []() -> async::Task<std::string> {
@@ -201,7 +202,7 @@ TEST(Rpc, test)
     };
 
     auto server_task = std::async([&] {
-        async::WorkGuard guard{service_context};
+        WorkGuard guard{service_context.get_executor()};
 
         auto ok = service.bind_to("server 1");
         ASSERT_TRUE(ok);
@@ -211,7 +212,7 @@ TEST(Rpc, test)
     });
 
     auto client_task = std::async([&] {
-        async::WorkGuard guard{client_context};
+        WorkGuard guard{client_context.get_executor()};
 
         RemoteService remote_service{client_context,
                                      transport.make_client(rpc::PeerId{"client 1"})};

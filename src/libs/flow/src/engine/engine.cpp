@@ -14,7 +14,7 @@
 
 namespace ez::flow {
 struct Engine::Impl {
-    Ref<async::IoContext> io_context;
+    Ref<IoContext> io_context;
     std::deque<Shared<async::Task<>>> tasks;
 
     Logger logger;
@@ -30,7 +30,7 @@ struct Engine::Impl {
     }
 };
 
-Engine::Engine(async::IoContext& io_context) : m_impl{in_place, io_context} {}
+Engine::Engine(IoContext& io_context) : m_impl{in_place, io_context} {}
 
 void Engine::set_logger(Logger logger) { m_impl->logger = std::move(logger); }
 
@@ -38,7 +38,7 @@ Engine::~Engine() = default;
 
 void Engine::eval(std::string code, std::string file_name, unsigned int id)
 {
-    auto eval_file = [&](async::IoContext& io_context, std::string code, std::string file_name,
+    auto eval_file = [&](IoContext& io_context, std::string code, std::string file_name,
                          unsigned int id) -> async::Task<> {
         try {
             auto program_result = flow::parse(code, file_name);
@@ -79,7 +79,7 @@ void Engine::eval(std::string code, std::string file_name, unsigned int id)
 
     m_impl->tasks.push_back(task);
 
-    async::post(m_impl->io_context.get(), [task]() mutable { task->resume(); });
+    m_impl->io_context.get().post([task]() mutable { task->resume(); });
 }
 
 void Engine::set_action_delegate(ext::ActionRequest delegate)

@@ -22,18 +22,18 @@ struct RemoteServiceBaseImpl : public AbstractRemoteService {
         std::function<void()> wake;
     };
 
-    Ref<async::IoContext> context_;
+    Ref<IoContext> context_;
     Box<transport::Client> transport;
     std::unordered_map<RequestId, Query> queries;
     boost::asio::steady_timer poll_timer;
     RemoteServiceOptions options;
 
-    RemoteServiceBaseImpl(async::IoContext& context, Box<transport::Client> client)
+    RemoteServiceBaseImpl(IoContext& context, Box<transport::Client> client)
         : context_{context}, transport{std::move(client)}, poll_timer{context}
     {
     }
 
-    async::IoContext& context() override { return context_.get(); }
+    IoContext& context() override { return context_.get(); }
 
     AsyncResult<RequestId> invoke(std::string_view name_space,
                                   std::string_view fn_name,
@@ -85,7 +85,7 @@ struct RemoteServiceBaseImpl : public AbstractRemoteService {
                 *query.reply = Fail{Error{Error::Code(reply.error().code()), reply.error().what()}};
             }
 
-            async::post(context_.get(), query.wake);
+            async::Executor<IoContext>::post(context_.get(), query.wake);
             queries.erase(request_id);
         }
 
@@ -101,7 +101,7 @@ struct RemoteServiceBaseImpl : public AbstractRemoteService {
     }
 };
 
-RemoteServiceBase::RemoteServiceBase(async::IoContext& context, Box<transport::Client> client)
+RemoteServiceBase::RemoteServiceBase(IoContext& context, Box<transport::Client> client)
     : m_impl{in_place, context, std::move(client)}
 {
 }

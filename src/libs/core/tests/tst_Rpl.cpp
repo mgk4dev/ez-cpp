@@ -406,12 +406,12 @@ TEST(Rpl, skip_duplicates)
     ASSERT_EQ(result, (std::vector{1, 2, 3, 4}));
 }
 
-TEST(Rpl, remove_duplicates)
+TEST(Rpl, unique)
 {
     // clang-format off
     auto result = rpl::run(
         std::vector{1,1,1,1,2,2,2,3,4,4},
-        rpl::remove_duplicates()
+        rpl::unique()
         );
     // clang-format on
 

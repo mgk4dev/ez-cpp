@@ -44,13 +44,7 @@ struct SkipDuplicates {
 
     void process_incremental(InputType input, auto&& next)
     {
-        if (reference) {
-            if (!equals(input, *reference)) {
-                set_reference(input);
-                next.process_incremental(static_cast<InputType>(input));
-            }
-        }
-        else {
+        if (!reference || !equals(input, *reference)) {
             set_reference(input);
             next.process_incremental(static_cast<InputType>(input));
         }

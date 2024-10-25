@@ -494,3 +494,19 @@ TEST(Rpl, filter_args_std_pair)
 
     ASSERT_EQ(result, 3);
 }
+
+TEST(Rpl, subrange)
+{
+    using namespace ez::lambda::args;
+
+            // clang-format off
+    auto result = rpl::run(
+        rpl::iota(1,11),
+        rpl::sub_range(2, 4),
+        rpl::to_vector()
+        );
+    // clang-format on
+
+    ASSERT_EQ(result, (std::vector{2, 3, 4}));
+}
+

@@ -142,7 +142,7 @@ TEST(Async, when_any)
         maybe_stop_app();
     };
 
-    task_pool << task1() << task2();
+    task_pool << task1 << task2;
 
     qapp().exec();
 }
@@ -159,7 +159,7 @@ TEST(Async, delay)
         [&] { ASSERT_GE(elapsed, 100ms); }();
     };
 
-    task_pool << task();
+    task_pool << task;
 
     qapp().exec();
 }
@@ -195,7 +195,7 @@ TEST(Async, when_any_throw)
         co_await when_any(w, qdelay(1s, 10));
     };
 
-    task_pool << task();
+    task_pool << task;
 
     qapp().exec();
 }

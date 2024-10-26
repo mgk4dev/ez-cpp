@@ -17,6 +17,7 @@
 #include <ez/rpl/stages/MinMax.hpp>
 #include <ez/rpl/stages/Reorder.hpp>
 #include <ez/rpl/stages/Sort.hpp>
+#include <ez/rpl/stages/SubRange.hpp>
 #include <ez/rpl/stages/Take.hpp>
 #include <ez/rpl/stages/Transform.hpp>
 #include <ez/rpl/stages/Unique.hpp>

@@ -19,7 +19,6 @@ ez_add_library(ez_rpc ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(ez_rpc
     PUBLIC
         ez_core
-        ez_async
         Boost::boost
     PRIVATE
         ez_rpc_protobuf

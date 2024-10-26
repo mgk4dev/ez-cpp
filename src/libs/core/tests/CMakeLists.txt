@@ -1,11 +1,15 @@
 
-file(GLOB_RECURSE SRC_FILES *.cpp)
+find_package(Boost REQUIRED)
+find_package(Qt6 COMPONENTS REQUIRED Core)
+
+file(GLOB_RECURSE SRC_FILES *.cpp *.hpp)
 
 add_executable(ez_core_tests ${SRC_FILES})
 
 target_link_libraries(ez_core_tests 
     PRIVATE
         ez_core 
+        Qt6::Core
         GTest::gtest 
         GTest::gtest_main 
         GTest::gmock 

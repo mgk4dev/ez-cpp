@@ -5,11 +5,10 @@
 #include <ez/async/Types.hpp>
 
 #include <ez/Resource.hpp>
+#include <ez/Shared.hpp>
 #include <ez/Tuple.hpp>
 #include <ez/TypeUtils.hpp>
 #include <ez/Utils.hpp>
-#include <ez/Shared.hpp>
-
 
 #include <atomic>
 
@@ -17,7 +16,7 @@ namespace ez::async::detail {
 class WhenAnyLatch {
 public:
     WhenAnyLatch() {}
-    WhenAnyLatch(const WhenAnyLatch&)=default;
+    WhenAnyLatch(const WhenAnyLatch&) = default;
 
     WhenAnyLatch(WhenAnyLatch&& other)
     {
@@ -32,7 +31,7 @@ public:
         return *this;
     }
 
-    WhenAnyLatch& operator=(const WhenAnyLatch& other)=default;
+    WhenAnyLatch& operator=(const WhenAnyLatch& other) = default;
 
     bool is_ready() const noexcept { return m_finished_count->load() > 0; }
 
@@ -112,12 +111,10 @@ public:
             });
         }
         else {
-            ReturnType result;
-
+            ReturnType result{};
             m_tasks.for_each([&](auto& task) {
                 if (task.done()) result = task.get();
             });
-
             return result;
         }
     }
@@ -125,17 +122,15 @@ public:
     auto await_resume() &&
     {
         if constexpr (std::is_same_v<ReturnType, void>) {
-            m_tasks.for_each([&](auto& task) {
+            tuple::for_each(m_tasks, [&](auto& task) {
                 if (task.done()) task.get();
             });
         }
         else {
-            ReturnType result;
-
-            m_tasks.for_each([&](auto& task) {
+            ReturnType result{};
+            tuple::for_each(m_tasks, [&](auto& task) {
                 if (task.done()) result = std::move(task.get());
             });
-
             return result;
         }
     }
@@ -144,7 +139,7 @@ private:
     bool start_tasks(CoHandle<> awaiting_coroutine)
     {
         m_latch.set_continuation(awaiting_coroutine);
-        m_tasks.for_each([&](auto& task) { task.start(m_latch); });
+        tuple::for_each(m_tasks, [&](auto& task) { task.start(m_latch); });
         return !m_latch.is_ready();
     }
 

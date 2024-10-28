@@ -87,9 +87,6 @@ public:
     using ValueWrapper<T>::ValueWrapper;
     using ValueWrapper<T>::value;
     using ValueWrapper<T>::swap;
-
-private:
-    T m_value;
 };
 
 template <typename T>

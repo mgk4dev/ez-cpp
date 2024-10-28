@@ -11,7 +11,6 @@ add_executable(net
 target_link_libraries(net
     PRIVATE
         ez_core
-        ez_async
         Boost::boost
 )
 

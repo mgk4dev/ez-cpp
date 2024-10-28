@@ -4,6 +4,8 @@
 #include <optional>
 #include <vector>
 
+#include <benchmark/benchmark.h>
+
 struct Range {
     int begin, end;
 
@@ -49,7 +51,7 @@ Ranges merge(const Ranges& rngs1, const Ranges& rngs2)
     for (auto&& range : rngs1) {
         print("range", range);
 
-        for (auto &&overlapping : std::ranges::equal_range(
+        for (auto&& overlapping : std::ranges::equal_range(
                  rngs2, range, [](Range lhs, Range rhs) { return lhs.end < rhs.begin; })) {
             print("  overlapping: ", overlapping);
             result.push_back(get_overlap(range, overlapping).value());
@@ -74,7 +76,7 @@ void run(const Ranges& rngs1, const Ranges& rngs2)
     print("merge", merged);
 }
 
-int main()
+void run()
 {
     // clang-format off
         run({ {1, 3}, {5, 8}, {9, 15} },
@@ -96,3 +98,16 @@ int main()
         { {1,  100} });
     // clang-format on
 }
+
+static void BM_run(benchmark::State& state)
+{
+    // Perform setup here
+    for (auto _ : state) {
+        // This code gets timed
+        run();
+    }
+}
+// Register the function as a benchmark
+BENCHMARK(BM_run);
+// Run the benchmark
+BENCHMARK_MAIN();

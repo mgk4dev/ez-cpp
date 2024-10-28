@@ -110,7 +110,7 @@ EZ_MIXIN_COMPOUND_GENRIC_VALUE_OPERATOR(GenericValueDivEqOp, /=);
 EZ_MIXIN_COMPOUND_GENRIC_VALUE_OPERATOR(GenericValueModuloEqOp, %=);
 
 template <typename Self, typename ValueType>
-struct IncrOp : public MixinBase<Self, struct ComparableTag> {
+struct IncrOp : public MixinBase<Self, struct IncrOpTag> {
     Self& operator++()
     {
         ++this->value();
@@ -126,7 +126,7 @@ struct IncrOp : public MixinBase<Self, struct ComparableTag> {
 };
 
 template <typename Self, typename ValueType>
-struct DecrOp : public MixinBase<Self, struct ComparableTag> {
+struct DecrOp : public MixinBase<Self, struct DecrOpTag> {
     Self& operator--()
     {
         --this->value();

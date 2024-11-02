@@ -23,7 +23,7 @@ public:
 
 template <typename T>
 Ok(T&&) -> Ok<std::decay_t<T>>;
-Ok()->Ok<void>;
+Ok() -> Ok<void>;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -94,6 +94,9 @@ public:
     bool has_value() const;
     bool is_error() const;
 
+    const T* operator->() const&;
+    T* operator->() &;
+
     decltype(auto) value() const&;
     decltype(auto) value() &;
     decltype(auto) value() &&;
@@ -114,6 +117,8 @@ private:
         if (!has_value()) throw error();
     }
 };
+
+///////////////////////////////////////////////////////////////////////////////
 
 template <typename T, typename E>
 Result<T, E>::Result(const Ok<void>& val) : Super{val}
@@ -165,6 +170,18 @@ template <typename T, typename E>
 bool Result<T, E>::is_error() const
 {
     return Super::index() == 1;
+}
+
+template <typename T, typename E>
+const T* Result<T, E>::operator->() const&
+{
+    return &value();
+}
+
+template <typename T, typename E>
+T* Result<T, E>::operator->() &
+{
+    return &value();
 }
 
 template <typename T, typename E>
@@ -231,4 +248,33 @@ T Result<T, E>::operator|(V&& val) &&
     return std::forward<V>(val);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+template <typename E = Error>
+struct Try {
+    template <typename F>
+    Result<std::invoke_result_t<F>, E> operator<<(F&& f) const noexcept
+    {
+        using Ret = std::invoke_result_t<F>;
+
+        try {
+            if constexpr (std::is_void_v<Ret>) {
+                std::forward<F>(f)();
+                return Ok{};
+            }
+            else {
+                return Ok{std::forward<F>(f)()};
+            }
+        }
+        catch (E& error) {
+            return Fail(std::move(error));
+        }
+    }
+};
+
 }  // namespace ez
+
+#define EZ_ENSURE(res) \
+    if (!res) return ez::Fail{std::move(res).error()};
+
+#define EZ_TRY ez::Try<>{} << [&]

@@ -5,7 +5,7 @@
 
 namespace ez::net {
 
-inline async::Task<> handle_request(net::TaskPool& task_pool, tcp::Stream stream)
+inline async::Task<> handle_request(net::Scope& scope, tcp::Stream stream)
 {
     auto request = co_await async_http_read(stream);
 
@@ -17,15 +17,15 @@ inline async::Task<> handle_request(net::TaskPool& task_pool, tcp::Stream stream
     auto& req = request.value();
 
     if (websocket::is_upgrade(req)) {
-        co_await handle_websocket(task_pool, websocket::Stream{stream.release_socket()},
+        co_await handle_websocket(scope, websocket::Stream{stream.release_socket()},
                                   std::move(req));
     }
     else {
-        co_await handle_http_request(task_pool, std::move(stream), std::move(req));
+        co_await handle_http_request(scope, std::move(stream), std::move(req));
     }
 }
 
-inline async::Task<> start_server(net::TaskPool& task_pool, tcp::EndPoint endpoint)
+inline async::Task<> start_server(net::Scope& task_pool, tcp::EndPoint endpoint)
 {
     println("Starting server on {}:{}", endpoint.address().to_string(), endpoint.port());
     tcp::Acceptor acceptor{task_pool.context(), endpoint};

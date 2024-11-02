@@ -8,7 +8,7 @@
 #include <condition_variable>
 #include <mutex>
 
-namespace ez::async::detail {
+namespace ez::async::internal {
 class SyncWaitEvent {
 public:
     void set()
@@ -112,4 +112,4 @@ auto make_sync_wait_task(Awaitable awaitable)
     }
 }
 
-}  // namespace ez::async::detail
+}  // namespace ez::async::internal

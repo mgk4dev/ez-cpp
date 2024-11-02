@@ -98,22 +98,42 @@ TEST(Async, schedule_on_io_context)
 
 TEST(Async, when_all)
 {
-    auto task = [&](int ret) -> Task<int> { co_return ret; };
+    Scope scope{qapp()};
+
+    size_t finished_count = 0;
+
+    auto maybe_stop_app = [&] {
+        ++finished_count;
+        if (finished_count == 2) qapp().exit();
+    };
+
+    auto task = [&](int ret) -> Task<int> {
+        EZ_ON_SCOPE_EXIT { maybe_stop_app(); };
+
+        co_await qdelay(1ms);
+        co_return ret;
+    };
 
     auto id1 = task(10);
     auto id2 = task(20);
 
     auto result = async::when_all(std::move(id1), std::move(id2));
 
-    auto [r1, r2] = async::sync_wait(std::move(result));
+    scope << [&]() mutable -> Task<> {
+        auto [r1, r2] = co_await result;
 
-    ASSERT_EQ(r1, 10);
-    ASSERT_EQ(r2, 20);
+        [&] {
+            ASSERT_EQ(r1, 10);
+            ASSERT_EQ(r2, 20);
+        }();
+    };
+
+    qapp().exec();
 }
 
 TEST(Async, when_any)
 {
-    TaskPool<QCoreApplication> task_pool{qapp()};
+    Scope scope{qapp()};
 
     size_t finished_count = 0;
 
@@ -142,14 +162,14 @@ TEST(Async, when_any)
         maybe_stop_app();
     };
 
-    task_pool << task1 << task2;
+    scope << task1 << task2;
 
     qapp().exec();
 }
 
 TEST(Async, delay)
 {
-    TaskPool<QCoreApplication> task_pool{qapp()};
+    Scope scope{qapp()};
     auto task = [&]() -> Task<> {
         EZ_ON_SCOPE_EXIT { qapp().exit(); };
         auto start = std::chrono::high_resolution_clock::now();
@@ -159,29 +179,29 @@ TEST(Async, delay)
         [&] { ASSERT_GE(elapsed, 100ms); }();
     };
 
-    task_pool << task;
+    scope << task;
 
     qapp().exec();
 }
 
-// TEST(Async, race)
-// {
-//     TaskPool<QCoreApplication> task_pool{qapp()};
+TEST(Async, race)
+{
+    Scope scope{qapp()};
 
-//     auto task = [&]() -> Task<> {
-//         auto id = co_await race(qdelay(10ms, 1), qdelay(100ms, 2));
-//         [&] { ASSERT_EQ(id, 1); }();
-//         qapp().exit();
-//     };
+    auto task = [&]() -> Task<> {
+        auto id = co_await race(qdelay(10ms, 1), qdelay(100ms, 2));
+        [&] { ASSERT_EQ(id, 1); }();
+        qapp().exit();
+    };
 
-//     task_pool << task();
+    scope << task();
 
-//     qapp().exec();
-// }
+    qapp().exec();
+}
 
 TEST(Async, when_any_throw)
 {
-    TaskPool<QCoreApplication> task_pool{qapp()};
+    Scope scope{qapp()};
 
     auto work = [&]() -> Task<int> {
         co_await qdelay(100ms, 10);
@@ -195,14 +215,14 @@ TEST(Async, when_any_throw)
         co_await when_any(w, qdelay(1s, 10));
     };
 
-    task_pool << task;
+    scope << task;
 
     qapp().exec();
 }
 
 TEST(Async, repeat_delay)
 {
-    TaskPool<QCoreApplication> task_pool{qapp()};
+    Scope scope{qapp()};
 
     auto work = [&](unsigned count) -> Task<> {
         EZ_ON_SCOPE_EXIT { qapp().exit(); };
@@ -210,7 +230,7 @@ TEST(Async, repeat_delay)
         while (count--) { co_await qdelay(1ms, 10); }
     };
 
-    task_pool << work(200);
+    scope << work(200);
 
     qapp().exec();
 }

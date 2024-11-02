@@ -2,7 +2,7 @@
 
 #include <ez/async/Executor.hpp>
 #include <ez/async/Task.hpp>
-#include <ez/async/TaskPool.hpp>
+#include <ez/async/Scope.hpp>
 
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -12,7 +12,7 @@
 namespace ez::net {
 
 using IoContext = boost::asio::io_context;
-using TaskPool = async::TaskPool<IoContext>;
+using Scope = async::Scope<IoContext>;
 
 using ConstBuffer = boost::asio::const_buffer;
 using MutableBuffer = boost::asio::mutable_buffer;

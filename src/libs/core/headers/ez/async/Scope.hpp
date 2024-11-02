@@ -13,15 +13,15 @@
 namespace ez::async {
 
 template <typename Context>
-class TaskPool {
+class Scope {
 public:
-    TaskPool(Context& ctx) : m_context{ctx} {}
+    Scope(Context& ctx) : m_context{ctx} {}
 
     Context& context();
     const Context& context() const;
 
-    TaskPool& operator<<(Task<> task);
-    TaskPool& operator<<(trait::Fn<Task<>()> auto&& callable);
+    Scope& operator<<(Task<> task);
+    Scope& operator<<(trait::Fn<Task<>()> auto&& callable);
 
 private:
     void cleanup();
@@ -33,8 +33,11 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+template <typename T>
+Scope(T&) -> Scope<T>;
+
 template <typename Context>
-TaskPool<Context>& TaskPool<Context>::operator<<(Task<> task)
+Scope<Context>& Scope<Context>::operator<<(Task<> task)
 {
     cleanup();
     auto handle = task.handle();
@@ -44,25 +47,25 @@ TaskPool<Context>& TaskPool<Context>::operator<<(Task<> task)
 }
 
 template <typename Context>
-TaskPool<Context>& TaskPool<Context>::operator<<(trait::Fn<Task<>()> auto&& callable)
+Scope<Context>& Scope<Context>::operator<<(trait::Fn<Task<>()> auto&& callable)
 {
     return *this << callable();
 }
 
 template <typename Context>
-Context& TaskPool<Context>::context()
+Context& Scope<Context>::context()
 {
     return m_context;
 }
 
 template <typename Context>
-const Context& TaskPool<Context>::context() const
+const Context& Scope<Context>::context() const
 {
     return m_context;
 }
 
 template <typename Context>
-void TaskPool<Context>::cleanup()
+void Scope<Context>::cleanup()
 {
     auto ret = std::ranges::remove_if(m_tasks, [](auto& task) { return task.done(); });
     m_tasks.erase(ret.begin(), ret.end());

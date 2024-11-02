@@ -3,7 +3,7 @@
 #include <ez/rpc/Transport.hpp>
 
 #include <ez/async/Executor.hpp>
-#include <ez/async/TaskPool.hpp>
+#include <ez/async/Scope.hpp>
 
 #include <ez/Box.hpp>
 #include <ez/Tuple.hpp>
@@ -32,11 +32,11 @@ public:
     Ref<IoContext> context;
     Box<transport::Server> transport;
     boost::asio::steady_timer poll_timer;
-    async::TaskPool<IoContext> task_pool;
+    async::Scope<IoContext> scope;
     ServiceOptions options;
 
     AbstractService(IoContext& ctx, Box<transport::Server> server)
-        : context{ctx}, transport{std::move(server)}, poll_timer{ctx}, task_pool{ctx}
+        : context{ctx}, transport{std::move(server)}, poll_timer{ctx}, scope{ctx}
     {
     }
     virtual ~AbstractService() = default;

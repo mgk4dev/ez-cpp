@@ -16,31 +16,30 @@ concept Operation = requires(Op& op){
     op.cancel();
 
 };
-// clang-format off
+// clang-format on
 
-
-}
+}  // namespace traits
 
 template <traits::Operation Impl>
 struct Operation {
+    using ReturnType = decltype(std::declval<Impl&>().result());
+
     Impl impl;
     Shared<bool> m_done{false};
 
     Operation(auto&&... args) : impl{EZ_FWD(args)...} {}
 
-    constexpr bool await_ready() { return impl.done(); }
+    bool await_ready() { return impl.done(); }
 
-    void await_suspend(CoHandle<> coroutine) {
+    void await_suspend(CoHandle<> coroutine)
+    {
         impl.start([coroutine, done = m_done]() mutable {
             safe_resume(coroutine);
             done = true;
         });
     }
 
-    auto await_resume() noexcept
-    {
-        return impl.result();
-    }
+    auto await_resume() { return impl.result(); }
 
     bool cancel()
     {

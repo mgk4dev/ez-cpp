@@ -220,9 +220,9 @@ TEST(Rpc, test)
         ASSERT_TRUE(ok);
         remote_service.start();
 
-        async::TaskPool task_pool{client_context};
+        async::Scope scope{client_context};
 
-        task_pool << make_task(remote_service);
+        scope << make_task(remote_service);
 
         client_context.run();
     });

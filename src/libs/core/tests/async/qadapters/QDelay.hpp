@@ -15,6 +15,7 @@ public:
     R return_value;
     QTimer timer;
 
+
     QDelay(std::chrono::milliseconds d, R ret_value = Unit{})
         : duration{d}, return_value{EZ_FWD(ret_value)}
     {

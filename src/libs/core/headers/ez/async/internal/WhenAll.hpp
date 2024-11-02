@@ -10,7 +10,8 @@
 
 #include <atomic>
 
-namespace ez::async::detail {
+namespace ez::async::internal {
+
 class WhenAllLatch : NonCopiable {
 public:
     WhenAllLatch(std::uint32_t count) : m_count(count + 1) {}
@@ -109,7 +110,7 @@ private:
 
 private:
     Tuple<Tasks...> m_tasks;
-    WhenAllLatch m_latch {0};
+    WhenAllLatch m_latch{0};
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -191,4 +192,4 @@ auto make_when_all_continuation_task(T&& awaitable)
     }
 }
 
-}  // namespace ez::async::detail
+}  // namespace ez::async::internal

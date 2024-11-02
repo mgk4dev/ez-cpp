@@ -32,7 +32,7 @@ void AbstractService::poll()
             reply.set_request_id(request_id);
             *reply.mutable_error() = std::move(error);
 
-            task_pool << [this](PeerId peer_id, protobuf::Reply reply) -> async::Task<> {
+            scope << [this](PeerId peer_id, protobuf::Reply reply) -> async::Task<> {
                 auto ok = co_await send(std::move(peer_id), std::move(reply));
                 // TODO log error
                 unused(ok);
@@ -43,7 +43,7 @@ void AbstractService::poll()
 
         for (auto& arg : request.arguments()) args.push_back(ByteArray{arg});
 
-        task_pool << exec(f, std::move(args), peer_id, RequestId{request_id});
+        scope << exec(f, std::move(args), peer_id, RequestId{request_id});
     }
 
     start();

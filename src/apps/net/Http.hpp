@@ -6,9 +6,7 @@
 
 namespace ez::net {
 
-inline async::Task<> handle_http_request(net::TaskPool& /*task_pool*/,
-                                         tcp::Stream stream,
-                                         http::Request request)
+inline async::Task<> handle_http_request(net::Scope&, tcp::Stream stream, http::Request request)
 {
     println("Request = {} : {}", request.method_string().data(), request.target().data());
 

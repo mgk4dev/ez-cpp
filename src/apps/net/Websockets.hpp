@@ -6,7 +6,7 @@
 
 namespace ez::net {
 
-inline async::Task<> handle_websocket(net::TaskPool& /*task_pool*/,
+inline async::Task<> handle_websocket(net::Scope&,
                                       websocket::Stream stream,
                                       http::Request /*request*/)
 {

@@ -12,43 +12,43 @@
 
 #include <atomic>
 
-namespace ez::async::detail {
+namespace ez::async::internal {
+
 class WhenAnyLatch {
 public:
     WhenAnyLatch() {}
     WhenAnyLatch(const WhenAnyLatch&) = default;
 
-    WhenAnyLatch(WhenAnyLatch&& other)
-    {
-        std::swap(m_finished_count, other.m_finished_count);
-        std::swap(m_continuation, other.m_continuation);
-    }
+    WhenAnyLatch(WhenAnyLatch&& other) { std::swap(m_state, other.m_state); }
 
     WhenAnyLatch& operator=(WhenAnyLatch&& other)
     {
-        std::swap(m_finished_count, other.m_finished_count);
-        std::swap(m_continuation, other.m_continuation);
+        std::swap(m_state, other.m_state);
         return *this;
     }
 
     WhenAnyLatch& operator=(const WhenAnyLatch& other) = default;
 
-    bool is_ready() const noexcept { return m_finished_count->load() > 0; }
+    bool is_ready() const noexcept { return m_state->finished_count.load() > 0; }
 
     void set_continuation(CoHandle<> awaiting_coroutine) noexcept
     {
-        m_continuation = awaiting_coroutine;
+        m_state->continuation = awaiting_coroutine;
     }
 
     void notify_awaitable_completed() noexcept
     {
-        auto old_count = m_finished_count->fetch_add(1, std::memory_order::acquire);
-        if (old_count == 0) { m_continuation.resume(); }
+        auto old_count = m_state->finished_count.fetch_add(1, std::memory_order::acquire);
+        if (old_count == 0) { m_state->continuation.resume(); }
     }
 
 private:
-    Shared<std::atomic_uint32_t> m_finished_count{in_place, 0};
-    CoHandle<> m_continuation;
+    struct State {
+        std::atomic_uint32_t finished_count{0};
+        CoHandle<> continuation;
+    };
+
+    Shared<State> m_state;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -180,7 +180,7 @@ public:
 
     void start(WhenAnyLatch latch)
     {
-        m_latch = latch;
+        m_latch = std::move(latch);
         make_coroutine(*this).resume();
     }
 
@@ -232,4 +232,4 @@ auto make_when_any_continuation_task(T&& awaitable)
     }
 }
 
-}  // namespace ez::async::detail
+}  // namespace ez::async::internal

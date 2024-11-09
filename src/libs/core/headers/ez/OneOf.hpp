@@ -1,8 +1,8 @@
 #pragma once
 
+#include <ez/Overload.hpp>
 #include <ez/Traits.hpp>
 #include <ez/Utils.hpp>
-#include <ez/Overload.hpp>
 
 #include <variant>
 
@@ -27,13 +27,6 @@ struct CaseT<void> {
 template <typename T = void>
 constexpr CaseT<T> Case;
 
-template <typename T>
-struct Is {
-};
-
-template <typename T>
-constexpr Is<T> is;
-
 /// OneOf is an extension of std::variant with visitation features.
 /// Usage:
 /// @code
@@ -49,21 +42,15 @@ constexpr Is<T> is;
 template <typename... Ts>
 class OneOf : public std::variant<Ts...> {
 public:
-    using std::variant<Ts...>::variant;
-    using std::variant<Ts...>::operator=;
+    using Super = std::variant<Ts...>;
 
-    using SelfType = OneOf;
+    using Super::Super;
+    using Super::operator=;
 
     static constexpr unsigned int count() { return sizeof...(Ts); }
 
     template <typename T>
     bool is() const
-    {
-        return std::holds_alternative<T>(*this);
-    }
-
-    template <typename T>
-    bool operator&&(Is<T>) const
     {
         return std::holds_alternative<T>(*this);
     }

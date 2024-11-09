@@ -40,3 +40,19 @@ TEST(OneOf, match)
 
     ASSERT_EQ(index, 4);
 }
+
+TEST(OneOf, is)
+{
+    OneOf<int, double, std::string, std::vector<int>> val = "hello";
+    ASSERT_TRUE(val.is<std::string>());
+}
+
+TEST(OneOf, as)
+{
+    OneOf<int, double, std::string, std::vector<int>> val = 258;
+
+    ASSERT_TRUE(val.is<int>());
+
+    val.as<int>() = 0;
+    ASSERT_EQ(std::as_const(val).as<int>(), 0);
+}

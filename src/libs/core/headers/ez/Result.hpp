@@ -277,4 +277,7 @@ struct Try {
 #define EZ_ENSURE(res) \
     if (!res) return ez::Fail{std::move(res).error()};
 
+#define EZ_CO_ENSURE(res) \
+    if (!res) co_return ez::Fail{std::move(res).error()};
+
 #define EZ_TRY ez::Try<>{} << [&]

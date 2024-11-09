@@ -162,3 +162,19 @@ TEST(Cow, equality)
     Cow<int> val2 = 10;
     ASSERT_EQ(val, val2);
 }
+
+TEST(Cow, deref)
+{
+    auto val = Cow(10);
+
+    auto f = [](int v) { return v; };
+    ASSERT_EQ(f(*val), 10);
+}
+
+TEST(Cow, implicit_conversion)
+{
+    auto val = Cow(10);
+
+    auto f = [](int v) { return v; };
+    ASSERT_EQ(f(val), 10);
+}

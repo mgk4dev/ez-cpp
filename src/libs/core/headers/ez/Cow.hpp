@@ -74,6 +74,8 @@ public:
 
     const T* operator->() const;
     const T& value() const;
+    const T& operator*() const&;
+    operator const T&() const;
 
     void detach();
 
@@ -213,6 +215,18 @@ const T* Cow<T>::operator->() const
 
 template <typename T>
 const T& Cow<T>::value() const
+{
+    return *m_data;
+}
+
+template <typename T>
+const T& Cow<T>::operator*() const&
+{
+    return *m_data;
+}
+
+template <typename T>
+Cow<T>::operator const T&() const
 {
     return *m_data;
 }

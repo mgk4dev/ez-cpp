@@ -119,3 +119,42 @@ TEST(Box, polymorphism)
 
     for (auto&& elem : elems) std::cout << " foo : " << elem->foo() << std::endl;
 }
+
+TEST(Box, deref)
+{
+    auto val = Box(10);
+    {
+        auto f = [](int v) { return v; };
+        ASSERT_EQ(f(*val), 10);
+    }
+    {
+        auto f = [](int& v) { v++; };
+        f(*val);
+        ASSERT_EQ(*val, 11);
+    }
+    {
+        auto f = [](int&& v) { return v++; };
+        auto res = f(*std::move(val));
+        ASSERT_EQ(res, 11);
+    }
+}
+
+TEST(Box, implicit_conversion)
+{
+    auto val = Box(10);
+    {
+        auto f = [](int v) { return v; };
+        ASSERT_EQ(f(val), 10);
+    }
+    {
+        auto f = [](int& v) { v++; };
+        f(val);
+        ASSERT_EQ(*val, 11);
+    }
+
+    {
+        auto f = [](int&& v) { return v++; };
+        auto res = f(std::move(val));
+        ASSERT_EQ(res, 11);
+    }
+}

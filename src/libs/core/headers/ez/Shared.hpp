@@ -49,6 +49,8 @@ public:
     template <trait::DerivedFrom<T> U>
     Shared& operator=(Shared<U>&& rhs);
 
+    Shared& operator=(auto&& new_val);
+
     bool operator==(const T& val) const;
     bool operator==(const Shared<T>& val) const;
 
@@ -57,16 +59,19 @@ public:
     bool is_unique() const;
     std::size_t use_count() const;
 
-    Shared& operator=(auto&& new_val);
-
     const T* operator->() const;
     T* operator->();
 
     const T& value() const;
     T& value();
 
-    Shared& detach();
+    T& operator*() &;
+    const T& operator*() const&;
 
+    operator T&() &;
+    operator const T&() const&;
+
+    Shared& detach();
     Shared& detach_if_shared();
 
 private:
@@ -208,6 +213,30 @@ const T& Shared<T>::value() const
 
 template <typename T>
 T& Shared<T>::value()
+{
+    return *m_data;
+}
+
+template <typename T>
+T& Shared<T>::operator*() &
+{
+    return *m_data;
+}
+
+template <typename T>
+const T& Shared<T>::operator*() const&
+{
+    return *m_data;
+}
+
+template <typename T>
+Shared<T>::operator T&() &
+{
+    return *m_data;
+}
+
+template <typename T>
+Shared<T>::operator const T&() const&
 {
     return *m_data;
 }

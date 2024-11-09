@@ -59,9 +59,17 @@ public:
     T* operator->() { return m_data.get(); }
     const T* operator->() const { return m_data.get(); }
 
+    T& operator*() & { return *m_data; }
+    const T& operator*() const& { return *m_data; }
+    T&& operator*() && { return std::move(*m_data); }
+
     T& value() & { return *m_data; }
     const T& value() const& { return *m_data; }
     T&& value() && { return std::move(*m_data); }
+
+    operator T&() & { return *m_data; }
+    operator const T&() const& { return *m_data; }
+    operator T&&() && { return std::move(*m_data); }
 
 private:
     template <typename U>

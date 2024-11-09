@@ -25,10 +25,10 @@ inline async::Task<> handle_request(net::Scope& scope, tcp::Stream stream)
     }
 }
 
-inline async::Task<> start_server(net::Scope& task_pool, tcp::EndPoint endpoint)
+inline async::Task<> start_server(net::Scope& scope, tcp::EndPoint endpoint)
 {
     println("Starting server on {}:{}", endpoint.address().to_string(), endpoint.port());
-    tcp::Acceptor acceptor{task_pool.context(), endpoint};
+    tcp::Acceptor acceptor{scope.context(), endpoint};
 
     while (true) {
         auto socket = co_await async_accept(acceptor);
@@ -39,7 +39,7 @@ inline async::Task<> start_server(net::Scope& task_pool, tcp::EndPoint endpoint)
             continue;
         }
 
-        task_pool << handle_request(task_pool, tcp::Stream{std::move(socket.value())});
+        scope << handle_request(scope, tcp::Stream{std::move(socket.value())});
     }
 }
 

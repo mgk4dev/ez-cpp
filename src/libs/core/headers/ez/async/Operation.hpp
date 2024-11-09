@@ -14,7 +14,6 @@ concept Operation = requires(Op& op){
     op.start([]{});
     op.result();
     op.cancel();
-
 };
 // clang-format on
 

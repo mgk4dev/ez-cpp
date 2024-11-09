@@ -5,6 +5,7 @@ find_package(Qt6 COMPONENTS REQUIRED Core)
 file(GLOB_RECURSE SRC_FILES *.cpp *.hpp)
 
 add_executable(ez_core_tests ${SRC_FILES})
+add_sanitizers(ez_core_tests)
 
 target_link_libraries(ez_core_tests 
     PRIVATE

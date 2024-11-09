@@ -15,6 +15,7 @@ function (ez_add_library target_name lib_folder)
 
 
     add_library(${target_name} STATIC)
+    add_sanitizers(${target_name})
 
     target_sources(${target_name}
         PRIVATE

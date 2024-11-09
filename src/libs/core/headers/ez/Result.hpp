@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ez/Enum.hpp>
 #include <ez/Error.hpp>
+#include <ez/OneOf.hpp>
 #include <ez/ValueWrapper.hpp>
 
 #include <memory>
@@ -59,9 +59,9 @@ Fail(T&&) -> Fail<std::decay_t<T>>;
 ///
 /// @endcode
 template <typename T, typename E = Error>
-class [[nodiscard]] Result : public Enum<Ok<T>, Fail<E>> {
+class [[nodiscard]] Result : public OneOf<Ok<T>, Fail<E>> {
 public:
-    using Super = Enum<Ok<T>, Fail<E>>;
+    using Super = OneOf<Ok<T>, Fail<E>>;
 
     using Super::Super;
 
@@ -106,10 +106,10 @@ public:
     E error() &&;
 
     template <typename V>
-    T operator|(V&& val) const&;
+    T operator||(V&& val) const&;
 
     template <typename V>
-    T operator|(V&& val) &&;
+    T operator||(V&& val) &&;
 
 private:
     void has_value_or_throw() const
@@ -234,7 +234,7 @@ E Result<T, E>::error() &&
 
 template <typename T, typename E>
 template <typename V>
-T Result<T, E>::operator|(V&& val) const&
+T Result<T, E>::operator||(V&& val) const&
 {
     if (has_value()) return value();
     return std::forward<V>(val);
@@ -242,7 +242,7 @@ T Result<T, E>::operator|(V&& val) const&
 
 template <typename T, typename E>
 template <typename V>
-T Result<T, E>::operator|(V&& val) &&
+T Result<T, E>::operator||(V&& val) &&
 {
     if (has_value()) return std::move(*this).value();
     return std::forward<V>(val);

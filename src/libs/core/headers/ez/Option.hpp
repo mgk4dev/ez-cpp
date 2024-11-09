@@ -18,13 +18,13 @@ public:
 
     Option(None) : std::optional<T>{std::nullopt} {}
 
-    T operator|(auto&& val) const&
-    {
+    T operator||(auto&& val) const&
+    {        
         if (has_value()) return value();
         return EZ_FWD(val);
     }
 
-    T operator|(auto&& val) &&
+    T operator||(auto&& val) &&
     {
         if (has_value()) return std::move(*this).value();
         return EZ_FWD(val);

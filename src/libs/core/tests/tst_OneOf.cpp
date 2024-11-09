@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
-#include <ez/Enum.hpp>
+#include <ez/OneOf.hpp>
 
 using namespace ez;
 
-TEST(Enum, case)
+TEST(OneOf, case)
 {
     auto f = Case<int> = [](auto&&) { return 1; };
 
@@ -27,9 +27,9 @@ TEST(Enum, case)
     }
 }
 
-TEST(Enum, match)
+TEST(OneOf, match)
 {
-    Enum<int, double, std::string, std::vector<int>> val = "hello";
+    OneOf<int, double, std::string, std::vector<int>> val = "hello";
 
     // clang-format off
     auto index = val.match(

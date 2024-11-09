@@ -136,12 +136,12 @@ TEST(Result, value_or)
     // happy path
     {
         Result<int, std::string> result = Ok{55};
-        ASSERT_EQ(result | 5, 55);
+        ASSERT_EQ(result or 5, 55);
     }
 
     // error path
     {
         Result<int, std::string> result = Fail{"error"};
-        ASSERT_EQ(result | 5, 5);
+        ASSERT_EQ(result or 5, 5);
     }
 }

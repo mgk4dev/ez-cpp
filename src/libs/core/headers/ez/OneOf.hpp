@@ -34,10 +34,10 @@ struct Is {
 template <typename T>
 constexpr Is<T> is;
 
-/// Enum is an extension of std::variant with visitation features.
+/// OneOf is an extension of std::variant with visitation features.
 /// Usage:
 /// @code
-/// Enum<int, double, std::string> val = 25;
+/// OneOf<int, double, std::string> val = 25;
 /// ASSERT_TRUE(val.is<int>());
 /// std::cout << val.as<int>();
 /// val.match(
@@ -47,12 +47,12 @@ constexpr Is<T> is;
 /// );
 /// @endcode
 template <typename... Ts>
-class Enum : public std::variant<Ts...> {
+class OneOf : public std::variant<Ts...> {
 public:
     using std::variant<Ts...>::variant;
     using std::variant<Ts...>::operator=;
 
-    using EnumType = Enum;
+    using SelfType = OneOf;
 
     static constexpr unsigned int count() { return sizeof...(Ts); }
 

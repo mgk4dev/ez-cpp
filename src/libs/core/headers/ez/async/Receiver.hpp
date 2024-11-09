@@ -2,7 +2,7 @@
 
 #include <ez/async/Types.hpp>
 
-#include <ez/Enum.hpp>
+#include <ez/OneOf.hpp>
 #include <ez/Utils.hpp>
 
 #include <coroutine>
@@ -58,7 +58,7 @@ public:
     }
 
 private:
-    Enum<std::monostate, Value, std::exception_ptr> m_value = std::monostate{};
+    OneOf<std::monostate, Value, std::exception_ptr> m_value = std::monostate{};
 };
 
 }  // namespace ez::async

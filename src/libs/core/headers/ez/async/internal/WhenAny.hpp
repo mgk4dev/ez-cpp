@@ -81,7 +81,7 @@ struct WhenAnyReturn {
     using FrontType = typename decltype(meta::front_type(UniqueTypes{}))::Inner;
     using Type = std::conditional_t<UniqueTypes{}.count == 1,
                                     FrontType,
-                                    typename UniqueTypes::template ApplyTo<Enum>>;
+                                    typename UniqueTypes::template ApplyTo<OneOf>>;
 };
 
 template <typename... Tasks>

@@ -158,3 +158,57 @@ TEST(Box, implicit_conversion)
         ASSERT_EQ(res, 11);
     }
 }
+
+TEST(Box, clone_trivial)
+{
+    auto val = Box(10);
+    auto clone = val.clone();
+
+    ASSERT_EQ(*val, *clone);
+}
+
+TEST(Box, clone_copy_constructible)
+{
+    auto val = Box<std::string>("hello");
+    auto clone = val.clone();
+    ASSERT_EQ(*val, *clone);
+}
+
+TEST(Box, clone_clonable)
+{
+    struct Base {
+        virtual ~Base() = default;
+
+        virtual Box<Base> clone() const { return Box(*this); }
+        virtual int value() const { return 10; }
+    };
+
+    struct Derived : public Base {
+        virtual Box<Base> clone() const { return Box(*this); }
+        virtual int value() const { return 20; }
+    };
+
+    auto val = Box<Base>(Derived{});
+    auto clone = val.clone();
+    ASSERT_EQ(val->value(), clone->value());
+    ASSERT_EQ(clone->value(), 20);
+}
+
+TEST(Box, clone_checks)
+{
+    struct Base {
+        virtual ~Base() = default;
+        virtual int value() const { return 10; }
+    };
+
+    struct Final final : Base {
+        int value() const final { return 10; }
+    };
+
+    static_assert(!Box<Base>::is_clonable);
+    static_assert(Box<Final>::is_clonable);
+
+    static_assert(Box<std::string>::is_clonable);
+    static_assert(Box<int>::is_clonable);
+    static_assert(Box<std::tuple<int, double>>::is_clonable);
+}

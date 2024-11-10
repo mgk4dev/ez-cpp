@@ -6,6 +6,7 @@
 #include <memory>
 
 namespace ez {
+
 ///
 /// Box is a heap allocated unique value wrapper. It can hold a type T or any type deriving from T.
 /// Box can be used for passing abstract types and manipulate them as move only values. Usage:
@@ -19,6 +20,14 @@ namespace ez {
 template <typename T>
 class Box {
 public:
+    static constexpr bool t_has_clone_method = requires(const T val) {
+        { val.clone() } -> trait::Is<Box<T>>;
+    };
+
+    static constexpr bool is_clonable =
+        t_has_clone_method || std::is_trivially_constructible_v<T> ||
+        ((!std::is_polymorphic_v<T> || std::is_final_v<T>) && std::is_copy_constructible_v<T>);
+
     Box() : m_data{std::make_unique<T>()} {}
 
     Box(Inplace, auto&&... args) : m_data{std::make_unique<T>(EZ_FWD(args)...)} {}
@@ -52,6 +61,17 @@ public:
     {
         m_data = std::move(rhs.m_data);
         return *this;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    Box clone() const
+        requires is_clonable
+    {
+        if constexpr (t_has_clone_method) { return m_data->clone(); }
+        else {
+            return Box<T>(value());
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////

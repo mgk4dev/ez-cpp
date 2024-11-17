@@ -3,6 +3,8 @@ function (ez_add_algo_bin name)
     add_executable("ez_experiments_algo_${name}"
         ${name}.cpp
     )
+
+    add_sanitizers("ez_experiments_algo_${name}")
     set_target_properties(
         "ez_experiments_algo_${name}"
         PROPERTIES LINKER_LANGUAGE CXX)

@@ -21,9 +21,13 @@ struct Arg {
 };
 
 namespace args {
+inline constexpr Arg<1> arg{};
 inline constexpr Arg<1> arg1{};
 inline constexpr Arg<2> arg2{};
 inline constexpr Arg<3> arg3{};
+inline constexpr Arg<4> arg4{};
+inline constexpr Arg<5> arg5{};
+inline constexpr Arg<6> arg6{};
 }  // namespace args
 
 // ----------------------------------------------------------------------------
@@ -61,7 +65,8 @@ concept Lambda = std::is_placeholder_v<std::remove_cvref_t<T>> > 0 ||
 
 #define EZ_BINARY_LAMBDA(op, Fn)                                        \
     template <typename T, typename U>                                   \
-        requires Lambda<T> || Lambda<U> auto operator op(T&& a, U&& b)  \
+        requires Lambda<T> || Lambda<U>                                 \
+    auto operator op(T&& a, U&& b)                                      \
     {                                                                   \
         return std::bind(Fn(), std::forward<T>(a), std::forward<U>(b)); \
     }
@@ -137,6 +142,5 @@ EZ_BINARY_LAMBDA(>>=, RightShiftEq)
 
 namespace std {
 template <size_t I>
-struct is_placeholder<ez::lambda::Arg<I>> : integral_constant<int, I> {
-};
+struct is_placeholder<ez::lambda::Arg<I>> : integral_constant<int, I> {};
 }  // namespace std

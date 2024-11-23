@@ -12,11 +12,11 @@
 #include <ez/async/Scope.hpp>
 
 #include <ez/Atomic.hpp>
-#include <ez/Print.hpp>
 #include <ez/ScopeGuard.hpp>
 #include <ez/ByteArray.hpp>
 
 #include <future>
+#include <print>
 
 using namespace ez;
 
@@ -27,8 +27,8 @@ void println_client(std::format_string<Args...> base, Args&&... args)
 {
     std::lock_guard guard{cout_mutex};
 
-    print("             [client] ");
-    println(base, std::forward<Args>(args)...);
+    std::print("             [client] ");
+    std::println(base, std::forward<Args>(args)...);
 }
 
 template <typename... Args>
@@ -36,8 +36,8 @@ void println_server(std::format_string<Args...> base, Args&&... args)
 {
     std::lock_guard guard{cout_mutex};
 
-    print("[server] ");
-    println(base, std::forward<Args>(args)...);
+    std::print("[server] ");
+    std::println(base, std::forward<Args>(args)...);
 }
 
 async::Task<> process_request(net::tcp::Socket socket)

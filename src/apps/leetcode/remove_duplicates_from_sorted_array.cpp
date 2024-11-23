@@ -1,8 +1,8 @@
-#include <ez/Print.hpp>
 #include "formatters.hpp"
 
 #include <algorithm>
 #include <vector>
+#include <print>
 
 using namespace std;
 
@@ -39,11 +39,11 @@ inline int remove_duplicates(vector<int>& nums)
 int main()
 {
     auto test_case = [](vector<int> nums) {
-        ez::println("------------");
+        std::println("------------");
 
-        ez::println("Input  [{}] ", nums);
+        std::println("Input  [{}] ", nums);
         int count = remove_duplicates(nums);
-        ez::println("Result [{}] | {}", nums, count);
+        std::println("Result [{}] | {}", nums, count);
     };
 
     test_case({1, 1, 1, 2, 2, 3});

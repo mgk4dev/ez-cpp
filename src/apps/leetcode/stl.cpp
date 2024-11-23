@@ -1,13 +1,12 @@
 #include <gtest/gtest.h>
 
-#include <ez/Print.hpp>
-
 #include "formatters.hpp"
 
 #include <algorithm>
 #include <numeric>
 #include <unordered_set>
 #include <vector>
+#include <print>
 
 int main(int argc, char** argv)
 {
@@ -56,7 +55,7 @@ TEST(Stl, permutation)
     std::string word = "opst";
 
     do {
-        ez::println("'{}' {}", word, bool(words.count(word)));
+        std::println("'{}' {}", word, bool(words.count(word)));
     } while (std::next_permutation(word.begin(), word.end()));
 
     std::vector v{1, 2, 3, 4};
@@ -70,9 +69,9 @@ TEST(Stl, partial_sum)
     std::partial_sum(a.begin(), a.end(), b.begin());
     std::partial_sum(a.begin(), a.end(), c.begin(), std::multiplies<>{});
 
-    ez::println("a : [{}]", a);
-    ez::println("b : [{}]", b);
-    ez::println("c : [{}]", c);
+    std::println("a : [{}]", a);
+    std::println("b : [{}]", b);
+    std::println("c : [{}]", c);
 }
 
 TEST(Stl, adjacent)
@@ -87,7 +86,7 @@ TEST(Stl, adjacent)
 
         if (first == end) break;
 
-        ez::println("Adjacent {} at position  {}", *first, std::distance(a.begin(), first));
+        std::println("Adjacent {} at position  {}", *first, std::distance(a.begin(), first));
 
         ++first;
 
@@ -101,6 +100,6 @@ TEST(Stl, accumulate_reduce)
     auto acc = std::accumulate(a.begin(), a.end(), 0);
     auto red = std::reduce(a.begin(), a.end(), 0);
 
-    ez::println("Accumulate result {}", acc);
-    ez::println("Reduce     result {}", red);
+    std::println("Accumulate result {}", acc);
+    std::println("Reduce     result {}", red);
 }

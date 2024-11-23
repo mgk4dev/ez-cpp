@@ -1,8 +1,8 @@
-#include <ez/Print.hpp>
 #include "formatters.hpp"
 
 #include <algorithm>
 #include <vector>
+#include <print>
 
 using namespace std;
 
@@ -27,12 +27,12 @@ int main()
     {
         vector nums{7, 3, 5, 1, 6, 4};
         auto result = max_profit(nums);
-        ez::println("Result [{}] -> {}", nums, result);
+        std::println("Result [{}] -> {}", nums, result);
     }
 
     {
         vector nums{7, 6, 4, 3, 1};
         auto result = max_profit(nums);
-        ez::println("Result [{}] -> {}", nums, result);
+        std::println("Result [{}] -> {}", nums, result);
     }
 }

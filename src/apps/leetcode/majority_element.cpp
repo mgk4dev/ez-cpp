@@ -1,8 +1,8 @@
-#include <ez/Print.hpp>
 #include "formatters.hpp"
 
 #include <algorithm>
 #include <vector>
+#include <print>
 
 using namespace std;
 
@@ -26,11 +26,11 @@ inline int majority_element(vector<int>& nums)
 int main()
 {
     auto test_case = [](vector<int> nums) {
-        ez::println("------------");
+        std::println("------------");
 
-        ez::println("Input  [{}] ", nums);
+        std::println("Input  [{}] ", nums);
         int element = majority_element(nums);
-        ez::println("Result: {}", element);
+        std::println("Result: {}", element);
     };
 
     test_case({3, 2, 3});

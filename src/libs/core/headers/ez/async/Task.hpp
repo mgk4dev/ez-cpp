@@ -70,35 +70,26 @@ public:
     Task(const Task&) = delete;
     Task& operator=(const Task& another) = delete;
 
-    Task(Task&& another) { std::swap(m_coroutine, another.m_coroutine); }
-    Task& operator=(Task&& rhs)
-    {
-        std::swap(m_coroutine, rhs.m_coroutine);
-        return *this;
-    }
-
-    ~Task()
-    {
-        if (m_coroutine) { m_coroutine.destroy(); }
-    }
+    Task(Task&& another) = default;
+    Task& operator=(Task&& rhs) = default;
 
     async::StoreCallerAwaiter<T, async::AwaitReturnMode::ConstRef> operator co_await()
         const& noexcept
     {
-        return {m_coroutine};
+        return {m_coroutine.get()};
     }
 
     async::StoreCallerAwaiter<T, async::AwaitReturnMode::Move> operator co_await() && noexcept
     {
-        return {m_coroutine};
+        return {m_coroutine.get()};
     }
 
-    bool done() const { return m_coroutine.done(); }
-    void resume() { m_coroutine.resume(); }
-    void* address() const { return m_coroutine.address(); }
-    CoHandle<> handle() const { return m_coroutine; }
+    bool done() const { return handle().done(); }
+    void resume() { handle().resume(); }
+    void* address() const { return handle().address(); }
+    CoHandle<> handle() const { return m_coroutine.get(); }
 
 private:
-    CoHandle<Promise> m_coroutine = nullptr;
+    UniqueCoroutine<Promise> m_coroutine{nullptr};
 };
 }  // namespace ez::async

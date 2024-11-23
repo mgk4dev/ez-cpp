@@ -2,13 +2,13 @@
 
 #include "Websockets.hpp"
 
-#include <ez/Print.hpp>
+#include <print>
 
 namespace ez::net {
 
 inline async::Task<> handle_http_request(net::Scope&, tcp::Stream stream, http::Request request)
 {
-    println("Request = {} : {}", request.method_string().data(), request.target().data());
+    std::println("Request = {} : {}", request.method_string().data(), request.target().data());
 
     http::Response response;
 

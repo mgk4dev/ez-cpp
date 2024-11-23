@@ -103,23 +103,7 @@ public:
         return start_tasks(awaiting_coroutine);
     }
 
-    auto await_resume() &
-    {
-        if constexpr (std::is_same_v<ReturnType, void>) {
-            m_tasks.for_each([&](auto& task) {
-                if (task.done()) task.get();
-            });
-        }
-        else {
-            ReturnType result{};
-            m_tasks.for_each([&](auto& task) {
-                if (task.done()) result = task.get();
-            });
-            return result;
-        }
-    }
-
-    auto await_resume() &&
+    auto await_resume()
     {
         if constexpr (std::is_same_v<ReturnType, void>) {
             tuple::for_each(m_tasks, [&](auto& task) {
@@ -128,14 +112,25 @@ public:
         }
         else {
             ReturnType result{};
-            tuple::for_each(m_tasks, [&](auto& task) {
-                if (task.done()) result = std::move(task.get());
-            });
+            get_result<0>(result);
             return result;
         }
     }
 
 private:
+    template <size_t index>
+    void get_result(ReturnType& result)
+    {
+        auto& task = std::get<index>(m_tasks);
+
+        if (task.done()) {
+            result = task.get();
+            return;
+        }
+
+        if constexpr ((index + 1) < sizeof...(Tasks)) { return get_result<index + 1>(result); }
+    }
+
     bool start_tasks(CoHandle<> awaiting_coroutine)
     {
         m_latch.set_continuation(awaiting_coroutine);
@@ -205,15 +200,14 @@ public:
 
     auto start(WhenAnyLatch& latch) noexcept -> void { m_coroutine.get().promise().start(latch); }
 
-    decltype(auto) get() & { return m_coroutine.get().promise().get(); }
-    decltype(auto) get() && { return std::move(m_coroutine.get().promise()).get(); }
+    decltype(auto) get() { return std::move(m_coroutine.get().promise()).get(); }
 
     bool done() const { return m_coroutine.get().done(); }
 
     void* address() const { return m_coroutine.get().address(); }
 
 private:
-    Resource<CoHandle<Promise>, CoroutineDeleter> m_coroutine;
+    UniqueCoroutine<Promise> m_coroutine;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -20,12 +20,12 @@ namespace ez {
 template <typename T>
 class Box {
 public:
-    static constexpr bool t_has_clone_method = requires(const T val) {
+    static constexpr bool has_clone_method = requires(const T val) {
         { val.clone() } -> trait::Is<Box<T>>;
     };
 
     static constexpr bool is_clonable =
-        t_has_clone_method || std::is_trivially_constructible_v<T> ||
+        has_clone_method || std::is_trivially_constructible_v<T> ||
         ((!std::is_polymorphic_v<T> || std::is_final_v<T>) && std::is_copy_constructible_v<T>);
 
     Box() : m_data{std::make_unique<T>()} {}
@@ -68,7 +68,7 @@ public:
     Box clone() const
         requires is_clonable
     {
-        if constexpr (t_has_clone_method) { return m_data->clone(); }
+        if constexpr (has_clone_method) { return m_data->clone(); }
         else {
             return Box<T>(value());
         }

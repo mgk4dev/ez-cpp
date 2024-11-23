@@ -29,31 +29,17 @@ public:
     Tuple(std::tuple<Ts...>& t) : Super{t} {}
     Tuple(std::tuple<Ts...>&& t) : Super{std::move(t)} {}
 
-    consteval size_t size() const { return sizeof...(Ts); }
+    constexpr size_t size() const { return sizeof...(Ts); }
 
-    constexpr decltype(auto) operator[](Constexpr<size_t> auto index) const&
+    constexpr decltype(auto) operator[](this auto&& self, Constexpr<size_t> auto index)
     {
-        return std::get<index.value>(*this);
+        return std::get<index.value>(EZ_FWD(self));
     }
 
-    constexpr decltype(auto) operator[](Constexpr<size_t> auto index) &&
+    void for_each(this auto&& self, auto&& f)
     {
-        return std::move(std::get<index.value>(*this));
-    }
-
-    constexpr decltype(auto) operator[](Constexpr<size_t> auto index) &
-    {
-        return std::get<index.value>(*this);
-    }
-
-    void for_each(auto&& f)
-    {
-        for_constexpr<0, sizeof...(Ts)>([&](auto index) { f(this->operator[](index)); });
-    }
-
-    void for_each(auto&& f) const
-    {
-        for_constexpr<0, sizeof...(Ts)>([&](auto index) { f(this->operator[](index)); });
+        for_constexpr<0, sizeof...(Ts)>(
+            [&](Constexpr<size_t> auto index) { f(EZ_FWD(self)[index]); });
     }
 };
 
@@ -133,7 +119,8 @@ auto transform(Tuple<Ts...>& tuple, auto&& f)
 template <typename... Ts>
 auto transform(Tuple<Ts...>&& tuple, auto&& f)
 {
-    return Tuple{internal::transform_impl(f, std::move(tuple), std::make_index_sequence<sizeof...(Ts)>{})};
+    return Tuple{
+        internal::transform_impl(f, std::move(tuple), std::make_index_sequence<sizeof...(Ts)>{})};
 }
 
 }  // namespace tuple
@@ -143,12 +130,10 @@ auto transform(Tuple<Ts...>&& tuple, auto&& f)
 namespace std {
 
 template <typename... Ts>
-struct tuple_size<ez::Tuple<Ts...>> : integral_constant<size_t, sizeof...(Ts)> {
-};
+struct tuple_size<ez::Tuple<Ts...>> : integral_constant<size_t, sizeof...(Ts)> {};
 
 template <size_t I, typename... Ts>
-struct tuple_element<I, ez::Tuple<Ts...>> : public tuple_element<I, std::tuple<Ts...>> {
-};
+struct tuple_element<I, ez::Tuple<Ts...>> : public tuple_element<I, std::tuple<Ts...>> {};
 
 template <size_t I, typename... Ts>
 decltype(auto) get(const ez::Tuple<Ts...>& tuple)

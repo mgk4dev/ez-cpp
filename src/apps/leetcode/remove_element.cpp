@@ -1,7 +1,7 @@
-#include <ez/Print.hpp>
 #include "formatters.hpp"
 
 #include <algorithm>
+#include <print>
 #include <vector>
 
 using namespace std;
@@ -17,12 +17,12 @@ int main()
     {
         vector nums{3, 2, 2, 3};
         int count = remove_element(nums, 3);
-        ez::println("Result {} | {}", nums, count);
+        std::println("Result {} | {}", nums, count);
     }
 
     {
         vector nums{0, 1, 2, 2, 3, 0, 4, 2};
         int count = remove_element(nums, 2);
-        ez::println("Result {} | {}", nums, count);
+        std::println("Result {} | {}", nums, count);
     }
 }

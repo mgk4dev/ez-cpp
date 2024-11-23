@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ez/Resource.hpp>
+
 #include <coroutine>
 #include <stdexcept>
 
@@ -13,6 +15,9 @@ struct CoroutineDeleter {
         if (coroutine) { coroutine.destroy(); }
     }
 };
+
+template <typename Promise>
+using UniqueCoroutine = Resource<CoHandle<Promise>, CoroutineDeleter>;
 
 template <typename Promise>
 auto make_coroutine(Promise& p)

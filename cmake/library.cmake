@@ -15,7 +15,6 @@ function (ez_add_library target_name lib_folder)
 
 
     add_library(${target_name} STATIC)
-    add_sanitizers(${target_name})
 
     target_sources(${target_name}
         PRIVATE
@@ -26,6 +25,9 @@ function (ez_add_library target_name lib_folder)
 
     target_include_directories(${target_name} PUBLIC ${lib_folder}/headers)
     set_target_properties(${target_name} PROPERTIES LINKER_LANGUAGE CXX)
+
+    add_sanitizers(${target_name})
+
 endfunction()
 
 

@@ -5,8 +5,7 @@
 
 #include <algorithm>
 #include <vector>
-
-#include <ez/Print.hpp>
+#include <print>
 
 #include <benchmark/benchmark.h>
 

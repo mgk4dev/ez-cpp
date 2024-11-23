@@ -1,8 +1,8 @@
-#include <ez/Print.hpp>
 #include "formatters.hpp"
 
 #include <algorithm>
 #include <vector>
+#include <print>
 
 using namespace std;
 
@@ -25,12 +25,12 @@ int main()
     {
         vector nums{1, 2, 3, 4, 5, 6, 7};
         rotate_array(nums, 3);
-        ez::println("Result {}", nums);
+        std::println("Result {}", nums);
     }
 
     {
         vector nums{-1, -100, 3, 99};
         rotate_array(nums, 2);
-        ez::println("Result {}", nums);
+        std::println("Result {}", nums);
     }
 }

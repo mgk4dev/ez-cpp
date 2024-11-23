@@ -1,6 +1,6 @@
 #include <algorithm>
-#include <ez/Print.hpp>
 #include <vector>
+#include <print>
 
 #include "formatters.hpp"
 
@@ -43,20 +43,20 @@ int main()
         vector nums1{1, 2, 3, 0, 0, 0};
         vector nums2{2, 5, 6};
         merge_sorted_arrays(nums1, 3, nums2, 3);
-        ez::println("Result {}", nums1);
+        std::println("Result {}", nums1);
     }
 
     {
         vector nums1{1};
         vector<int> nums2{};
         merge_sorted_arrays(nums1, 1, nums2, 0);
-        ez::println("Result {}", nums1);
+        std::println("Result {}", nums1);
     }
 
     {
         vector nums1{0};
         vector<int> nums2{1};
         merge_sorted_arrays(nums1, 0, nums2, 1);
-        ez::println("Result {}", nums1);
+        std::println("Result {}", nums1);
     }
 }

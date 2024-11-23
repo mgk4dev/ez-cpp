@@ -2,8 +2,8 @@
 benchmark/1.9.0
 boost/1.86.0
 gtest/1.15.0
-qt/6.7.3
 protobuf/5.27.0
+qt/6.7.3
 
 [generators]
 CMakeDeps

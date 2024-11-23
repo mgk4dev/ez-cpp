@@ -2,7 +2,7 @@
 
 #include "Operations.hpp"
 
-#include <ez/Print.hpp>
+#include <print>
 
 namespace ez::net {
 

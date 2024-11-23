@@ -1,9 +1,9 @@
-#include <ez/Print.hpp>
 #include "formatters.hpp"
 
 #include <algorithm>
 #include <unordered_map>
 #include <vector>
+#include <print>
 
 using namespace std;
 
@@ -28,11 +28,11 @@ int main()
     auto test_case = [](vector<int> nums) {
         Solution sol;
 
-        ez::println("------------");
+        std::println("------------");
 
-        ez::println("Input  [{}] ", nums);
+        std::println("Input  [{}] ", nums);
         bool element = sol.canJump(nums);
-        ez::println("Result: {}", element);
+        std::println("Result: {}", element);
     };
 
     test_case({2, 3, 1, 1, 4});

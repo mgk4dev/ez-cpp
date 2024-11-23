@@ -173,7 +173,7 @@ public:
     decltype(auto) get() && { return std::move(m_coroutine.get().promise()).get(); }
 
 private:
-    Resource<CoHandle<Promise>, CoroutineDeleter> m_coroutine;
+    UniqueCoroutine<Promise> m_coroutine;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

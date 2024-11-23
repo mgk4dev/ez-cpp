@@ -4,9 +4,6 @@
 #include <ez/OneOf.hpp>
 #include <ez/ValueWrapper.hpp>
 
-#include <memory>
-#include <variant>
-
 namespace ez {
 template <typename T>
 class Ok : public ValueWrapper<T> {
@@ -247,37 +244,4 @@ T Result<T, E>::operator||(V&& val) &&
     if (has_value()) return std::move(*this).value();
     return std::forward<V>(val);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-template <typename E = Error>
-struct Try {
-    template <typename F>
-    Result<std::invoke_result_t<F>, E> operator<<(F&& f) const noexcept
-    {
-        using Ret = std::invoke_result_t<F>;
-
-        try {
-            if constexpr (std::is_void_v<Ret>) {
-                std::forward<F>(f)();
-                return Ok{};
-            }
-            else {
-                return Ok{std::forward<F>(f)()};
-            }
-        }
-        catch (E& error) {
-            return Fail(std::move(error));
-        }
-    }
-};
-
 }  // namespace ez
-
-#define EZ_ENSURE(res) \
-    if (!res) return ez::Fail{std::move(res).error()};
-
-#define EZ_CO_ENSURE(res) \
-    if (!res) co_return ez::Fail{std::move(res).error()};
-
-#define EZ_TRY ez::Try<>{} << [&]

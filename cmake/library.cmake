@@ -13,7 +13,6 @@ function (ez_add_library target_name lib_folder)
     message("-- Private header files '${private_header_files_}'")
     message("-- Source files '${source_files_}'")
 
-
     add_library(${target_name} STATIC)
 
     target_sources(${target_name}
@@ -47,4 +46,5 @@ function (ez_add_header_only_library target_name lib_folder)
 
     target_include_directories(${target_name} INTERFACE ${lib_folder}/headers)
     set_target_properties(${target_name} PROPERTIES LINKER_LANGUAGE CXX)
+
 endfunction()

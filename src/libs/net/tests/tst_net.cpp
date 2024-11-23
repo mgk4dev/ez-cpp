@@ -3,17 +3,18 @@
 #include <ez/net/Address.hpp>
 #include <ez/net/Buffer.hpp>
 #include <ez/net/ErrorCode.hpp>
-#include <ez/net/IoContext.hpp>
 
 #include <ez/net/http/Operations.hpp>
 #include <ez/net/tcp/Operations.hpp>
 #include <ez/net/udp/Operations.hpp>
 
+#include <ez/io/Context.hpp>
+
 #include <ez/async/Scope.hpp>
 
 #include <ez/Atomic.hpp>
-#include <ez/ScopeGuard.hpp>
 #include <ez/ByteArray.hpp>
+#include <ez/ScopeGuard.hpp>
 
 #include <future>
 #include <print>
@@ -71,7 +72,7 @@ void start_tcp_server(net::tcp::EndPoint endpoint)
 {
     println_server(" Starting ...");
 
-    net::IoContext context;
+    io::Context context;
 
     async::Scope scope{context};
 
@@ -101,7 +102,7 @@ void start_tcp_client(net::tcp::EndPoint endpoint)
 {
     println_client("Starting ...");
 
-    net::IoContext context;
+    io::Context context;
 
     async::Scope scope{context};
 

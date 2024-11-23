@@ -1,5 +1,6 @@
 add_subdirectory(0template)
 add_subdirectory(core)
+add_subdirectory(io)
 # add_subdirectory(cuda)
 add_subdirectory(net)
 add_subdirectory(rpc)

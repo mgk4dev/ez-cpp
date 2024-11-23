@@ -42,7 +42,7 @@ Scope<Context>& Scope<Context>::operator<<(Task<> task)
     cleanup();
     auto handle = task.handle();
     m_tasks.push_back(std::move(task));
-    Executor<Context>::post(m_context.get(), [handle]() mutable { handle.resume(); });
+    async::post(m_context.get(), [handle]() mutable { handle.resume(); });
     return *this;
 }
 

@@ -4,8 +4,7 @@
 
 #include <atomic>
 #include <list>
-
-#include <boost/container/static_vector.hpp>
+#include <vector>
 
 namespace ez::internal {
 /// Append only stable vector.
@@ -114,7 +113,7 @@ private:
     }
 
 private:
-    using Block = boost::container::static_vector<T, BlockSize>;
+    using Block = std::vector<T>;
 
     std::list<Block> m_blocks;
     std::atomic_size_t m_size{0};

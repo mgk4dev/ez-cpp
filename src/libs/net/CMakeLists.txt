@@ -6,5 +6,4 @@ target_link_libraries(ez_net
         Boost::boost
 )
 
-
 add_subdirectory(tests)

@@ -85,7 +85,7 @@ struct RemoteServiceBaseImpl : public AbstractRemoteService {
                 *query.reply = Fail{Error{Error::Code(reply.error().code()), reply.error().what()}};
             }
 
-            async::Executor<IoContext>::post(context_.get(), query.wake);
+            async::post(context_.get(), query.wake);
             queries.erase(request_id);
         }
 

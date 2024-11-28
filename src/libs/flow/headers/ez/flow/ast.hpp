@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ez/Enum.hpp>
+#include <ez/OneOf.hpp>
 #include <ez/Option.hpp>
 #include <ez/Tuple.hpp>
 
@@ -52,7 +52,7 @@ struct Duration : Located {
     DurationUnit unit;
 };
 // clang-format off
-using Literal = Enum <
+using Literal = OneOf <
     bool,
     Integer,
     Real,
@@ -92,7 +92,7 @@ using AwaitExpressionFwd = Forward<AwaitExpression>;
 using TryExpressionFwd = Forward<TryExpression>;
 
 // clang-format off
-using PrimaryExpression = Enum <
+using PrimaryExpression = OneOf <
     IdentifierPath,
     Literal,
     FunctionCallFwd,
@@ -150,8 +150,7 @@ using RelationalExpression = BinaryExpression<AdditiveExpression, RelationalOper
 using EqualityExpression = BinaryExpression<RelationalExpression, EqualityOperator>;
 using LogicalExpression = BinaryExpression<EqualityExpression, LogicalOperator>;
 
-struct Expression : LogicalExpression {
-};
+struct Expression : LogicalExpression {};
 
 //////////
 
@@ -217,8 +216,7 @@ struct ReturnStatement : Located {
     Expression expression;
 };
 
-struct BreakStatement : Located {
-};
+struct BreakStatement : Located {};
 
 struct RaiseStatement : Located {
     Expression expression;
@@ -236,7 +234,7 @@ using WorkflowDefinitionFwd = Forward<WorkflowDefinition>;
 ///
 
 // clang-format off
-using WorkflowStatement = Enum <
+using WorkflowStatement = OneOf <
     ImportStatement,
     VariableDeclaration,
     AssignmentStatement,

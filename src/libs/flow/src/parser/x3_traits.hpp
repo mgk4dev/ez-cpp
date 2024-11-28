@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ez/Enum.hpp>
+#include <ez/OneOf.hpp>
 
 #include <boost/spirit/home/x3/support/traits/is_variant.hpp>
 #include <boost/spirit/home/x3/support/traits/variant_find_substitute.hpp>
@@ -8,12 +8,11 @@
 
 namespace boost::spirit::x3::traits {
 template <typename... Ts>
-struct is_variant<ez::Enum<Ts...>> : mpl::true_ {
-};
+struct is_variant<ez::OneOf<Ts...>> : mpl::true_ {};
 
 template <typename attribute, typename... Ts>
-struct variant_has_substitute_impl<ez::Enum<Ts...>, attribute> {
-    typedef ez::Enum<Ts...> variant_type;
+struct variant_has_substitute_impl<ez::OneOf<Ts...>, attribute> {
+    typedef ez::OneOf<Ts...> variant_type;
     typedef typename mpl::transform<mpl::list<Ts...>, unwrap_recursive<mpl::_1>>::type types;
     typedef typename mpl::end<types>::type end;
 
@@ -27,8 +26,8 @@ struct variant_has_substitute_impl<ez::Enum<Ts...>, attribute> {
 };
 
 template <typename attribute, typename... Ts>
-struct variant_find_substitute<ez::Enum<Ts...>, attribute> {
-    typedef ez::Enum<Ts...> variant_type;
+struct variant_find_substitute<ez::OneOf<Ts...>, attribute> {
+    typedef ez::OneOf<Ts...> variant_type;
     typedef typename mpl::transform<mpl::list<Ts...>, unwrap_recursive<mpl::_1>>::type types;
 
     typedef typename mpl::end<types>::type end;
@@ -45,6 +44,6 @@ struct variant_find_substitute<ez::Enum<Ts...>, attribute> {
 };
 
 template <typename... Ts>
-struct variant_find_substitute<ez::Enum<Ts...>, ez::Enum<Ts...>> : mpl::identity<ez::Enum<Ts...>> {
-};
+struct variant_find_substitute<ez::OneOf<Ts...>, ez::OneOf<Ts...>>
+    : mpl::identity<ez::OneOf<Ts...>> {};
 }  // namespace boost::spirit::x3::traits

@@ -15,7 +15,7 @@ namespace ez::flow::engine {
 using async::Task;
 
 struct Interpreter {
-    Ref<IoContext> io_context;
+    Ref<io::Context> io_context;
     struct {
         Logger logger;
         ext::ActionRequest run_action_delegate;
@@ -29,7 +29,7 @@ struct Interpreter {
         std::uint32_t max_loop_count = 1000;
     } options;
 
-    Interpreter(IoContext& ctx) : io_context{ctx} {}
+    Interpreter(io::Context& ctx) : io_context{ctx} {}
 
     void set_instance_id(unsigned int);
 
@@ -70,7 +70,7 @@ struct Interpreter {
     Task<> eval(Statement<ast::VariableDeclaration>);
     Task<> eval(Statement<ast::WorkflowDefinition>);
     Task<> eval(Statement<ast::AssignmentStatement>);
-    //Task<> eval(Statement<ast::DelayStatement>);
+    Task<> eval(Statement<ast::DelayStatement>);
     Task<> eval(Statement<ast::ReturnStatement>);
     Task<> eval(Statement<ast::RaiseStatement>);
     Task<> eval(Statement<ast::BreakStatement>);

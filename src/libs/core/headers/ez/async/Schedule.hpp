@@ -12,7 +12,7 @@ struct ScheduleAwaiter {
     constexpr bool await_ready() const noexcept { return false; }
     void await_suspend(CoHandle<> coroutine) const
     {
-        post(*executor, [coroutine] { coroutine.resume(); });
+        async::post(*executor, [coroutine] { coroutine.resume(); });
     }
     constexpr void await_resume() const noexcept {}
 };

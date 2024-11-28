@@ -4,19 +4,16 @@
 #include <ez/flow/program.hpp>
 
 #include <ez/async/Executor.hpp>
+#include <ez/io/Context.hpp>
 
 #include <ez/Box.hpp>
 #include <ez/Logger.hpp>
 
-#include <boost/asio.hpp>
-
 namespace ez::flow {
-
-using IoContext = boost::asio::io_context;
 
 class Engine {
 public:
-    Engine(IoContext&);
+    Engine(io::Context&);
     ~Engine();
 
     void set_logger(Logger logger);
@@ -34,11 +31,3 @@ private:
 };
 
 }  // namespace ez::flow
-
-namespace ez::async {
-template <>
-struct Executor<flow::IoContext> {
-    static void post(flow::IoContext& context, auto&& f) { boost::asio::post(context, EZ_FWD(f)); }
-};
-
-}  // namespace ez::async

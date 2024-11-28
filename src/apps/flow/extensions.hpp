@@ -3,8 +3,9 @@
 #include <ez/flow/engine.hpp>
 #include <ez/flow/extensions.hpp>
 
-#include <ez/async/Executor.hpp>
 #include <ez/async/Schedule.hpp>
+#include <ez/io/Context.hpp>
+#include <ez/io/ThreadPool.hpp>
 
 #include <boost/process.hpp>
 
@@ -102,7 +103,7 @@ JsonObject make_http_request(JsonObject input)
     }
 }
 
-void setup_engine(Engine& engine, async::IoContext& io_context, async::ThreadPool& thread_pool)
+void setup_engine(Engine& engine, io::Context& io_context, io::ThreadPool& thread_pool)
 {
     auto make_task = [&](auto impl) {
         return [&io_context, &thread_pool, impl](JsonObject request) -> async::Task<JsonObject> {

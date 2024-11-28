@@ -3,15 +3,17 @@
 #include "../conversion/json.hpp"
 #include "../types/entity_utils.hpp"
 
-#include <ez/async/Delay.hpp>
 #include <ez/async/WhenAny.hpp>
+#include <ez/io/Delay.hpp>
 
 #include <ez/ScopeGuard.hpp>
 #include <ez/Traits.hpp>
 
-#include <iostream>
-
 namespace ez::flow::engine {
+
+struct TimeoutTag {};
+constexpr TimeoutTag timeout_tag{};
+
 Task<> Interpreter::eval(Statement<ast::ImportStatement>)
 {
     extensions.logger.trace("Imports are not supported yet");
@@ -76,7 +78,7 @@ Task<> Interpreter::eval(Statement<ast::DelayStatement> statement)
                                      Duration::static_type().name, timeout.type().name);
     }
 
-    co_await async::delay(io_context.get(), timeout.as<Duration>().value().to_std_duration());
+    co_await io::delay(io_context.get(), timeout.as<Duration>().value().to_std_duration());
 }
 
 Task<> Interpreter::eval(Statement<ast::ReturnStatement> statement)
@@ -202,9 +204,8 @@ Task<Entity> Interpreter::eval_await(Statement<ast::AwaitExpression> statement,
     std::chrono::system_clock::duration timeout_duration =
         timeout.as<Duration>().value().to_std_duration();
 
-    auto result =
-        co_await async::when_any(eval(workflow_invocation),
-                                 async::delay(io_context.get(), timeout_duration, async::timeout));
+    auto result = co_await async::when_any(
+        eval(workflow_invocation), io::delay(io_context.get(), timeout_duration, timeout_tag));
 
     if (result.is<Entity>()) co_return std::move(result.as<Entity>());
 
@@ -223,10 +224,10 @@ Task<Entity> Interpreter::eval_await(Statement<ast::AwaitExpression> statement,
     auto task = extensions.run_action_delegate(request);
 
     auto result = co_await async::when_any(
-        task, async::delay(io_context.get(), timeout.as<Duration>().value().to_std_duration(),
-                           async::timeout));
+        task,
+        io::delay(io_context.get(), timeout.as<Duration>().value().to_std_duration(), timeout_tag));
 
-    if (result.is<async::TimeoutTag>()) {
+    if (result.is<TimeoutTag>()) {
         Error error;
         error.what = "Operation timeout";
         error.where.program_ptr = statement.program_ptr;
@@ -247,10 +248,10 @@ Task<Entity> Interpreter::eval_await(Statement<ast::AwaitExpression> statement,
     auto task = extensions.run_campaign_delegate(request);
 
     auto result = co_await async::when_any(
-        task, async::delay(io_context.get(), timeout.as<Duration>().value().to_std_duration(),
-                           async::timeout));
+        task,
+        io::delay(io_context.get(), timeout.as<Duration>().value().to_std_duration(), timeout_tag));
 
-    if (result.is<async::TimeoutTag>()) {
+    if (result.is<TimeoutTag>()) {
         Error error;
         error.what = "Operation timeout";
         error.where.program_ptr = statement.program_ptr;
@@ -271,10 +272,10 @@ Task<Entity> Interpreter::eval_await(Statement<ast::AwaitExpression> statement,
     auto task = extensions.request_device_info_delegate(request);
 
     auto result = co_await async::when_any(
-        task, async::delay(io_context.get(), timeout.as<Duration>().value().to_std_duration(),
-                           async::timeout));
+        task,
+        io::delay(io_context.get(), timeout.as<Duration>().value().to_std_duration(), timeout_tag));
 
-    if (result.is<async::TimeoutTag>()) {
+    if (result.is<TimeoutTag>()) {
         Error error;
         error.what = "Operation timeout";
         error.where.program_ptr = statement.program_ptr;
@@ -295,10 +296,10 @@ Task<Entity> Interpreter::eval_await(Statement<ast::AwaitExpression> statement,
     auto task = extensions.http_request_delegate(request);
 
     auto result = co_await async::when_any(
-        task, async::delay(io_context.get(), timeout.as<Duration>().value().to_std_duration(),
-                           async::timeout));
+        task,
+        io::delay(io_context.get(), timeout.as<Duration>().value().to_std_duration(), timeout_tag));
 
-    if (result.is<async::TimeoutTag>()) {
+    if (result.is<TimeoutTag>()) {
         Error error;
         error.what = "Operation timeout";
         error.where.program_ptr = statement.program_ptr;
@@ -423,7 +424,7 @@ Task<Entity> Interpreter::eval(WorkflowInvocation awaitable)
             "Workflow did not return any value");
     }
 
-    Entity result = current_scope.return_value.value() | Void{};
+    Entity result = current_scope.return_value.value() or Void{};
 
     if (!same_type(result.type(), *return_type) &&
         !same_type(result.type(), Error::static_type())) {

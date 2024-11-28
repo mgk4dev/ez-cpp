@@ -2,15 +2,15 @@
 
 #include "types.hpp"
 
-#include <ez/Enum.hpp>
-
 #include <cstdint>
 
 namespace ez::flow::engine {
 struct Reference;
 
-struct Entity : public EntityTypeList::ApplyTo<Enum> {
-    using EnumType::EnumType;
+struct Entity : public EntityTypeList::ApplyTo<OneOf> {
+    using Super = EntityTypeList::ApplyTo<OneOf>;
+    using Super::Super;
+
     EntityCategory category() const;
     const Type& type() const;
     const void* address() const;

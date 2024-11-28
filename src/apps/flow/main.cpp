@@ -148,9 +148,9 @@ int main(int argc, char** argv)
 
     if (!arguments.eval) return 0;
 
-    async::IoContext io_context;
-    async::WorkGuard guard{io_context};
-    async::ThreadPool thread_pool{1};
+    io::Context io_context;
+    io::WorkGuard guard{io_context};
+    io::ThreadPool thread_pool{1};
     flow::Engine engine{io_context};
 
     engine.set_logger(logger);

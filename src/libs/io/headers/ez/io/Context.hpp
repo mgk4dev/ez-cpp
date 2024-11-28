@@ -23,7 +23,7 @@ namespace ez::async {
 template <>
 struct Executor<io::Context> {
     template <typename T>
-    static void post(ez::io::Context& context, T&& task)
+    static void post(io::Context& context, T&& task)
     {
         boost::asio::post(context, std::forward<T>(task));
     }

@@ -1,21 +1,21 @@
 #include <ez/flow/engine.hpp>
 
+#include "eval/interpreter.hpp"
+
 #include <ez/flow/errors.hpp>
 #include <ez/flow/parser.hpp>
 
-#include "eval/interpreter.hpp"
-
 #include <ez/Shared.hpp>
+#include <ez/async/Scope.hpp>
 
 #include <boost/spirit/home/x3/support/utility/error_reporting.hpp>
 
-#include <deque>
 #include <sstream>
 
 namespace ez::flow {
 struct Engine::Impl {
-    Ref<IoContext> io_context;
-    std::deque<Shared<async::Task<>>> tasks;
+    Ref<io::Context> io_context;
+    async::Scope<io::Context> scope;
 
     Logger logger;
     ext::ActionRequest run_action_delegate;
@@ -30,7 +30,7 @@ struct Engine::Impl {
     }
 };
 
-Engine::Engine(IoContext& io_context) : m_impl{in_place, io_context} {}
+Engine::Engine(io::Context& io_context) : m_impl{in_place, io_context, io_context} {}
 
 void Engine::set_logger(Logger logger) { m_impl->logger = std::move(logger); }
 
@@ -38,7 +38,7 @@ Engine::~Engine() = default;
 
 void Engine::eval(std::string code, std::string file_name, unsigned int id)
 {
-    auto eval_file = [&](IoContext& io_context, std::string code, std::string file_name,
+    auto eval_file = [&](io::Context& io_context, std::string code, std::string file_name,
                          unsigned int id) -> async::Task<> {
         try {
             auto program_result = flow::parse(code, file_name);
@@ -75,11 +75,7 @@ void Engine::eval(std::string code, std::string file_name, unsigned int id)
         }
     };
 
-    Shared task = eval_file(m_impl->io_context, std::move(code), std::move(file_name), id);
-
-    m_impl->tasks.push_back(task);
-
-    m_impl->io_context.get().post([task]() mutable { task->resume(); });
+    m_impl->scope << eval_file(m_impl->io_context, std::move(code), std::move(file_name), id);
 }
 
 void Engine::set_action_delegate(ext::ActionRequest delegate)

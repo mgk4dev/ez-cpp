@@ -7,8 +7,6 @@
 #include <boost/spirit/home/x3/support/context.hpp>
 #include <boost/spirit/home/x3/support/utility/error_reporting.hpp>
 
-#include <ostream>
-
 namespace ez::flow::parser {
 namespace x3 = boost::spirit::x3;
 
@@ -25,14 +23,13 @@ struct SuccessHandler {
             ast.end_position = std::distance(code.begin(), last);
             handler.on_statement_parsed(ast);
         }
-        else if constexpr (trait::IsTemplate<T, Enum>) {
+        else if constexpr (trait::IsTemplate<T, OneOf>) {
             ast.match([&](auto& element) { on_success(first, last, element, context); });
         }
     }
 };
 
 template <typename Tag>
-struct RuleTag : SuccessHandler {
-};
+struct RuleTag : SuccessHandler {};
 
 }  // namespace ez::flow::parser

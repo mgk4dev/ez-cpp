@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-//#include "parser/debug.hpp"
+// #include "parser/debug.hpp"
 #include "parser/generic_parser.hpp"
 #include "parser/grammar/grammar.hpp"
 
@@ -112,15 +112,15 @@ TEST(Parser, literal)
         ASSERT_TRUE(result.ast.template is<ExpectedType>());
     };
 
-    test_literal("'hello'", type<ast::String>);
-    test_literal("\"hello\"", type<ast::String>);
-    test_literal("2598", type<ast::Integer>);
-    test_literal("2598.548", type<ast::Real>);
+    test_literal("'hello'", meta::type<ast::String>);
+    test_literal("\"hello\"", meta::type<ast::String>);
+    test_literal("2598", meta::type<ast::Integer>);
+    test_literal("2598.548", meta::type<ast::Real>);
 
-    test_literal("22ms", type<ast::Duration>);
-    test_literal("22sec", type<ast::Duration>);
-    test_literal("22day", type<ast::Duration>);
-    test_literal("22week", type<ast::Duration>);
+    test_literal("22ms", meta::type<ast::Duration>);
+    test_literal("22sec", meta::type<ast::Duration>);
+    test_literal("22day", meta::type<ast::Duration>);
+    test_literal("22week", meta::type<ast::Duration>);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -509,7 +509,7 @@ TEST(Parser, delay)
     ASSERT_TRUE(result) << result.error_message;
 }
 
-TEST(Parser, return )
+TEST(Parser, return)
 {
     auto code = "return 5sec";
     auto result = flow::parse_using(grammar::return_statement, code);

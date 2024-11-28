@@ -1,7 +1,7 @@
 find_package(Boost COMPONENTS filesystem program_options REQUIRED)
 
 add_executable(flow
-    extensions.hpp
+    Extensions.hpp
     main.cpp
 )
 

@@ -1,11 +1,11 @@
 
 #include <ez/async/Schedule.hpp>
-#include <ez/flow/exporter.hpp>
-#include <ez/flow/flow.hpp>
+#include <ez/flow/Exporter.hpp>
+#include <ez/flow/Flow.hpp>
 
 #include <ez/Result.hpp>
 
-#include "extensions.hpp"
+#include "Extensions.hpp"
 
 #include <boost/program_options.hpp>
 

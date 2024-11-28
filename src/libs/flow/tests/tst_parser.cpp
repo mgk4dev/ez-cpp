@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-// #include "parser/debug.hpp"
-#include "parser/generic_parser.hpp"
-#include "parser/grammar/grammar.hpp"
+// #include "parser/Debug.hpp"
+#include "parser/GenericParser.hpp"
+#include "parser/grammar/Grammar.hpp"
 
 #include <ez/TypeUtils.hpp>
 

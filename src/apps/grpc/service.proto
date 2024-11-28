@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package ez.app.grpc;
+
+message Message {
+    string content = 1;
+}
+
+service Echo {
+    rpc identity(Message) returns (Message) {}
+    rpc merge(stream Message) returns (Message) {}
+    rpc split(Message) returns (stream Message) {}
+    rpc reverse(stream Message) returns (stream Message) {}
+}

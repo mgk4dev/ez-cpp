@@ -1,5 +1,3 @@
-add_subdirectory(leetcode)
+add_subdirectory(experiments)
 add_subdirectory(flow)
-add_subdirectory(net)
-add_subdirectory(grpc)
-add_subdirectory(cl)
+

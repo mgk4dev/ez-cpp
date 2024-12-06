@@ -1,8 +1,15 @@
 #pragma once
 
+#include <ez/Compiler.hpp>
 #include <ez/async/Task.hpp>
 
-#include <boost/json.hpp>
+EZ_PUSH_WARNING
+EZ_GCC_DISABLE_WARNING("-Wstringop-overflow")
+EZ_GCC_DISABLE_WARNING("-Warray-bounds")
+
+#include <boost/json/object.hpp>
+
+EZ_POP_WARNING
 
 #include <functional>
 #include <stdexcept>

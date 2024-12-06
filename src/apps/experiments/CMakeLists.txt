@@ -1,4 +1,3 @@
-add_subdirectory(leetcode)
-add_subdirectory(net)
+add_subdirectory(algo)
 add_subdirectory(grpc)
 add_subdirectory(cl)

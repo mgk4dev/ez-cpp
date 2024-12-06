@@ -69,6 +69,7 @@ if (COMPILER_IS_GCC)
     set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall -Wextra -Wno-deprecated-declarations")
     set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-missing-field-initializers") # Ignore gmock warnings
     set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-invalid-offsetof") # Ignore "offsetof within non-standard-layout type {...} is undefined"
+    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-format-overflow") # Ignore "null destination pointer"
 
     # Turn all the warnings into errors
     set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Werror")

@@ -14,6 +14,7 @@ class EzRecipe(ConanFile):
         self.requires("grpc/1.67.1")
         self.requires("qt/6.7.3")
         self.requires("libmount/[2.39.2]", override=True)
+        self.requires("jfalcou-eve/v2023.02.15")
 
 
     def build_requirements(self):

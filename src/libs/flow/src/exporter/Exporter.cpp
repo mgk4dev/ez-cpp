@@ -1,5 +1,11 @@
 #include <ez/flow/Exporter.hpp>
 
+#include <ez/Compiler.hpp>
+
+EZ_PUSH_WARNING
+EZ_GCC_DISABLE_WARNING("-Wstringop-overflow")
+EZ_GCC_DISABLE_WARNING("-Warray-bounds")
+
 #include <boost/json.hpp>
 #include <boost/json/src.hpp>
 
@@ -196,3 +202,6 @@ void JsonExporter::run(const Program<ast::Program>& program)
 }
 
 }  // namespace ez::flow
+
+
+EZ_POP_WARNING

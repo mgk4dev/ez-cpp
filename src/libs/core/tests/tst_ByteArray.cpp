@@ -1,6 +1,7 @@
+#include <ez/ByteArray.hpp>
+
 #include <gtest/gtest.h>
 
-#include <ez/ByteArray.hpp>
 
 using namespace ez;
 

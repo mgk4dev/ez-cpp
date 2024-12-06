@@ -4,9 +4,6 @@
 
 #include <google/protobuf/wrappers.pb.h>
 
-#include <boost/json.hpp>
-#include <boost/json/src.hpp>
-
 namespace ez::rpc {
 template <typename>
 struct ProtobufWrapper;

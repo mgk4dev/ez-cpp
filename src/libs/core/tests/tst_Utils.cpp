@@ -11,7 +11,7 @@ TEST(Utils, constexpr)
         return val;
     };
 
-    ASSERT_EQ(is_2(EZ_CONSTEXP(2)), 2);
+    ASSERT_EQ(is_2(let<2>), 2);
 }
 
 TEST(ForConstexpr, iterate_values)

@@ -10,11 +10,14 @@ class EzRecipe(ConanFile):
         self.requires("benchmark/1.9.0")
         self.requires("boost/1.86.0")
         self.requires("gtest/1.15.0")
-        self.requires("protobuf/5.27.0")
+        self.requires("protobuf/5.27.0", override=True)
         self.requires("grpc/1.67.1")
         self.requires("qt/6.7.3")
         self.requires("libmount/[2.39.2]", override=True)
         self.requires("jfalcou-eve/v2023.02.15")
+        self.requires("opencv/4.10.0")
+        self.requires("xkbcommon/1.6.0", override=True)
+
 
 
     def build_requirements(self):

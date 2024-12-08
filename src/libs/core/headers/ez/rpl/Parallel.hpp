@@ -56,7 +56,7 @@ struct Parallel {
     void process_batch_impl(InputType val, auto&& next, IndexSequence<indices...>)
     {
         next.process_bach(Tuple{
-            pipelines[EZ_CONSTEXP(indices)].first().process_batch(static_cast<InputType>(val))...});
+            pipelines[let<indices>].first().process_batch(static_cast<InputType>(val))...});
     }
 
     void process_batch(InputType val, auto&& next)
@@ -68,7 +68,7 @@ struct Parallel {
     template <size_t... indices>
     decltype(auto) flush_to_impl(auto&& next, IndexSequence<indices...>)
     {
-        return next.process_batch(Tuple{pipelines[EZ_CONSTEXP(indices)].first().flush()...});
+        return next.process_batch(Tuple{pipelines[let<indices>].first().flush()...});
     }
 
     decltype(auto) flush_to(auto&& next)

@@ -34,9 +34,9 @@ TEST(Tupe, transformed)
     static_assert(
         std::is_same_v<EZ_DECAY_T(strings), Tuple<std::string, std::string, std::string>>);
 
-    ASSERT_EQ(strings[EZ_CONSTEXP(0)], "1");
-    ASSERT_EQ(strings[EZ_CONSTEXP(1)], "2");
-    ASSERT_EQ(strings[EZ_CONSTEXP(2)], "3");
+    ASSERT_EQ(strings[let<0>], "1");
+    ASSERT_EQ(strings[let<1>], "2");
+    ASSERT_EQ(strings[let<2>], "3");
 }
 
 TEST(Tuple, structured_bindings)
@@ -48,6 +48,6 @@ TEST(Tuple, structured_bindings)
     v1 = 10;
     v2 = "toto";
 
-    ASSERT_EQ(tuple[EZ_CONSTEXP(0)], 10);
-    ASSERT_EQ(tuple[EZ_CONSTEXP(1)], "toto");
+    ASSERT_EQ(tuple[let<0>], 10);
+    ASSERT_EQ(tuple[let<1>], "toto");
 }

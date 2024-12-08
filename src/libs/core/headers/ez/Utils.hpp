@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <cstdint>
 #include <type_traits>
 #include <utility>
 
@@ -9,6 +10,21 @@
 #define EZ_REMOVE_CVR_T(arg) std::remove_cvref_t<decltype(arg)>
 
 namespace ez {
+
+using i8 = std::int8_t;
+using u8 = std::uint8_t;
+using i16 = std::int16_t;
+using u16 = std::uint16_t;
+using i32 = std::int32_t;
+using u32 = std::uint32_t;
+using i64 = std::int64_t;
+using u64 = std::uint64_t;
+using f32 = float;
+using f64 = double;
+using std::size_t;
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
 struct Inplace {};
 struct Unit {};
 
@@ -53,8 +69,6 @@ struct NonCopiable {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-using std::size_t;
-
 template <size_t I>
 using Index = std::integral_constant<size_t, I>;
 
@@ -77,7 +91,7 @@ struct CompileTime {
 };
 
 template <auto value>
-constexpr CompileTime<value> constexpr_;  // compile time
+inline constexpr CompileTime<value> let;
 
 namespace arg {
 template <typename T>
@@ -93,14 +107,7 @@ template <typename T>
 using in = std::conditional_t<prefer_pass_by_value<T>, T, T const&>;
 
 }  // namespace arg
-
-}  // namespace ez
-
-#define EZ_CONSTEXP(val) ez::constexpr_<val>
-
 ///////////////////////////////////////////////////////////////////////////////
-
-namespace ez {
 /// Compile time for loops.
 /// Usage
 /// @code
@@ -114,7 +121,7 @@ constexpr void for_constexpr(F&& f, Args&&... args)
     static_assert(begin <= end, "Invalid for_constexpr indices");
 
     if constexpr (begin < end) {
-        f(EZ_CONSTEXP(begin), args...);
+        f(let<begin>, args...);
         for_constexpr<begin + 1, end>(f, args...);
     }
 }

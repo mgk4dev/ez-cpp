@@ -70,7 +70,7 @@ public:
         return m_impl->transport->bind_to(address);
     }
 
-    auto& implementation() { return m_impl->schemas[EZ_CONSTEXP(0)]; }
+    auto& implementation() { return m_impl->schemas[let<0>]; }
 
     template <typename T>
     auto& implementation()

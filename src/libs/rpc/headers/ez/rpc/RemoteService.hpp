@@ -67,7 +67,7 @@ public:
         });
     }
 
-    auto& functions() { return m_schemas.value()[EZ_CONSTEXP(0)]; }
+    auto& functions() { return m_schemas.value()[let<0>]; }
 
     template <typename T>
     auto& functions()

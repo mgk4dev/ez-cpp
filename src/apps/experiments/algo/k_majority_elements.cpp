@@ -8,8 +8,6 @@
 #include <ranges>
 #include <vector>
 
-
-
 using namespace std;
 
 vector<int> k_most_frequent(const vector<int>& numbers, unsigned int k)
@@ -17,7 +15,6 @@ vector<int> k_most_frequent(const vector<int>& numbers, unsigned int k)
     map<int, size_t> most_frequenet_count;
 
     for (int number : numbers) {
-
         if (most_frequenet_count.contains(number)) {
             most_frequenet_count[number]++;
             continue;
@@ -28,20 +25,15 @@ vector<int> k_most_frequent(const vector<int>& numbers, unsigned int k)
             continue;
         }
 
+        map<int, size_t> tmp;
 
-
-        map<int, size_t>  tmp;
-
-        for(auto [elem, count] : most_frequenet_count) {
-            if(count > 1) tmp.insert({elem, count - 1});
+        for (auto [elem, count] : most_frequenet_count) {
+            if (count > 1) tmp.insert({elem, count - 1});
         }
 
-        if (most_frequenet_count.size() < k) {
-            most_frequenet_count[number] = 1;
-        }
+        if (most_frequenet_count.size() < k) { most_frequenet_count[number] = 1; }
 
         most_frequenet_count = std::move(tmp);
-
     }
 
     vector<int> result;

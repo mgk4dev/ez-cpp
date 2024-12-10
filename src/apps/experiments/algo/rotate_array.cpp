@@ -1,8 +1,8 @@
 #include "formatters.hpp"
 
 #include <algorithm>
-#include <vector>
 #include <print>
+#include <vector>
 
 using namespace std;
 

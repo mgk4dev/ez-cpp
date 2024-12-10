@@ -41,3 +41,5 @@ ez_add_algo_bin(k_majority_elements)
 
 ez_add_algo_bin(simd)
 target_link_libraries(ez_algo_simd PRIVATE eve::eve)
+
+ez_add_algo_bin(shortest_path)

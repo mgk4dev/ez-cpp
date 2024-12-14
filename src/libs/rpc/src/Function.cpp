@@ -38,7 +38,7 @@ AsyncResult<RawReply> AbstractFunction::invoke_remote(std::string_view name_spac
     if (!id) co_return Fail{id.error()};
 
     co_await async::Operation<WaitForResponse>{*m_client, id.value()};
-    co_return Ok{std::move(reply)};
+    co_return std::move(reply);
 }
 
 }  // namespace ez::rpc

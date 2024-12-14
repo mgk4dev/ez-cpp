@@ -10,7 +10,7 @@ namespace ez {
 /// Cow is a copy on write value wrapper.
 /// Usage:
 /// @code
-/// Cow<std::string> cow{in_place, 4, '='};
+/// Cow<std::string> cow{std::in_place, 4, '='};
 /// ASSERT_EQ(cow.value(), "====");
 /// cow = "toto";
 /// ASSERT_EQ(cow.use_count(), 1);

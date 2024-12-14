@@ -23,32 +23,32 @@ EZ_RPC_MAP_TYPE(int64_t, google::protobuf::Int64Value);
 EZ_RPC_MAP_TYPE(uint32_t, google::protobuf::UInt32Value);
 EZ_RPC_MAP_TYPE(uint64_t, google::protobuf::UInt64Value);
 
-#define EZ_RPC_PRIMITIVE_SERIALIZER(T)                                                \
-    ByteArray Serializer<T>::serialize(const T& val)                                  \
-    {                                                                                 \
-        typename ProtobufWrapper<T>::Type proto;                                      \
-        proto.set_value(val);                                                         \
-        return ByteArray{proto.SerializeAsString()};                                  \
-    }                                                                                 \
-    Result<T, ParsingError> Serializer<T>::deserialize(const ByteArray& data)         \
-    {                                                                                 \
-        typename ProtobufWrapper<T>::Type proto;                                      \
-        if (proto.ParseFromString(data.value())) return Ok{std::move(proto.value())}; \
-        return Fail{"Failed to parse value"};                                         \
+#define EZ_RPC_PRIMITIVE_SERIALIZER(T)                                            \
+    ByteArray Serializer<T>::serialize(const T& val)                              \
+    {                                                                             \
+        typename ProtobufWrapper<T>::Type proto;                                  \
+        proto.set_value(val);                                                     \
+        return ByteArray{proto.SerializeAsString()};                              \
+    }                                                                             \
+    Result<T, ParsingError> Serializer<T>::deserialize(const ByteArray& data)     \
+    {                                                                             \
+        typename ProtobufWrapper<T>::Type proto;                                  \
+        if (proto.ParseFromString(data.value())) return std::move(proto.value()); \
+        return Fail{"Failed to parse value"};                                     \
     }
 
-#define EZ_RPC_PRIMITIVE_POD_SERIALIZER(T)                                            \
-    ByteArray Serializer<T>::serialize(T val)                                         \
-    {                                                                                 \
-        typename ProtobufWrapper<T>::Type proto;                                      \
-        proto.set_value(val);                                                         \
-        return ByteArray{proto.SerializeAsString()};                                  \
-    }                                                                                 \
-    Result<T, ParsingError> Serializer<T>::deserialize(const ByteArray& data)         \
-    {                                                                                 \
-        typename ProtobufWrapper<T>::Type proto;                                      \
-        if (proto.ParseFromString(data.value())) return Ok{std::move(proto.value())}; \
-        return Fail{"Failed to parse value"};                                         \
+#define EZ_RPC_PRIMITIVE_POD_SERIALIZER(T)                                        \
+    ByteArray Serializer<T>::serialize(T val)                                     \
+    {                                                                             \
+        typename ProtobufWrapper<T>::Type proto;                                  \
+        proto.set_value(val);                                                     \
+        return ByteArray{proto.SerializeAsString()};                              \
+    }                                                                             \
+    Result<T, ParsingError> Serializer<T>::deserialize(const ByteArray& data)     \
+    {                                                                             \
+        typename ProtobufWrapper<T>::Type proto;                                  \
+        if (proto.ParseFromString(data.value())) return std::move(proto.value()); \
+        return Fail{"Failed to parse value"};                                     \
     }
 
 EZ_RPC_PRIMITIVE_POD_SERIALIZER(bool)
@@ -73,7 +73,7 @@ EZ_RPC_PRIMITIVE_SERIALIZER(std::string)
 // {
 //     Result<protobuf::Error, ParsingError> proto = deserialize<protobuf::Error>(data);
 //     if (!proto) return proto.error();
-//     return Ok{Error{proto.value().code(), proto.value().what()}};
+//     return Error{proto.value().code(), proto.value().what()};
 // }
 
 }  // namespace ez::rpc

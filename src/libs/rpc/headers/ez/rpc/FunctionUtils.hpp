@@ -26,7 +26,7 @@ Result<Tuple<Args...>, ParsingError> extract_args(std::span<const ByteArray> arg
 
     if (error) return Fail{std::move(error.value())};
 
-    return Ok{std::move(result)};
+    return std::move(result);
 }
 
 template <typename... Args>
@@ -41,7 +41,7 @@ std::vector<ByteArray> serialize_args(const Args&... args_)
 template <typename R>
 Result<R, Error> get_return_value(RawReply reply)
 {
-    if (reply) { return Ok{deserialize<R>(reply.value()).value()}; }
+    if (reply) { return deserialize<R>(reply.value()).value(); }
     else {
         return Fail{reply.error()};
     }

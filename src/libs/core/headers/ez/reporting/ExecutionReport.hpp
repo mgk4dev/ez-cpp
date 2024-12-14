@@ -394,7 +394,7 @@ ExecutionReport::ExecutionReport(Inplace, Args&&... args)
 template <typename... Args>
 ExecutionReport ExecutionReport::create_sub_report(Args&&... args)
 {
-    ExecutionReport ctx{in_place, std::forward<Args>(args)...};
+    ExecutionReport ctx{std::in_place, std::forward<Args>(args)...};
     add_sub_report(ctx);
     return ctx;
 }

@@ -25,7 +25,7 @@ EvalResult assign(Entity& lhs, const Entity& rhs)
         return error::invalid_assignment(lhs.type().name, rhs.type().name);
     }
     lhs.as<Array>().value() = rhs.as<Array>().value();
-    return Ok{lhs};
+    return lhs;
 }
 
 Integer size(Array& self) { return self.value().size(); }

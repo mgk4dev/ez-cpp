@@ -52,7 +52,7 @@ struct RemoteServiceBaseImpl : public AbstractRemoteService {
 
         auto ok = co_await transport->send(serialize(request));
         if (!ok) co_return Fail{ok.error()};
-        co_return Ok{std::move(id)};
+        co_return std::move(id);
     }
 
     void set_response_callback(const RequestId& request_id, std::function<void()> wake) override
@@ -80,7 +80,7 @@ struct RemoteServiceBaseImpl : public AbstractRemoteService {
 
             auto& query = queries[request_id];
 
-            if (reply.has_value()) { *query.reply = Ok{ByteArray{reply.value()}}; }
+            if (reply.has_value()) { *query.reply = ByteArray{reply.value()}; }
             else {
                 *query.reply = Fail{Error{Error::Code(reply.error().code()), reply.error().what()}};
             }
@@ -102,7 +102,7 @@ struct RemoteServiceBaseImpl : public AbstractRemoteService {
 };
 
 RemoteServiceBase::RemoteServiceBase(IoContext& context, Box<transport::Client> client)
-    : m_impl{in_place, context, std::move(client)}
+    : m_impl{std::in_place, context, std::move(client)}
 {
 }
 

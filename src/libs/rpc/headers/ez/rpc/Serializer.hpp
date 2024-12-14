@@ -62,7 +62,7 @@ struct Serializer<T> {
     static Result<T, ParsingError> deserialize(const ByteArray& bytes)
     {
         T val;
-        if (val.ParseFromString(bytes.value())) return Ok{std::move(val)};
+        if (val.ParseFromString(bytes.value())) return std::move(val);
         return Fail{"Failed to parse bytes"};
     }
 };

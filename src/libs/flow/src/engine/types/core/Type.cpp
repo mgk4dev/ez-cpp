@@ -11,7 +11,7 @@ EvalResult Type::get_property(Entity& self, std::string_view property_name) cons
     }
 
     if (auto iter = member_functions.find(property_name); iter != member_functions.end()) {
-        return Ok{iter->second};
+        return iter->second;
     }
 
     if (dynamic_properties) { return dynamic_properties(self, property_name); }

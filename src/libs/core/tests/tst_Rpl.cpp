@@ -147,7 +147,7 @@ TEST(Rpl, pipeline_stages)
         rpl::PipelineStages<rpl::ProcessingMode::Incremental, int&, IndexSequenceFor<void, void>,
                             EZ_REMOVE_CVR_T(filter), EZ_REMOVE_CVR_T(to_vector)>;
 
-    PipelineStages pipeline{in_place, filter, to_vector};
+    PipelineStages pipeline{std::in_place, filter, to_vector};
     unused(pipeline);
 }
 
@@ -161,7 +161,7 @@ TEST(Rpl, pipeline_incremental)
     using Pipeline = rpl::Pipeline<rpl::ProcessingMode::Incremental, int&, decltype(filter),
                                    decltype(to_vector)>;
 
-    Pipeline pipeline{in_place, filter, to_vector};
+    Pipeline pipeline{std::in_place, filter, to_vector};
     unused(pipeline);
 }
 
@@ -175,7 +175,7 @@ TEST(Rpl, pipeline_batch)
     using Pipeline = rpl::Pipeline<rpl::ProcessingMode::Batch, std::vector<int>&, decltype(filter),
                                    decltype(to_vector)>;
 
-    Pipeline pipeline{in_place, filter, to_vector};
+    Pipeline pipeline{std::in_place, filter, to_vector};
     unused(pipeline);
 }
 

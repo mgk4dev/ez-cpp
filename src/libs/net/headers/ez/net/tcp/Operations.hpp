@@ -36,7 +36,7 @@ struct ConnectOp {
     Result<void, ErrorCode> result()
     {
         if (error_code) return Fail{error_code};
-        return Ok{};
+        return {};
     }
 };
 
@@ -67,7 +67,7 @@ struct AcceptOp {
     Result<Socket, ErrorCode> result()
     {
         if (error_code) return Fail{error_code};
-        return Ok{std::move(socket)};
+        return std::move(socket);
     }
 };
 
@@ -97,7 +97,7 @@ struct SendOp {
     Result<size_t, ErrorCode> result()
     {
         if (error_code) return Fail{error_code};
-        return Ok{count};
+        return count;
     }
 };
 
@@ -152,7 +152,7 @@ struct ReceiveExactlyOp {
     Result<size_t, ErrorCode> result()
     {
         if (error_code) return Fail{error_code};
-        return Ok{received_count};
+        return received_count;
     }
 };
 

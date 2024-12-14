@@ -109,7 +109,7 @@ ExecutionReport ExecutionReport::null() { return ExecutionReport{nullptr}; }
 
 ExecutionReport::ExecutionReport(std::nullptr_t) {}
 
-ExecutionReport::ExecutionReport() : ez::ExecutionReport(in_place) {}
+ExecutionReport::ExecutionReport() : ez::ExecutionReport(std::in_place) {}
 
 ExecutionReport ExecutionReport::from_data(std::shared_ptr<ExecutionReportData> data)
 {

@@ -191,7 +191,7 @@ Task<Entity> Interpreter::eval_timeout(Statement<ast::Expression> duration)
     }
 
     if (timeout.as<Duration>()->count == 0) {
-        timeout = Duration{in_place, 1, ast::DurationUnit::Ms};
+        timeout = Duration{std::in_place, 1, ast::DurationUnit::Ms};
     }
 
     co_return timeout;

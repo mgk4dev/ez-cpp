@@ -6,7 +6,7 @@ using namespace ez;
 
 TEST(Box, inplace_box)
 {
-    Box<std::string> box{in_place, 4, '='};
+    Box<std::string> box{std::in_place, 4, '='};
     ASSERT_EQ(box.value(), "====");
 }
 

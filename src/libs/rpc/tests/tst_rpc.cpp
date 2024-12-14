@@ -35,7 +35,7 @@ struct Transport {
         Result<void, std::runtime_error> connect(const std::string& server) final
         {
             server_id = server;
-            return Ok{};
+            return {};
         }
         rpc::AsyncResult<> send(const rpc::ByteArray& data) final
         {
@@ -76,7 +76,7 @@ struct Transport {
         {
             this->id = id;
             messages.get().server->insert({id, {}});
-            return Ok{};
+            return {};
         }
         rpc::AsyncResult<> send(const rpc::PeerId& peer_id, const rpc::ByteArray& payload) final
         {

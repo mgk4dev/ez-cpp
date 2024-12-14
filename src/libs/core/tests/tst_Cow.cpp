@@ -6,7 +6,7 @@ using namespace ez;
 
 TEST(Cow, inplace_cow)
 {
-    Cow<std::string> cow{in_place, 4, '='};
+    Cow<std::string> cow{std::in_place, 4, '='};
     ASSERT_EQ(cow.value(), "====");
 }
 

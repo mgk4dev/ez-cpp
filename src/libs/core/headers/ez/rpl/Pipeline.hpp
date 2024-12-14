@@ -152,7 +152,7 @@ struct Pipeline : PipelineStages<input_mode,
     using PipelineStagesType::InputTypeList;
     using PipelineStagesType::OutputType;
 
-    Pipeline(Inplace, auto&&... factories) : PipelineStagesType{in_place, EZ_FWD(factories)...} {}
+    Pipeline(Inplace, auto&&... factories) : PipelineStagesType{std::in_place, EZ_FWD(factories)...} {}
 
     Pipeline(const Pipeline&) = default;
     Pipeline(Pipeline&&) = default;
@@ -162,7 +162,7 @@ template <typename InputType, typename... StageFactories>
 auto make_pipeline(StageFactories&&... factories)
 {
     return Pipeline<ProcessingMode::Batch, InputType, StageFactories...>{
-        in_place, std::forward<StageFactories>(factories)...};
+        std::in_place, std::forward<StageFactories>(factories)...};
 }
 
 }  // namespace ez::rpl

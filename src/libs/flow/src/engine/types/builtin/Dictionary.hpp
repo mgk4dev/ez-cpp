@@ -7,13 +7,13 @@ template <typename T, auto name>
 struct DictionaryType {
     static EvalResult construct(Entity arg)
     {
-        if (arg.is<Void>()) return Ok{T{}};
-        if (arg.is<T>()) return Ok{std::move(arg)};
-        if (arg.is<Error>()) return Ok{std::move(arg)};
+        if (arg.is<Void>()) return T{};
+        if (arg.is<T>()) return arg;
+        if (arg.is<Error>()) return arg;
         if (arg.is<Dictionary>()) {
             T result;
             result.value() = arg.as<Dictionary>().value();
-            return Ok{std::move(result)};
+            return std::move(result);
         }
 
         return error::invalid_constructor(T::static_type().name, arg.type().name);
@@ -65,7 +65,7 @@ struct DictionaryType {
 
         self->insert({std::move(key->as<String>().value()), std::move(*value)});
 
-        return Ok{Void{}};
+        return Void{};
     }
 
     static EvalResult dynamic_properties(Entity& self, std::string_view propety_name)
@@ -74,7 +74,7 @@ struct DictionaryType {
 
         if (auto iter = elements.find(propety_name); iter != elements.end()) {
             Entity& var = iter->second;
-            return Ok{var};
+            return var;
         }
 
         return error::property_not_found(propety_name);
@@ -88,7 +88,7 @@ struct DictionaryType {
 
         auto& elements = self.as<T>().value();
 
-        return Ok{Boolean{elements.contains(element.as<String>().value())}};
+        return Boolean{elements.contains(element.as<String>().value())};
     }
 
     static Type construct_type()

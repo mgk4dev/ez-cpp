@@ -20,7 +20,7 @@ engine::FreeFunction engine::make_panic_function()
 
         throw Panic{str.str()};
 
-        return Ok{Void{}};
+        return Void{};
     };
 
     return panic;

@@ -6,8 +6,8 @@ namespace ez::flow::engine {
 EZ_FLOW_UNARY_OP_NOT_SUPPORTED(unary_op_plus, "+")
 EZ_FLOW_UNARY_OP_NOT_SUPPORTED(unary_op_minus, "-")
 
-EvalResult unary_op_plus(const Integer& lhs) { return Ok{lhs}; }
-EvalResult unary_op_minus(const Integer& lhs) { return Ok{Integer{-lhs.value()}}; }
+EvalResult unary_op_plus(const Integer& lhs) { return lhs; }
+EvalResult unary_op_minus(const Integer& lhs) { return Integer{-lhs.value()}; }
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -65,11 +65,11 @@ EZ_FLOW_TYPE_IMPL(Integer)
         return rhs.match(
             [&](const Integer& rhs) -> EvalResult {
                 self.value() = rhs.value();
-                return Ok{lhs};
+                return lhs;
             },
             [&](const Real& rhs) -> EvalResult {
                 self.value() = rhs.value();
-                return Ok{lhs};
+                return lhs;
             },
             [&](const auto& rhs) -> EvalResult {
                 return error::invalid_assignment(lhs.type().name, rhs.type().name);

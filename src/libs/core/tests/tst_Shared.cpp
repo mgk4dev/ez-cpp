@@ -6,7 +6,7 @@ using namespace ez;
 
 TEST(Shared, inplace_shared)
 {
-    Shared<std::string> shared{in_place, 4, '='};
+    Shared<std::string> shared{std::in_place, 4, '='};
     ASSERT_EQ(shared.value(), "====");
 }
 

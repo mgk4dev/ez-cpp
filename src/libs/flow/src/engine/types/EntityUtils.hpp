@@ -41,8 +41,8 @@ template <typename T>
 auto make_constructor(auto&&... emplace_args)
 {
     return [default_value = T{EZ_FWD(emplace_args)...}](Entity args) -> EvalResult {
-        if (args.is<Void>()) return Ok{default_value};
-        if (args.is<T>()) return Ok{std::move(args)};
+        if (args.is<Void>()) return default_value;
+        if (args.is<T>()) return args;
         return error::invalid_constructor(T::static_type().name, args.type().name);
     };
 }
@@ -81,7 +81,7 @@ struct StaticPropertyBuilder {
     std::pair<std::string, StaticProperty> operator=(trait::Fn<ExpectedSignature> auto&& impl)
     {
         result.get = [impl = EZ_FWD(impl)](Entity& self) -> EvalResult {
-            return Ok{impl(self.as<T>())};
+            return impl(self.as<T>());
         };
 
         return {result.name, std::move(result)};
@@ -112,6 +112,6 @@ struct StaticPropertyBuilder {
     }
 
 #define EZ_FLOW_BINARY_OP_IMPL(name, R, Lhs, Rhs, op) \
-    EvalResult name(const Lhs& lhs, const Rhs& rhs) { return Ok{R{lhs.value() op rhs.value()}}; }
+    EvalResult name(const Lhs& lhs, const Rhs& rhs) { return R{lhs.value() op rhs.value()}; }
 
 }  // namespace ez::flow::engine::entity

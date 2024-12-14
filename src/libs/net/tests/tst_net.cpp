@@ -82,7 +82,7 @@ void start_tcp_server(net::tcp::EndPoint endpoint)
         while (true) {
             auto socket = co_await net::tcp::async_accept(acceptor);
 
-            if (socket.is_error()) {
+            if (!socket) {
                 println_server("Failed to accept connection on {}:{}. Error: {}",
                                endpoint.address().to_string(), endpoint.port(),
                                socket.error().what());

@@ -13,7 +13,6 @@
 
 namespace ez::net::http {
 
-
 // struct ReadOp {
 //     tcp::Stream& stream;
 //     ErrorCode error_code;
@@ -38,7 +37,7 @@ namespace ez::net::http {
 //             stream.socket().shutdown(tcp::Socket::shutdown_send, error_code);
 //         }
 //         if (error_code) return Fail{error_code};
-//         return Ok{std::move(request)};
+//         return std::move(request);
 //     }
 // };
 
@@ -68,7 +67,7 @@ struct WriteOp {
     Result<void, ErrorCode> result()
     {
         if (error_code) return Fail{error_code};
-        return Ok{};
+        return {};
     }
 };
 

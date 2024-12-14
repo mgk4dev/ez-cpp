@@ -17,7 +17,7 @@ Assignment::Assignment()
             return error::invalid_assignment(lhs.type().name, rhs.type().name);
         }
         lhs = rhs;
-        return Ok{lhs};
+        return lhs;
     };
 }
 Assignment::Assignment(Callable impl) : call{std::move(impl)} {}
@@ -42,7 +42,7 @@ Convert::Convert()
         if (!same_type(arg.type(), type)) {
             return error::type_not_convertible(arg.type().name, type.name);
         }
-        return Ok{arg};
+        return arg;
     };
 }
 Convert::Convert(Callable impl) : call{std::move(impl)} {}

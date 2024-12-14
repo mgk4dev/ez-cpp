@@ -23,7 +23,7 @@ struct Compose {
 
     PipelineType pipeline;
 
-    Compose(auto&&... factories) : pipeline{in_place, EZ_FWD(factories)...} {}
+    Compose(auto&&... factories) : pipeline{std::in_place, EZ_FWD(factories)...} {}
 
     void process_incremental(InputType val, auto&& )
     {

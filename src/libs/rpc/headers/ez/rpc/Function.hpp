@@ -74,8 +74,8 @@ public:
 
             auto result = co_await tuple::apply(m_impl, std::move(arg_tuple.value()));
 
-            RawReply reply = Ok{std::move(serialize(result))};
-            co_return Ok{std::move(reply)};
+            RawReply reply = std::move(serialize(result));
+            co_return std::move(reply);
         }
         catch (const Error& error) {
             co_return Fail{std::move(error)};

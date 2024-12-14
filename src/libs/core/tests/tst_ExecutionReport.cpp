@@ -22,7 +22,7 @@ TEST(ExecutionReport, status_properly_set)
 
 TEST(ExecutionReport, args)
 {
-    ExecutionReport report{in_place,
+    ExecutionReport report{std::in_place,
                            reporting::name = "name",
                            reporting::description = "description",
                            reporting::flags = make_flags(ExecutionReportFlag::IsTerminal),
@@ -313,7 +313,7 @@ TEST(ExecutionReport, events_are_properly_observed)
         }
     };
 
-    ExecutionReport report{in_place, reporting::observer = observer};
+    ExecutionReport report{std::in_place, reporting::observer = observer};
     report.set_status(ExecutionStatus::Running);
     report.set_progress(0);
     report.info("toto");

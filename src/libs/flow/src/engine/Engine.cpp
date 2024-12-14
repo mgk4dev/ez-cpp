@@ -29,7 +29,7 @@ struct Engine::Impl {
     }
 };
 
-Engine::Engine(io::Context& io_context) : m_impl{in_place, io_context, io_context} {}
+Engine::Engine(io::Context& io_context) : m_impl{std::in_place, io_context, io_context} {}
 
 void Engine::set_logger(Logger logger) { m_impl->logger = std::move(logger); }
 

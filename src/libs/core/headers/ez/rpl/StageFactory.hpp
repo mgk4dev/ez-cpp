@@ -48,7 +48,7 @@ template <ProcessingMode in_processing_mode,
 auto make_factory(ParameterTypes&&... args)
 {
     return StageFactory<in_processing_mode, out_processing_mode, StageTemplate,
-                        std::remove_cvref_t<ParameterTypes>...>(in_place, EZ_FWD(args)...);
+                        std::remove_cvref_t<ParameterTypes>...>(std::in_place, EZ_FWD(args)...);
 }
 
 }  // namespace ez::rpl

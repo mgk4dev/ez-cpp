@@ -41,7 +41,7 @@ struct Parallel {
     PipelineTuple pipelines;
 
     Parallel(auto&&... factories)
-        : pipelines{PipelineType<StageFactories>{in_place, EZ_FWD(factories)}...}
+        : pipelines{PipelineType<StageFactories>{std::in_place, EZ_FWD(factories)}...}
     {
     }
 

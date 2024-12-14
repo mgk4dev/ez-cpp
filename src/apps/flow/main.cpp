@@ -69,7 +69,7 @@ Result<Arguments, std::string> parse_arguments(int argc, char** argv)
     if (arguments.count(option_name.help)) {
         std::cout << usage << "\n";
         result.print_help = true;
-        return Ok{std::move(result)};
+        return result;
     }
 
     if (arguments.count(option_name.input_file)) {
@@ -86,7 +86,7 @@ Result<Arguments, std::string> parse_arguments(int argc, char** argv)
         result.instance_count = arguments[option_name.instance_count].as<size_t>();
     }
 
-    return Ok{std::move(result)};
+    return result;
 }
 
 Result<std::string, std::string> read_file(const std::filesystem::path& path)
@@ -96,9 +96,7 @@ Result<std::string, std::string> read_file(const std::filesystem::path& path)
 
     if (!file.is_open()) return Fail{"failed to open file"};
 
-    std::string content{std::istreambuf_iterator<char>{file}, std::istreambuf_iterator<char>{}};
-
-    return Ok{std::move(content)};
+    return std::string{std::istreambuf_iterator<char>{file}, std::istreambuf_iterator<char>{}};
 }
 
 int main(int argc, char** argv)

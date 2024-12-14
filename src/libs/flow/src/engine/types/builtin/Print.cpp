@@ -15,7 +15,7 @@ Result<std::string, std::string> format_args(const CallArguments& args)
         return Fail{"Invalid arguments !! Usage: ('base string', args ...) "};
     }
 
-    if (args.size() == 1) { return Ok{args.front().value.as<String>().value()}; };
+    if (args.size() == 1) { return args.front().value.as<String>().value(); };
 
     std::string base_string = args.front().value.as<String>().value();
     try {
@@ -29,7 +29,7 @@ Result<std::string, std::string> format_args(const CallArguments& args)
             fmt % entity::representation(args[i].value);
         }
 
-        return Ok{fmt.str()};
+        return fmt.str();
     }
     catch (const std::exception&) {
         return Fail{"Invalid arguments !! Usage: ('base string', args ...) "};
@@ -53,7 +53,7 @@ FreeFunction make_println_function()
 
         std::cout << std::endl << std::flush;
 
-        return Ok{Void{}};
+        return Void{};
     };
 
     return println;
@@ -67,7 +67,7 @@ FreeFunction make_str_format_function()
     println.call_impl = [](CallArguments args) -> EvalResult {
         const auto format = format_args(args);
 
-        if (format) { return Ok{String{format.value()}}; }
+        if (format) { return String{format.value()}; }
         else {
             return Fail{format.error()};
         }

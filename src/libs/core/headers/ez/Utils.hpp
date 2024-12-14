@@ -25,10 +25,8 @@ using std::size_t;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-struct Inplace {};
+using Inplace = std::in_place_t;
 struct Unit {};
-
-constexpr Inplace in_place{};
 
 struct Noop {
     template <typename... Ts>

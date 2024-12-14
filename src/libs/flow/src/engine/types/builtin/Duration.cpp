@@ -38,7 +38,7 @@ EZ_FLOW_TYPE_IMPL(Duration)
 {
     Type result;
     result.id = result.name = "duration";
-    result.construct.call = entity::make_constructor<Duration>(in_place, 0, ast::DurationUnit::Sec);
+    result.construct.call = entity::make_constructor<Duration>(std::in_place, 0, ast::DurationUnit::Sec);
     result.representation.call = [](const Entity& var) -> std::string {
         const DurationStorage& duration = var.as<Duration>().value();
 
